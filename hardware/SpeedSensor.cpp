@@ -1,10 +1,9 @@
 #include "SpeedSensor.h"
 #include <QDebug>
 
-// ── Global instance cho callback ─────────────
 static SpeedSensor* g_instance = nullptr;
 
-// ── Fix: pigpiod_if2 callback cần 4 tham số ──
+
 static void gpioCallback(int pi, unsigned gpio, unsigned level, uint32_t tick) {
     Q_UNUSED(pi)
     Q_UNUSED(gpio)
@@ -14,7 +13,7 @@ static void gpioCallback(int pi, unsigned gpio, unsigned level, uint32_t tick) {
     }
 }
 
-// ── Constructor ───────────────────────────────
+
 SpeedSensor::SpeedSensor(int piHandle, QObject* parent)
     : QObject(parent), pi(piHandle)
 {

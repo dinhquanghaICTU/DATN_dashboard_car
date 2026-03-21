@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <pigpiod_if2.h>
 #include "SpeedSensor.h"
+#include "MotorController.h"
 
 int main(int argc, char *argv[])
 {
@@ -16,6 +17,15 @@ int main(int argc, char *argv[])
 
     SpeedSensor speedSensor(pi);
     speedSensor.start();
+
+
+    MotorController motor(pi);
+
+//    QTimer::singleShot(5000, [&]() { motor.forward(60); });
+//    QTimer::singleShot(2000, [&]() { motor.turnRight(60); });
+//    QTimer::singleShot(5000, [&]() { motor.rotateRight(80); });
+    QTimer::singleShot(5000, [&]() { motor.backward(60); });
+    QTimer::singleShot(7000, [&]() { motor.stop(); });
 
     QQmlApplicationEngine engine;
     const QUrl url(u"qrc:/DATN_dashboard_car/Main.qml"_qs);
