@@ -4,7 +4,7 @@ project(DATN_dashboard_car VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 6.4 REQUIRED COMPONENTS Quick)
+find_package(Qt6 6.4 REQUIRED COMPONENTS Quick Core Network DBus)
 
 qt_standard_project_setup()
 
@@ -69,13 +69,13 @@ find_library(PIGPIOD_IF2_LIB
 )
 
 message(STATUS "Found pigpiod_if2: ${PIGPIOD_IF2_LIB}")
+find_library(BLUETOOTH_LIB bluetooth REQUIRED)
 
 target_link_libraries(appDATN_dashboard_car
     PRIVATE Qt6::Quick
     PRIVATE Qt6::Core
     PRIVATE Qt6::Network
-#    PRIVATE Qt6::Multimedia
-#    PRIVATE Qt6::Bluetooth]]
+    PRIVATE Qt6::DBus
     PRIVATE ${PIGPIOD_IF2_LIB}
     PRIVATE pthread rt
 )
