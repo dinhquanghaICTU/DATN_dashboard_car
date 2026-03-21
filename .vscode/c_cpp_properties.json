@@ -1,0 +1,27 @@
+{
+    "configurations": [
+        {
+            "name": "RPi4 Cross Compile",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/home/dinhquangha/Qt6Cross/rpi-sysroot/usr/include/**",
+                "/home/dinhquangha/Qt6Cross/qt6/pi/include/**",
+                "/home/dinhquangha/Qt6Cross/qt6/pi/include/QtCore",
+                "/home/dinhquangha/Qt6Cross/qt6/pi/include/QtGui",
+                "/home/dinhquangha/Qt6Cross/qt6/pi/include/QtQuick",
+                "/home/dinhquangha/Qt6Cross/qt6/pi/include/QtNetwork",
+                "/home/dinhquangha/Qt6Cross/qt6/pi/include/QtBluetooth",
+                "/home/dinhquangha/Qt6Cross/qt6/pi/include/QtMultimedia"
+            ],
+            "defines": [
+                "QT_CORE_LIB",
+                "QT_GUI_LIB",
+                "QT_QUICK_LIB"
+            ],
+            "compilerPath": "/opt/cross-pi-gcc/bin/aarch64-linux-gnu-g++",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "linux-gcc-arm64"
+        }
+    ],
+    "version": 4
+}

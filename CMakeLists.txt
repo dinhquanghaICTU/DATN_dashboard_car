@@ -11,23 +11,25 @@ qt_standard_project_setup()
 qt_add_executable(appDATN_dashboard_car
     main.cpp
     # Hardware
-        hardware/MotorController.cpp
-        hardware/LedController.cpp
-        hardware/SpeedSensor.cpp
-        hardware/TempSensor.cpp
+    hardware/MotorController.cpp    hardware/MotorController.h
+        hardware/LedController.cpp      hardware/LedController.h
+        hardware/SpeedSensor.cpp        hardware/SpeedSensor.h
+        hardware/TempSensor.cpp         hardware/TempSensor.h
         # Middleware
-        middleware/AppController.cpp
-        middleware/CommandExecutor.cpp
+        middleware/AppController.cpp    middleware/AppController.h
+        middleware/CommandExecutor.cpp  middleware/CommandExecutor.h
         # Connectivity
-        connectivity/BleServer.cpp
-        connectivity/ApiManager.cpp
+        connectivity/BleServer.cpp      connectivity/BleServer.h
+        connectivity/ApiManager.cpp     connectivity/ApiManager.h
         # Voice
-        voice/VoiceController.cpp
-        voice/WakeWordDetector.cpp
-        voice/AudioRecorder.cpp
+        voice/VoiceController.cpp       voice/VoiceController.h
+        voice/WakeWordDetector.cpp      voice/WakeWordDetector.h
+        voice/AudioRecorder.cpp         voice/AudioRecorder.h
         # Models
-        models/VehicleModel.cpp
-        models/VoiceModel.cpp
+        models/VehicleModel.cpp         models/VehicleModel.h
+        models/VoiceModel.cpp           models/VoiceModel.h
+        # Config
+        config/AppConfig.h
 )
 
 qt_add_qml_module(appDATN_dashboard_car
@@ -57,6 +59,16 @@ target_include_directories(appDATN_dashboard_car PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/voice
     ${CMAKE_CURRENT_SOURCE_DIR}/models
 )
+
+find_library(PIGPIOD_IF2_LIB
+    NAMES pigpiod_if2
+    PATHS
+        ${CMAKE_SYSROOT}/usr/lib
+        ${CMAKE_SYSROOT}/usr/local/lib
+    REQUIRED
+)
+
+message(STATUS "Found pigpiod_if2: ${PIGPIOD_IF2_LIB}")
 
 target_link_libraries(appDATN_dashboard_car
     PRIVATE Qt6::Quick
