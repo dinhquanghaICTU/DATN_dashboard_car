@@ -10,26 +10,20 @@ qt_standard_project_setup()
 
 qt_add_executable(appDATN_dashboard_car
     main.cpp
-    # Hardware
     hardware/MotorController.cpp    hardware/MotorController.h
-        hardware/LedController.cpp      hardware/LedController.h
-        hardware/SpeedSensor.cpp        hardware/SpeedSensor.h
-        hardware/TempSensor.cpp         hardware/TempSensor.h
-        # Middleware
-        middleware/AppController.cpp    middleware/AppController.h
-        middleware/CommandExecutor.cpp  middleware/CommandExecutor.h
-        # Connectivity
-        connectivity/BleServer.cpp      connectivity/BleServer.h
-        connectivity/ApiManager.cpp     connectivity/ApiManager.h
-        # Voice
-        voice/VoiceController.cpp       voice/VoiceController.h
-        voice/WakeWordDetector.cpp      voice/WakeWordDetector.h
-        voice/AudioRecorder.cpp         voice/AudioRecorder.h
-        # Models
-        models/VehicleModel.cpp         models/VehicleModel.h
-        models/VoiceModel.cpp           models/VoiceModel.h
-        # Config
-        config/AppConfig.h
+    hardware/LedController.cpp      hardware/LedController.h
+    hardware/SpeedSensor.cpp        hardware/SpeedSensor.h
+    hardware/TempSensor.cpp         hardware/TempSensor.h
+    middleware/AppController.cpp    middleware/AppController.h
+    middleware/CommandExecutor.cpp  middleware/CommandExecutor.h
+    connectivity/BleServer.cpp      connectivity/BleServer.h  # ← thêm .h vào đây
+    connectivity/ApiManager.cpp     connectivity/ApiManager.h
+    voice/VoiceController.cpp       voice/VoiceController.h
+    voice/WakeWordDetector.cpp      voice/WakeWordDetector.h
+    voice/AudioRecorder.cpp         voice/AudioRecorder.h
+    models/VehicleModel.cpp         models/VehicleModel.h
+    models/VoiceModel.cpp           models/VoiceModel.h
+    config/AppConfig.h
 )
 
 qt_add_qml_module(appDATN_dashboard_car

@@ -13,12 +13,13 @@ public:
     explicit SpeedSensor(int piHandle, QObject* parent = nullptr);
     ~SpeedSensor();
 
-    void start();
-    void stop();
     void onPulse();
-
     float rpm()   const { return m_rpm; }
     float speed() const { return m_speed; }
+
+public slots:
+    Q_INVOKABLE void start();
+    Q_INVOKABLE void stop();
 
 signals:
     void dataUpdated(float rpm, float speed);
