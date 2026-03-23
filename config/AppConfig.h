@@ -22,9 +22,9 @@
 #define MOTOR_PWM_FREQ      1000
 #define MOTOR_DEFAULT_SPEED 70
 
-// ── MPU6050 Temperature Sensor ─────────────────
+//MPU6050 Temperature Sensor
 #define MPU6050_I2C_BUS         1           // I2C bus 1 (/dev/i2c-1)
 #define MPU6050_I2C_ADDR        0x68        // Địa chỉ mặc định (AD0 = GND)
-#define TEMP_READ_INTERVAL_MS   5000        // Đọc mỗi 2 giây
+#define TEMP_READ_INTERVAL_MS   5000
 
 #endif // __APPCONFIG_H__
