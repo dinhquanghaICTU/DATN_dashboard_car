@@ -2,6 +2,8 @@
 #include <QObject>
 #include <QTimer>
 #include <pigpiod_if2.h>
+#include <atomic>
+#include <cstdint>
 #include "AppConfig.h"
 
 class SpeedSensor : public QObject {
@@ -13,9 +15,9 @@ public:
     explicit SpeedSensor(int piHandle, QObject* parent = nullptr);
     ~SpeedSensor();
 
-    void onPulse();
-    float rpm()   const { return m_rpm; }
-    float speed() const { return m_speed; }
+    void onPulse(uint32_t tick);
+    float rpm()   const { return m_rpm.load(); }
+    float speed() const { return m_speed.load(); }
 
 public slots:
     Q_INVOKABLE void start();
@@ -30,7 +32,9 @@ private slots:
 private:
     int          pi;
     QTimer*      timer      = nullptr;
-    volatile int pulseCount = 0;
-    float        m_rpm      = 0.0f;
-    float        m_speed    = 0.0f;
+    std::atomic<int> pulseCount {0};
+    std::atomic<uint32_t> lastPulseTick {0};
+    std::atomic<uint32_t> lastEmitTick {0};
+    std::atomic<float> m_rpm {0.0f};
+    std::atomic<float> m_speed {0.0f};
 };

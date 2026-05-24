@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 10.0.1, 2026-05-24T23:02:39. -->
+<!-- Written by QtCreator 10.0.1, 2026-03-23T15:10:21. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
-  <value type="QByteArray">{03390b28-5337-4e71-b8b3-83627f584069}</value>
+  <value type="QByteArray">{945b5f4b-b6be-4a07-8c8a-1e2dd14fef71}</value>
  </data>
  <data>
   <variable>ProjectExplorer.Project.ActiveTarget</variable>
@@ -75,7 +75,7 @@
     <value type="bool" key="ClangTools.AnalyzeOpenFiles">true</value>
     <value type="bool" key="ClangTools.BuildBeforeAnalysis">true</value>
     <value type="QString" key="ClangTools.DiagnosticConfig">Builtin.DefaultTidyAndClazy</value>
-    <value type="int" key="ClangTools.ParallelJobs">6</value>
+    <value type="int" key="ClangTools.ParallelJobs">4</value>
     <valuelist type="QVariantList" key="ClangTools.SelectedDirs"/>
     <valuelist type="QVariantList" key="ClangTools.SelectedFiles"/>
     <valuelist type="QVariantList" key="ClangTools.SuppressedDiagnostics"/>
@@ -89,7 +89,7 @@
    <value type="QString" key="DeviceType">GenericLinuxOsType</value>
    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">RPI</value>
    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">RPI</value>
-   <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">{5ff2b0a9-8b95-46f0-b9fc-e3c9eb648e9a}</value>
+   <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">{ab600fb3-a972-4d72-8b07-6449b6a9fc8b}</value>
    <value type="qlonglong" key="ProjectExplorer.Target.ActiveBuildConfiguration">0</value>
    <value type="qlonglong" key="ProjectExplorer.Target.ActiveDeployConfiguration">0</value>
    <value type="qlonglong" key="ProjectExplorer.Target.ActiveRunConfiguration">0</value>
@@ -101,13 +101,17 @@
     <value type="QString" key="CMake.Initial.Parameters">-DCMAKE_GENERATOR:STRING=Ninja
 -DCMAKE_BUILD_TYPE:STRING=Debug
 -DCMAKE_PROJECT_INCLUDE_BEFORE:FILEPATH=%{buildDir}/.qtc/package-manager/auto-setup.cmake
+-DCMAKE_SYSROOT:PATH=/home/dinhquangha/Qt6Cross/rpi-sysroot
+-DCMAKE_C_COMPILER_TARGET:STRING=
+-DCMAKE_CXX_COMPILER_TARGET:STRING=
 -DQT_QMAKE_EXECUTABLE:FILEPATH=%{Qt:qmakeExecutable}
 -DCMAKE_PREFIX_PATH:PATH=%{Qt:QT_INSTALL_PREFIX}
 -DCMAKE_C_COMPILER:FILEPATH=%{Compiler:Executable:C}
 -DCMAKE_CXX_COMPILER:FILEPATH=%{Compiler:Executable:Cxx}
--DCMAKE_TOOLCHAIN_FILE:UNINITIALIZED=/home/quanghaictu/Qt6Cross/qt6/pi/lib/cmake/Qt6/qt.toolchain.cmake
--DCMAKE_CXX_FLAGS_INIT:STRING=%{Qt:QML_DEBUG_FLAG}</value>
-    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">/home/quanghaictu/build-DATN_dashboard_car-RPI-Debug</value>
+-DCMAKE_TOOLCHAIN_FILE:UNINITIALIZED=/home/dinhquangha/Qt6Cross/qt6/pi/lib/cmake/Qt6/qt.toolchain.cmake
+-DCMAKE_CXX_FLAGS_INIT:STRING=%{Qt:QML_DEBUG_FLAG}
+</value>
+    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">/home/dinhquangha/build-DATN_dashboard_car-RPI-Debug</value>
     <valuemap type="QVariantMap" key="ProjectExplorer.BuildConfiguration.BuildStepList.0">
      <valuemap type="QVariantMap" key="ProjectExplorer.BuildStepList.Step.0">
       <value type="QString" key="CMakeProjectManager.MakeStep.BuildPreset"></value>
@@ -158,13 +162,16 @@
     <value type="QString" key="CMake.Initial.Parameters">-DCMAKE_GENERATOR:STRING=Ninja
 -DCMAKE_BUILD_TYPE:STRING=Release
 -DCMAKE_PROJECT_INCLUDE_BEFORE:FILEPATH=%{buildDir}/.qtc/package-manager/auto-setup.cmake
+-DCMAKE_SYSROOT:PATH=/home/dinhquangha/Qt6Cross/rpi-sysroot
+-DCMAKE_C_COMPILER_TARGET:STRING=
+-DCMAKE_CXX_COMPILER_TARGET:STRING=
 -DQT_QMAKE_EXECUTABLE:FILEPATH=%{Qt:qmakeExecutable}
 -DCMAKE_PREFIX_PATH:PATH=%{Qt:QT_INSTALL_PREFIX}
 -DCMAKE_C_COMPILER:FILEPATH=%{Compiler:Executable:C}
 -DCMAKE_CXX_COMPILER:FILEPATH=%{Compiler:Executable:Cxx}
--DCMAKE_TOOLCHAIN_FILE:UNINITIALIZED=/home/quanghaictu/Qt6Cross/qt6/pi/lib/cmake/Qt6/qt.toolchain.cmake
+-DCMAKE_TOOLCHAIN_FILE:UNINITIALIZED=/home/dinhquangha/Qt6Cross/qt6/pi/lib/cmake/Qt6/qt.toolchain.cmake
 -DCMAKE_CXX_FLAGS_INIT:STRING=%{Qt:QML_DEBUG_FLAG}</value>
-    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">/home/quanghaictu/build-DATN_dashboard_car-RPI-Release</value>
+    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">/home/dinhquangha/build-DATN_dashboard_car-RPI-Release</value>
     <valuemap type="QVariantMap" key="ProjectExplorer.BuildConfiguration.BuildStepList.0">
      <valuemap type="QVariantMap" key="ProjectExplorer.BuildStepList.Step.0">
       <value type="QString" key="CMakeProjectManager.MakeStep.BuildPreset"></value>
@@ -213,13 +220,16 @@
     <value type="QString" key="CMake.Initial.Parameters">-DCMAKE_GENERATOR:STRING=Ninja
 -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo
 -DCMAKE_PROJECT_INCLUDE_BEFORE:FILEPATH=%{buildDir}/.qtc/package-manager/auto-setup.cmake
+-DCMAKE_SYSROOT:PATH=/home/dinhquangha/Qt6Cross/rpi-sysroot
+-DCMAKE_C_COMPILER_TARGET:STRING=
+-DCMAKE_CXX_COMPILER_TARGET:STRING=
 -DQT_QMAKE_EXECUTABLE:FILEPATH=%{Qt:qmakeExecutable}
 -DCMAKE_PREFIX_PATH:PATH=%{Qt:QT_INSTALL_PREFIX}
 -DCMAKE_C_COMPILER:FILEPATH=%{Compiler:Executable:C}
 -DCMAKE_CXX_COMPILER:FILEPATH=%{Compiler:Executable:Cxx}
--DCMAKE_TOOLCHAIN_FILE:UNINITIALIZED=/home/quanghaictu/Qt6Cross/qt6/pi/lib/cmake/Qt6/qt.toolchain.cmake
+-DCMAKE_TOOLCHAIN_FILE:UNINITIALIZED=/home/dinhquangha/Qt6Cross/qt6/pi/lib/cmake/Qt6/qt.toolchain.cmake
 -DCMAKE_CXX_FLAGS_INIT:STRING=%{Qt:QML_DEBUG_FLAG}</value>
-    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">/home/quanghaictu/build-DATN_dashboard_car-RPI-RelWithDebInfo</value>
+    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">/home/dinhquangha/build-DATN_dashboard_car-RPI-RelWithDebInfo</value>
     <valuemap type="QVariantMap" key="ProjectExplorer.BuildConfiguration.BuildStepList.0">
      <valuemap type="QVariantMap" key="ProjectExplorer.BuildStepList.Step.0">
       <value type="QString" key="CMakeProjectManager.MakeStep.BuildPreset"></value>
@@ -268,14 +278,17 @@
     <value type="QString" key="CMake.Initial.Parameters">-DCMAKE_GENERATOR:STRING=Ninja
 -DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo
 -DCMAKE_PROJECT_INCLUDE_BEFORE:FILEPATH=%{buildDir}/.qtc/package-manager/auto-setup.cmake
+-DCMAKE_SYSROOT:PATH=/home/dinhquangha/Qt6Cross/rpi-sysroot
+-DCMAKE_C_COMPILER_TARGET:STRING=
+-DCMAKE_CXX_COMPILER_TARGET:STRING=
 -DQT_QMAKE_EXECUTABLE:FILEPATH=%{Qt:qmakeExecutable}
 -DCMAKE_PREFIX_PATH:PATH=%{Qt:QT_INSTALL_PREFIX}
 -DCMAKE_C_COMPILER:FILEPATH=%{Compiler:Executable:C}
 -DCMAKE_CXX_COMPILER:FILEPATH=%{Compiler:Executable:Cxx}
--DCMAKE_TOOLCHAIN_FILE:UNINITIALIZED=/home/quanghaictu/Qt6Cross/qt6/pi/lib/cmake/Qt6/qt.toolchain.cmake
+-DCMAKE_TOOLCHAIN_FILE:UNINITIALIZED=/home/dinhquangha/Qt6Cross/qt6/pi/lib/cmake/Qt6/qt.toolchain.cmake
 -DCMAKE_CXX_FLAGS_INIT:STRING=%{Qt:QML_DEBUG_FLAG}</value>
     <value type="int" key="EnableQmlDebugging">0</value>
-    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">/home/quanghaictu/build-DATN_dashboard_car-RPI-Profile</value>
+    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">/home/dinhquangha/build-DATN_dashboard_car-RPI-Profile</value>
     <valuemap type="QVariantMap" key="ProjectExplorer.BuildConfiguration.BuildStepList.0">
      <valuemap type="QVariantMap" key="ProjectExplorer.BuildStepList.Step.0">
       <value type="QString" key="CMakeProjectManager.MakeStep.BuildPreset"></value>
@@ -324,13 +337,16 @@
     <value type="QString" key="CMake.Initial.Parameters">-DCMAKE_GENERATOR:STRING=Ninja
 -DCMAKE_BUILD_TYPE:STRING=MinSizeRel
 -DCMAKE_PROJECT_INCLUDE_BEFORE:FILEPATH=%{buildDir}/.qtc/package-manager/auto-setup.cmake
+-DCMAKE_SYSROOT:PATH=/home/dinhquangha/Qt6Cross/rpi-sysroot
+-DCMAKE_C_COMPILER_TARGET:STRING=
+-DCMAKE_CXX_COMPILER_TARGET:STRING=
 -DQT_QMAKE_EXECUTABLE:FILEPATH=%{Qt:qmakeExecutable}
 -DCMAKE_PREFIX_PATH:PATH=%{Qt:QT_INSTALL_PREFIX}
 -DCMAKE_C_COMPILER:FILEPATH=%{Compiler:Executable:C}
 -DCMAKE_CXX_COMPILER:FILEPATH=%{Compiler:Executable:Cxx}
--DCMAKE_TOOLCHAIN_FILE:UNINITIALIZED=/home/quanghaictu/Qt6Cross/qt6/pi/lib/cmake/Qt6/qt.toolchain.cmake
+-DCMAKE_TOOLCHAIN_FILE:UNINITIALIZED=/home/dinhquangha/Qt6Cross/qt6/pi/lib/cmake/Qt6/qt.toolchain.cmake
 -DCMAKE_CXX_FLAGS_INIT:STRING=%{Qt:QML_DEBUG_FLAG}</value>
-    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">/home/quanghaictu/build-DATN_dashboard_car-RPI-MinSizeRel</value>
+    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">/home/dinhquangha/build-DATN_dashboard_car-RPI-MinSizeRel</value>
     <valuemap type="QVariantMap" key="ProjectExplorer.BuildConfiguration.BuildStepList.0">
      <valuemap type="QVariantMap" key="ProjectExplorer.BuildStepList.Step.0">
       <value type="QString" key="CMakeProjectManager.MakeStep.BuildPreset"></value>
@@ -378,9 +394,9 @@
       <value type="bool" key="ProjectExplorer.BuildStep.Enabled">true</value>
       <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">RemoteLinux.MakeInstall</value>
       <value type="bool" key="RemoteLinux.MakeInstall.CleanInstallRoot">true</value>
-      <value type="QString" key="RemoteLinux.MakeInstall.InstallRoot">/tmp/QtCreator-WhOKlA</value>
+      <value type="QString" key="RemoteLinux.MakeInstall.InstallRoot">/tmp/QtCreator-CYVuyW</value>
       <value type="QString" key="RemoteLinux.MakeInstall.Make">/usr/local/bin/cmake</value>
-      <value type="QString" key="RemoteLinux.MakeInstall.MakeArguments">--build /home/quanghaictu/build-DATN_dashboard_car-RPI-Debug --target install</value>
+      <value type="QString" key="RemoteLinux.MakeInstall.MakeArguments">--build /home/dinhquangha/build-DATN_dashboard_car-RPI-Debug --target install</value>
       <value type="QString" key="RemoteLinux.MakeInstall.MakeCommand">/usr/local/bin/cmake</value>
      </valuemap>
      <valuemap type="QVariantMap" key="ProjectExplorer.BuildStepList.Step.1">
@@ -423,8 +439,6 @@
     <value type="int" key="PE.EnvironmentAspect.Base">1</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes">
      <value type="QString">LD_LIBRARY_PATH=/usr/local/qt6/lib/</value>
-     <value type="QString">DISPLAY=:0</value>
-     <value type="QString">XAUTHORITY=/home/pi/.Xauthority</value>
     </valuelist>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">appDATN_dashboard_car (on %{Device:Name})</value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">RemoteLinuxRunConfiguration:appDATN_dashboard_car</value>

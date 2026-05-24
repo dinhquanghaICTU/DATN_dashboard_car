@@ -32,6 +32,7 @@ signals:
 private:
     void setLeft(Direction dir, int speed);
     void setRight(Direction dir, int speed);
+    int  applyTrim(int speed, int trimPercent);
     int  calcDuty(int percent);
 
     int pi;

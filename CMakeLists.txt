@@ -4,7 +4,7 @@ project(DATN_dashboard_car VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 6.4 REQUIRED COMPONENTS Quick Core Network DBus)
+find_package(Qt6 6.4 REQUIRED COMPONENTS Quick Core Network DBus Multimedia)
 
 qt_standard_project_setup()
 
@@ -34,6 +34,7 @@ qt_add_qml_module(appDATN_dashboard_car
     ui/components/TempDisplay.qml
     ui/components/MotorControl.qml
     ui/components/VoiceIndicator.qml
+    RESOURCES assets/intro.mp4
 )
 
 set_target_properties(appDATN_dashboard_car PROPERTIES
@@ -70,6 +71,7 @@ target_link_libraries(appDATN_dashboard_car
     PRIVATE Qt6::Core
     PRIVATE Qt6::Network
     PRIVATE Qt6::DBus
+    PRIVATE Qt6::Multimedia
     PRIVATE ${PIGPIOD_IF2_LIB}
     PRIVATE pthread rt
 )

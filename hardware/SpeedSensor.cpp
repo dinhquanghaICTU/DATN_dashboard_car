@@ -3,11 +3,12 @@
 #include <QThread>
 
 static SpeedSensor* g_instance = nullptr;
+static constexpr float WHEEL_CIRCUMFERENCE = 3.14159f * 0.065f;
 
 static void gpioCallback(int pi, unsigned gpio, unsigned level, uint32_t tick) {
-    Q_UNUSED(pi) Q_UNUSED(gpio) Q_UNUSED(tick)
+    Q_UNUSED(pi) Q_UNUSED(gpio)
     if (level == 1 && g_instance)
-        g_instance->onPulse();
+        g_instance->onPulse(tick);
 }
 
 SpeedSensor::SpeedSensor(int piHandle, QObject* parent)
@@ -27,9 +28,12 @@ SpeedSensor::~SpeedSensor() {
 void SpeedSensor::start() {
     if (!timer) {
         timer = new QTimer(this);
+        timer->setTimerType(Qt::PreciseTimer);
         connect(timer, &QTimer::timeout, this, &SpeedSensor::calculate);
     }
-    pulseCount = 0;
+    pulseCount.store(0);
+    lastPulseTick.store(0);
+    lastEmitTick.store(0);
     timer->start(SPEED_CALC_INTERVAL_MS);
     qDebug() << "[SpeedSensor] Started on thread:" << QThread::currentThreadId();
 }
@@ -39,17 +43,39 @@ void SpeedSensor::stop() {
     qDebug() << "[SpeedSensor] Stopped";
 }
 
-void SpeedSensor::onPulse() {
-    pulseCount++;
+void SpeedSensor::onPulse(uint32_t tick) {
+    pulseCount.fetch_add(1, std::memory_order_relaxed);
+
+    const uint32_t previousTick = lastPulseTick.exchange(tick, std::memory_order_relaxed);
+    if (previousTick == 0) return;
+
+    const uint32_t pulseDeltaUs = tick - previousTick;
+    if (pulseDeltaUs < SPEED_MIN_PULSE_US) return;
+
+    const float rpm = 60000000.0f / (pulseDeltaUs * (float)LM393_HOLES_PER_REV);
+    const float speed = (rpm / 60.0f) * WHEEL_CIRCUMFERENCE;
+    m_rpm.store(rpm, std::memory_order_relaxed);
+    m_speed.store(speed, std::memory_order_relaxed);
+
+    const uint32_t previousEmitTick = lastEmitTick.load(std::memory_order_relaxed);
+    if (previousEmitTick == 0 || tick - previousEmitTick >= SPEED_RENDER_INTERVAL_US) {
+        lastEmitTick.store(tick, std::memory_order_relaxed);
+        emit dataUpdated(rpm, speed);
+    }
 }
 
 void SpeedSensor::calculate() {
-    int count  = pulseCount;
-    pulseCount = 0;
-    float intervalSec = SPEED_CALC_INTERVAL_MS / 1000.0f;
-    m_rpm = (count / (float)LM393_HOLES_PER_REV) / intervalSec * 60.0f;
-    const float WHEEL_CIRCUMFERENCE = 3.14159f * 0.065f;
-    m_speed = (m_rpm / 60.0f) * WHEEL_CIRCUMFERENCE;
-    qDebug() << "[SpeedSensor] RPM:" << m_rpm << "| Speed:" << m_speed;
-    emit dataUpdated(m_rpm, m_speed);
+    pulseCount.exchange(0, std::memory_order_relaxed);
+
+    const uint32_t lastTick = lastPulseTick.load(std::memory_order_relaxed);
+    if (lastTick == 0) return;
+
+    const uint32_t now = get_current_tick(pi);
+    if (now - lastTick < SPEED_ZERO_TIMEOUT_MS * 1000U) return;
+    if (m_rpm.load(std::memory_order_relaxed) == 0.0f &&
+        m_speed.load(std::memory_order_relaxed) == 0.0f) return;
+
+    m_rpm.store(0.0f, std::memory_order_relaxed);
+    m_speed.store(0.0f, std::memory_order_relaxed);
+    emit dataUpdated(0.0f, 0.0f);
 }
