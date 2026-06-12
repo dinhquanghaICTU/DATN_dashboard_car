@@ -134,6 +134,7 @@ void TempSensor::readTemperature() {
     int32_t tFine = var1 + var2;
 
     m_temperature = static_cast<float>((tFine * 5 + 128) >> 8) / 100.0f;
+    // m_temperature = 70;
     qDebug() << "[TempSensor] Temperature:" << m_temperature << "°C";
     emit dataUpdated(m_temperature);
 }

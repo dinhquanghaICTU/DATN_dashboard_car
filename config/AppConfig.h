@@ -8,6 +8,7 @@
 #define SPEED_RENDER_INTERVAL_US 50000
 #define SPEED_ZERO_TIMEOUT_MS   350
 #define SPEED_MIN_PULSE_US      2500
+#define SPEED_REALISTIC_SCALE   55.0f
 
 //config for motor
 

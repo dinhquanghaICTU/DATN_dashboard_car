@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(Qt6 6.4 REQUIRED COMPONENTS Quick Core Network DBus Multimedia)
 
 qt_standard_project_setup()
+qt_policy(SET QTP0001 NEW)
 
 qt_add_executable(appDATN_dashboard_car
     main.cpp
@@ -14,26 +15,26 @@ qt_add_executable(appDATN_dashboard_car
     hardware/LedController.cpp      hardware/LedController.h
     hardware/SpeedSensor.cpp        hardware/SpeedSensor.h
     hardware/TempSensor.cpp         hardware/TempSensor.h
-    middleware/AppController.cpp    middleware/AppController.h
-    middleware/CommandExecutor.cpp  middleware/CommandExecutor.h
-    connectivity/BleServer.cpp      connectivity/BleServer.h  # ← thêm .h vào đây
-    connectivity/ApiManager.cpp     connectivity/ApiManager.h
-    voice/VoiceController.cpp       voice/VoiceController.h
-    voice/WakeWordDetector.cpp      voice/WakeWordDetector.h
-    voice/AudioRecorder.cpp         voice/AudioRecorder.h
-    models/VehicleModel.cpp         models/VehicleModel.h
-    models/VoiceModel.cpp           models/VoiceModel.h
+    connectivity/BleServer.cpp      connectivity/BleServer.h
+    models/VehicleModel.h
     config/AppConfig.h
 )
 
 qt_add_qml_module(appDATN_dashboard_car
     URI DATN_dashboard_car
     VERSION 1.0
+    RESOURCE_PREFIX /
+    NO_CACHEGEN
     QML_FILES Main.qml
     ui/components/SpeedGauge.qml
     ui/components/TempDisplay.qml
     ui/components/MotorControl.qml
     ui/components/VoiceIndicator.qml
+    ui/components/TopBar.qml
+    ui/components/LeftDashboardPanel.qml
+    ui/components/CenterGaugePanel.qml
+    ui/components/RightStatsPanel.qml
+    ui/components/IntroOverlay.qml
     RESOURCES assets/intro.mp4
 )
 
@@ -49,9 +50,7 @@ target_include_directories(appDATN_dashboard_car PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/config
     ${CMAKE_CURRENT_SOURCE_DIR}/hardware
-    ${CMAKE_CURRENT_SOURCE_DIR}/middleware
     ${CMAKE_CURRENT_SOURCE_DIR}/connectivity
-    ${CMAKE_CURRENT_SOURCE_DIR}/voice
     ${CMAKE_CURRENT_SOURCE_DIR}/models
 )
 

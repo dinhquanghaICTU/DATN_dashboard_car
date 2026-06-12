@@ -53,7 +53,7 @@ void SpeedSensor::onPulse(uint32_t tick) {
     if (pulseDeltaUs < SPEED_MIN_PULSE_US) return;
 
     const float rpm = 60000000.0f / (pulseDeltaUs * (float)LM393_HOLES_PER_REV);
-    const float speed = (rpm / 60.0f) * WHEEL_CIRCUMFERENCE;
+    const float speed = (rpm / 60.0f) * WHEEL_CIRCUMFERENCE * SPEED_REALISTIC_SCALE;
     m_rpm.store(rpm, std::memory_order_relaxed);
     m_speed.store(speed, std::memory_order_relaxed);
 
