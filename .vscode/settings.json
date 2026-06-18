@@ -1,5 +1,14 @@
 {
     "cmake.sourceDirectory": "${workspaceFolder}",
-    "cmake.buildDirectory": "${workspaceFolder}/build",
-    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
+    "cmake.buildDirectory": "/home/quanghaictu/build-DATN_dashboard_car-RPI-Debug",
+    "cmake.generator": "Ninja",
+    "cmake.buildType": "Debug",
+    "cmake.configureSettings": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "CMAKE_TOOLCHAIN_FILE": "/home/quanghaictu/Qt6Cross/qt6/pi/lib/cmake/Qt6/qt.toolchain.cmake",
+        "CMAKE_PREFIX_PATH": "/home/quanghaictu/Qt6Cross/qt6/pi"
+    },
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "C_Cpp.default.compileCommands": "/home/quanghaictu/build-DATN_dashboard_car-RPI-Debug/compile_commands.json"
 }

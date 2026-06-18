@@ -1,0 +1,22 @@
+CompileFlags:
+  Add:
+    - --target=aarch64-linux-gnu
+    - --sysroot=/home/quanghaictu/Qt6Cross/rpi-sysroot
+    - -isystem
+    - /opt/cross-pi-gcc/aarch64-linux-gnu/include/c++/10.3.0
+    - -isystem
+    - /opt/cross-pi-gcc/aarch64-linux-gnu/include/c++/10.3.0/aarch64-linux-gnu
+    - -isystem
+    - /opt/cross-pi-gcc/aarch64-linux-gnu/include/c++/10.3.0/backward
+    - -isystem
+    - /opt/cross-pi-gcc/lib/gcc/aarch64-linux-gnu/10.3.0/include
+    - -isystem
+    - /opt/cross-pi-gcc/lib/gcc/aarch64-linux-gnu/10.3.0/include-fixed
+    - -isystem
+    - /opt/cross-pi-gcc/aarch64-linux-gnu/include
+    - -isystem
+    - /home/quanghaictu/Qt6Cross/rpi-sysroot/usr/include
+    - -isystem
+    - /home/quanghaictu/Qt6Cross/rpi-sysroot/usr/local/include
+    - -isystem
+    - /home/quanghaictu/Qt6Cross/rpi-sysroot/usr/include/aarch64-linux-gnu

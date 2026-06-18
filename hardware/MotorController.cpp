@@ -12,25 +12,25 @@ MotorController::~MotorController() {
 }
 
 void MotorController::init() {
-    // Setup chân IN — L298N trái
+    
     set_mode(pi, PIN_MOTOR_IN1, PI_OUTPUT);
     set_mode(pi, PIN_MOTOR_IN2, PI_OUTPUT);
 
-    // Setup chân IN — L298N phải
+    
     set_mode(pi, PIN_MOTOR_IN3, PI_OUTPUT);
     set_mode(pi, PIN_MOTOR_IN4, PI_OUTPUT);
 
-    // Tắt hết trước
+    
     gpio_write(pi, PIN_MOTOR_IN1, 0);
     gpio_write(pi, PIN_MOTOR_IN2, 0);
     gpio_write(pi, PIN_MOTOR_IN3, 0);
     gpio_write(pi, PIN_MOTOR_IN4, 0);
 
-    // PWM cho 2 bên — hardware PWM
+    
     hardware_PWM(pi, PIN_MOTOR_ENA, MOTOR_PWM_FREQ, 0);
     hardware_PWM(pi, PIN_MOTOR_ENB, MOTOR_PWM_FREQ, 0);
 
-    qDebug() << "[MotorController] Initialized — Tank mode";
+    qDebug() << "init done";
 }
 
 void MotorController::forward(int speed) {
@@ -51,14 +51,18 @@ void MotorController::backward(int speed) {
 
 void MotorController::turnLeft(int speed) {
     qDebug() << "[Motor] TURN LEFT speed:" << speed;
-    setLeft(Forward, speed / 2);
+    setLeft(Stop, 0);
     setRight(Forward, speed);
+    m_speed = speed;
+    emit speedChanged(m_speed);
 }
 
 void MotorController::turnRight(int speed) {
     qDebug() << "[Motor] TURN RIGHT speed:" << speed;
     setLeft(Forward, speed);
-    setRight(Forward, speed / 2);
+    setRight(Stop, 0);
+    m_speed = speed;
+    emit speedChanged(m_speed);
 }
 
 void MotorController::rotateLeft(int speed) {

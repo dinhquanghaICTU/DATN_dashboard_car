@@ -1,7 +1,19 @@
 #pragma once
+
+#include <QMap>
 #include <QObject>
-#include <QProcess>
-#include <QDebug>
+#include <QStringList>
+#include <QVariantMap>
+#include <QtDBus/QDBusMessage>
+#include <QtDBus/QDBusObjectPath>
+
+class BleGattApplication;
+
+using BleInterfaceMap = QMap<QString, QVariantMap>;
+using BleManagedObjectMap = QMap<QDBusObjectPath, BleInterfaceMap>;
+
+Q_DECLARE_METATYPE(BleInterfaceMap)
+Q_DECLARE_METATYPE(BleManagedObjectMap)
 
 class BleServer : public QObject {
     Q_OBJECT
@@ -22,9 +34,34 @@ signals:
     void connectionChanged(bool connected);
 
 private slots:
-    void onStdout();
+    void onInterfacesAdded(const QDBusObjectPath& path,
+                           const BleInterfaceMap& interfaces);
+    void onInterfacesRemoved(const QDBusObjectPath& path,
+                             const QStringList& interfaces);
+    void onPropertiesChanged(const QString& interface,
+                             const QVariantMap& changedProperties,
+                             const QStringList& invalidatedProperties,
+                             const QDBusMessage& message);
 
 private:
-    QProcess* m_process   = nullptr;
-    bool      m_connected = false;
+    friend class BleGattApplication;
+
+    bool configureAdapter();
+    bool setAdapterProperty(const QString& property, const QVariant& value);
+    void connectBlueZSignals();
+    void disconnectBlueZSignals();
+    void loadExistingDevices();
+    void processDevice(const QDBusObjectPath& path,
+                       const QVariantMap& properties);
+    void fetchAndProcessDevice(const QDBusObjectPath& path);
+    void rejectDevice(const QDBusObjectPath& path,
+                      const QString& address);
+    void handleCommand(const QString& command);
+    void setConnected(bool connected);
+
+    BleGattApplication* m_application = nullptr;
+    QDBusObjectPath m_currentDevicePath;
+    QString m_currentDeviceAddress;
+    bool m_connected = false;
+    bool m_running = false;
 };

@@ -71,6 +71,12 @@ void SpeedSensor::calculate() {
     if (lastTick == 0) return;
 
     const uint32_t now = get_current_tick(pi);
+    
+    // qDebug() << "[SpeedSensor] current rpm:"
+    //          << m_rpm.load(std::memory_order_relaxed)
+    //          << "speed m/s:"
+    //          << m_speed.load(std::memory_order_relaxed);
+    
     if (now - lastTick < SPEED_ZERO_TIMEOUT_MS * 1000U) return;
     if (m_rpm.load(std::memory_order_relaxed) == 0.0f &&
         m_speed.load(std::memory_order_relaxed) == 0.0f) return;

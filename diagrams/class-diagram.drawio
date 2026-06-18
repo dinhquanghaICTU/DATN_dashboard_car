@@ -1,0 +1,182 @@
+<mxfile host="app.diagrams.net" modified="2026-06-18T00:00:00.000Z" agent="Codex" version="24.7.17">
+  <diagram id="datn-uml" name="UML Class Diagram">
+    <mxGraphModel dx="1600" dy="1000" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <mxCell id="title" value="DATN Dashboard Car - UML Class Diagram" style="text;html=1;align=center;verticalAlign=middle;fontSize=24;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="500" y="20" width="700" height="40" as="geometry"/>
+        </mxCell>
+
+        <!-- Native draw.io UML class: QObject -->
+        <mxCell id="qobject" value="QObject" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="680" y="80" width="300" height="150" as="geometry"/>
+        </mxCell>
+        <mxCell id="qobject-attr" value="" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;overflow=hidden;rotatable=0;portConstraint=eastwest;" vertex="1" parent="qobject">
+          <mxGeometry y="30" width="300" height="25" as="geometry"/>
+        </mxCell>
+        <mxCell id="qobject-method" value="+ moveToThread(thread: QThread*)&lt;br&gt;+ connect(...)&lt;br&gt;+ metaObject()" style="text;html=1;strokeColor=#6c8ebf;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;overflow=hidden;rotatable=0;portConstraint=eastwest;" vertex="1" parent="qobject">
+          <mxGeometry y="55" width="300" height="95" as="geometry"/>
+        </mxCell>
+
+        <!-- MotorController -->
+        <mxCell id="motor" value="MotorController" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1">
+          <mxGeometry x="30" y="340" width="280" height="330" as="geometry"/>
+        </mxCell>
+        <mxCell id="motor-attr" value="- pi: int&lt;br&gt;- m_speed: int = 0&lt;br&gt;+ speed: int {property}" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;overflow=hidden;rotatable=0;portConstraint=eastwest;" vertex="1" parent="motor">
+          <mxGeometry y="30" width="280" height="85" as="geometry"/>
+        </mxCell>
+        <mxCell id="motor-method" value="+ MotorController(piHandle: int)&lt;br&gt;+ init(): void&lt;br&gt;+ speed(): int&lt;br&gt;+ forward(speed: int): void&lt;br&gt;+ backward(speed: int): void&lt;br&gt;+ turnLeft(speed: int): void&lt;br&gt;+ turnRight(speed: int): void&lt;br&gt;+ stop(): void&lt;br&gt;+ setSpeed(speed: int): void&lt;br&gt;&lt;i&gt;signal: speedChanged(speed: int)&lt;/i&gt;" style="text;html=1;strokeColor=#d6b656;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;overflow=hidden;rotatable=0;portConstraint=eastwest;" vertex="1" parent="motor">
+          <mxGeometry y="115" width="280" height="215" as="geometry"/>
+        </mxCell>
+
+        <!-- LedController -->
+        <mxCell id="led" value="LedController" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="340" y="340" width="280" height="355" as="geometry"/>
+        </mxCell>
+        <mxCell id="led-attr" value="- pi: int&lt;br&gt;- m_leftSignal: bool&lt;br&gt;- m_rightSignal: bool&lt;br&gt;- m_headLight: bool&lt;br&gt;- m_blinkOn: bool&lt;br&gt;- m_blinkTimer: QTimer" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;overflow=hidden;rotatable=0;portConstraint=eastwest;" vertex="1" parent="led">
+          <mxGeometry y="30" width="280" height="135" as="geometry"/>
+        </mxCell>
+        <mxCell id="led-method" value="+ setLeftSignal(enabled: bool): void&lt;br&gt;+ setRightSignal(enabled: bool): void&lt;br&gt;+ setHazard(enabled: bool): void&lt;br&gt;+ setHeadLight(enabled: bool): void&lt;br&gt;+ toggleLeftSignal(): void&lt;br&gt;+ toggleRightSignal(): void&lt;br&gt;+ toggleHazard(): void&lt;br&gt;+ toggleHeadLight(): void&lt;br&gt;+ allOff(): void&lt;br&gt;&lt;i&gt;signal: stateChanged()&lt;/i&gt;" style="text;html=1;strokeColor=#d79b00;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;overflow=hidden;rotatable=0;portConstraint=eastwest;" vertex="1" parent="led">
+          <mxGeometry y="165" width="280" height="190" as="geometry"/>
+        </mxCell>
+
+        <!-- SpeedSensor -->
+        <mxCell id="speed" value="SpeedSensor" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="650" y="340" width="290" height="355" as="geometry"/>
+        </mxCell>
+        <mxCell id="speed-attr" value="- pi: int&lt;br&gt;- timer: QTimer*&lt;br&gt;- pulseCount: atomic&lt;int&gt;&lt;br&gt;- lastPulseTick: atomic&lt;uint32_t&gt;&lt;br&gt;- lastEmitTick: atomic&lt;uint32_t&gt;&lt;br&gt;- m_rpm: atomic&lt;float&gt;&lt;br&gt;- m_speed: atomic&lt;float&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;overflow=hidden;rotatable=0;portConstraint=eastwest;" vertex="1" parent="speed">
+          <mxGeometry y="30" width="290" height="155" as="geometry"/>
+        </mxCell>
+        <mxCell id="speed-method" value="+ start(): void&lt;br&gt;+ stop(): void&lt;br&gt;+ onPulse(tick: uint32_t): void&lt;br&gt;+ rpm(): float&lt;br&gt;+ speed(): float&lt;br&gt;- calculate(): void&lt;br&gt;&lt;i&gt;signal: dataUpdated(rpm, speed)&lt;/i&gt;" style="text;html=1;strokeColor=#82b366;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;overflow=hidden;rotatable=0;portConstraint=eastwest;" vertex="1" parent="speed">
+          <mxGeometry y="185" width="290" height="170" as="geometry"/>
+        </mxCell>
+
+        <!-- TempSensor -->
+        <mxCell id="temp" value="TempSensor" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="970" y="340" width="290" height="355" as="geometry"/>
+        </mxCell>
+        <mxCell id="temp-attr" value="- pi: int&lt;br&gt;- m_i2cHandle: int&lt;br&gt;- m_timer: QTimer*&lt;br&gt;- m_temperature: float&lt;br&gt;- m_address: uint8_t&lt;br&gt;- m_digT1: uint16_t&lt;br&gt;- m_digT2: int16_t&lt;br&gt;- m_digT3: int16_t" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;overflow=hidden;rotatable=0;portConstraint=eastwest;" vertex="1" parent="temp">
+          <mxGeometry y="30" width="290" height="170" as="geometry"/>
+        </mxCell>
+        <mxCell id="temp-method" value="+ start(): void&lt;br&gt;+ stop(): void&lt;br&gt;+ temperature(): float&lt;br&gt;- initBMP280(): bool&lt;br&gt;- readCalibration(): bool&lt;br&gt;- readTemperature(): void&lt;br&gt;&lt;i&gt;signal: dataUpdated(temperature)&lt;/i&gt;" style="text;html=1;strokeColor=#82b366;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;overflow=hidden;rotatable=0;portConstraint=eastwest;" vertex="1" parent="temp">
+          <mxGeometry y="200" width="290" height="155" as="geometry"/>
+        </mxCell>
+
+        <!-- BleServer -->
+        <mxCell id="ble" value="BleServer" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="1290" y="340" width="270" height="285" as="geometry"/>
+        </mxCell>
+        <mxCell id="ble-attr" value="- m_process: QProcess*&lt;br&gt;- m_connected: bool" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;overflow=hidden;rotatable=0;portConstraint=eastwest;" vertex="1" parent="ble">
+          <mxGeometry y="30" width="270" height="65" as="geometry"/>
+        </mxCell>
+        <mxCell id="ble-method" value="+ start(): bool&lt;br&gt;+ stop(): void&lt;br&gt;+ connected(): bool&lt;br&gt;- onStdout(): void&lt;br&gt;&lt;i&gt;signal: commandReceived(cmd)&lt;/i&gt;&lt;br&gt;&lt;i&gt;signal: connectionChanged(bool)&lt;/i&gt;" style="text;html=1;strokeColor=#9673a6;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;overflow=hidden;rotatable=0;portConstraint=eastwest;" vertex="1" parent="ble">
+          <mxGeometry y="95" width="270" height="190" as="geometry"/>
+        </mxCell>
+
+        <!-- VehicleModel -->
+        <mxCell id="vehicle" value="VehicleModel" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="650" y="790" width="310" height="300" as="geometry"/>
+        </mxCell>
+        <mxCell id="vehicle-attr" value="- m_rpm: float&lt;br&gt;- m_speed: float&lt;br&gt;- m_temperature: float&lt;br&gt;- m_bleConnected: bool" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;overflow=hidden;rotatable=0;portConstraint=eastwest;" vertex="1" parent="vehicle">
+          <mxGeometry y="30" width="310" height="105" as="geometry"/>
+        </mxCell>
+        <mxCell id="vehicle-method" value="+ rpm(): float&lt;br&gt;+ speed(): float&lt;br&gt;+ temperature(): float&lt;br&gt;+ bleConnected(): bool&lt;br&gt;+ onSensorData(rpm, speed): void&lt;br&gt;+ onTemperature(temp): void&lt;br&gt;+ onBleConnected(bool): void&lt;br&gt;&lt;i&gt;signals: dataChanged(), tempChanged(), bleChanged()&lt;/i&gt;" style="text;html=1;strokeColor=#6c8ebf;fillColor=none;align=left;verticalAlign=top;spacingLeft=6;spacingTop=4;overflow=hidden;rotatable=0;portConstraint=eastwest;" vertex="1" parent="vehicle">
+          <mxGeometry y="135" width="310" height="165" as="geometry"/>
+        </mxCell>
+
+        <!-- Inheritance: each class has its own lane above the class row -->
+        <mxCell id="inherit-motor" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=0;strokeColor=#6c8ebf;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.08;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="motor" target="qobject">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="170" y="250"/><mxPoint x="704" y="250"/></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="inherit-led" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=0;strokeColor=#6c8ebf;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.28;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="led" target="qobject">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="480" y="270"/><mxPoint x="764" y="270"/></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="inherit-speed" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=0;strokeColor=#6c8ebf;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.48;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="speed" target="qobject">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="795" y="290"/><mxPoint x="824" y="290"/></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="inherit-temp" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=0;strokeColor=#6c8ebf;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.68;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="temp" target="qobject">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="1115" y="270"/><mxPoint x="884" y="270"/></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="inherit-ble" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=0;strokeColor=#6c8ebf;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.88;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="ble" target="qobject">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="1425" y="250"/><mxPoint x="944" y="250"/></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="inherit-vehicle" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=0;strokeColor=#6c8ebf;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.02;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="vehicle" target="qobject">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points"><mxPoint x="630" y="940"/><mxPoint x="630" y="155"/></Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Signal/slot dependencies: routed below the class row -->
+        <mxCell id="speed-vehicle" value="dataUpdated(rpm, speed)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;dashed=1;strokeColor=#82b366;fontColor=#2f5d31;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="speed" target="vehicle">
+          <mxGeometry x="-0.2" y="8" relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="speed-vehicle-source-cardinality" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;fontStyle=1;" vertex="1" connectable="0" parent="speed-vehicle">
+          <mxGeometry x="-0.88" y="-1" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+        <mxCell id="speed-vehicle-target-cardinality" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;fontStyle=1;" vertex="1" connectable="0" parent="speed-vehicle">
+          <mxGeometry x="0.88" y="-1" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+        <mxCell id="temp-vehicle" value="dataUpdated(temp)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;dashed=1;strokeColor=#82b366;fontColor=#2f5d31;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.78;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="temp" target="vehicle">
+          <mxGeometry x="-0.25" y="-8" relative="1" as="geometry">
+            <Array as="points"><mxPoint x="1115" y="735"/><mxPoint x="892" y="735"/></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="temp-vehicle-source-cardinality" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;fontStyle=1;" vertex="1" connectable="0" parent="temp-vehicle">
+          <mxGeometry x="-0.88" y="-1" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+        <mxCell id="temp-vehicle-target-cardinality" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;fontStyle=1;" vertex="1" connectable="0" parent="temp-vehicle">
+          <mxGeometry x="0.88" y="-1" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+        <mxCell id="ble-vehicle" value="connectionChanged(bool)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;dashed=1;strokeColor=#9673a6;fontColor=#5d3b6a;labelBackgroundColor=#ffffff;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.55;entryDx=0;entryDy=0;" edge="1" parent="1" source="ble" target="vehicle">
+          <mxGeometry x="-0.45" y="-8" relative="1" as="geometry">
+            <Array as="points"><mxPoint x="1425" y="765"/><mxPoint x="990" y="765"/><mxPoint x="990" y="955"/></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ble-vehicle-source-cardinality" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;fontStyle=1;" vertex="1" connectable="0" parent="ble-vehicle">
+          <mxGeometry x="-0.88" y="-1" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+        <mxCell id="ble-vehicle-target-cardinality" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;fontStyle=1;" vertex="1" connectable="0" parent="ble-vehicle">
+          <mxGeometry x="0.88" y="-1" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+        <mxCell id="ble-motor" value="commandReceived(cmd) - motor" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;dashed=1;strokeColor=#9673a6;fontColor=#5d3b6a;labelBackgroundColor=#ffffff;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="ble" target="motor">
+          <mxGeometry x="-0.15" y="10" relative="1" as="geometry">
+            <Array as="points"><mxPoint x="1358" y="750"/><mxPoint x="170" y="750"/></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ble-motor-source-cardinality" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;fontStyle=1;" vertex="1" connectable="0" parent="ble-motor">
+          <mxGeometry x="-0.9" y="-1" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+        <mxCell id="ble-motor-target-cardinality" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;fontStyle=1;" vertex="1" connectable="0" parent="ble-motor">
+          <mxGeometry x="0.9" y="-1" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+        <mxCell id="ble-led" value="commandReceived(cmd) - lights" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=open;endFill=0;dashed=1;strokeColor=#9673a6;fontColor=#5d3b6a;labelBackgroundColor=#ffffff;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="ble" target="led">
+          <mxGeometry x="0.15" y="-10" relative="1" as="geometry">
+            <Array as="points"><mxPoint x="1493" y="720"/><mxPoint x="480" y="720"/></Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ble-led-source-cardinality" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;fontStyle=1;" vertex="1" connectable="0" parent="ble-led">
+          <mxGeometry x="-0.9" y="-1" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+        <mxCell id="ble-led-target-cardinality" value="1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];labelBackgroundColor=#ffffff;fontStyle=1;" vertex="1" connectable="0" parent="ble-led">
+          <mxGeometry x="0.9" y="-1" relative="1" as="geometry"><mxPoint as="offset"/></mxGeometry>
+        </mxCell>
+
+        <mxCell id="legend" value="&lt;b&gt;UML notation&lt;/b&gt;&lt;br&gt;+ public&lt;br&gt;- private&lt;br&gt;Open triangle: inheritance&lt;br&gt;Dashed arrow: signal / dependency&lt;br&gt;1 — 1: one-to-one relationship" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#fff2cc;strokeColor=#d6b656;align=left;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="1120" y="820" width="300" height="160" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

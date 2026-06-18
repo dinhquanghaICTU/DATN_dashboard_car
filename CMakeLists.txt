@@ -63,7 +63,6 @@ find_library(PIGPIOD_IF2_LIB
 )
 
 message(STATUS "Found pigpiod_if2: ${PIGPIOD_IF2_LIB}")
-find_library(BLUETOOTH_LIB bluetooth REQUIRED)
 
 target_link_libraries(appDATN_dashboard_car
     PRIVATE Qt6::Quick
