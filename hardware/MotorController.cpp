@@ -121,10 +121,10 @@ void MotorController::setLeft(Direction dir, int speed) {
     gpio_write(pi, PIN_MOTOR_IN2, in2);
 
     const int trimmedSpeed = applyTrim(speed, MOTOR_LEFT_TRIM_PERCENT);
-    qDebug() << "[Motor] LEFT pins"
-             << PIN_MOTOR_IN1 << "=" << in1
-             << PIN_MOTOR_IN2 << "=" << in2
-             << "pwm" << trimmedSpeed;
+    // qDebug() << "[Motor] LEFT pins"
+    //          << PIN_MOTOR_IN1 << "=" << in1
+    //          << PIN_MOTOR_IN2 << "=" << in2
+    //          << "pwm" << trimmedSpeed;
     hardware_PWM(pi, PIN_MOTOR_ENA, MOTOR_PWM_FREQ,
                  calcDuty(trimmedSpeed));
 }
@@ -156,10 +156,10 @@ void MotorController::setRight(Direction dir, int speed) {
     gpio_write(pi, PIN_MOTOR_IN4, in4);
 
     const int trimmedSpeed = applyTrim(speed, MOTOR_RIGHT_TRIM_PERCENT);
-    qDebug() << "[Motor] RIGHT pins"
-             << PIN_MOTOR_IN3 << "=" << in3
-             << PIN_MOTOR_IN4 << "=" << in4
-             << "pwm" << trimmedSpeed;
+    // qDebug() << "[Motor] RIGHT pins"
+    //          << PIN_MOTOR_IN3 << "=" << in3
+    //          << PIN_MOTOR_IN4 << "=" << in4
+    //          << "pwm" << trimmedSpeed;
     hardware_PWM(pi, PIN_MOTOR_ENB, MOTOR_PWM_FREQ,
                  calcDuty(trimmedSpeed));
 }

@@ -50,7 +50,9 @@ private:
     bool setAdapterProperty(const QString& property, const QVariant& value);
     void connectBlueZSignals();
     void disconnectBlueZSignals();
-    void loadExistingDevices();
+    void forgetKnownDevices();
+    void forgetDevice(const QDBusObjectPath& path,
+                      const QString& address);
     void processDevice(const QDBusObjectPath& path,
                        const QVariantMap& properties);
     void fetchAndProcessDevice(const QDBusObjectPath& path);

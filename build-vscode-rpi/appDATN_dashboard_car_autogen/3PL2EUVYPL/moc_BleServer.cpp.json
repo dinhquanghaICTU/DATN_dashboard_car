@@ -1,0 +1,122 @@
+{
+    "classes": [
+        {
+            "className": "BleServer",
+            "object": true,
+            "properties": [
+                {
+                    "constant": false,
+                    "designable": true,
+                    "final": false,
+                    "index": 0,
+                    "name": "connected",
+                    "notify": "connectionChanged",
+                    "read": "connected",
+                    "required": false,
+                    "scriptable": true,
+                    "stored": true,
+                    "type": "bool",
+                    "user": false
+                }
+            ],
+            "qualifiedClassName": "BleServer",
+            "signals": [
+                {
+                    "access": "public",
+                    "arguments": [
+                        {
+                            "name": "cmd",
+                            "type": "QString"
+                        }
+                    ],
+                    "name": "commandReceived",
+                    "returnType": "void"
+                },
+                {
+                    "access": "public",
+                    "arguments": [
+                        {
+                            "name": "connected",
+                            "type": "bool"
+                        }
+                    ],
+                    "name": "connectionChanged",
+                    "returnType": "void"
+                }
+            ],
+            "slots": [
+                {
+                    "access": "public",
+                    "name": "start",
+                    "returnType": "bool"
+                },
+                {
+                    "access": "public",
+                    "name": "stop",
+                    "returnType": "void"
+                },
+                {
+                    "access": "private",
+                    "arguments": [
+                        {
+                            "name": "path",
+                            "type": "QDBusObjectPath"
+                        },
+                        {
+                            "name": "interfaces",
+                            "type": "BleInterfaceMap"
+                        }
+                    ],
+                    "name": "onInterfacesAdded",
+                    "returnType": "void"
+                },
+                {
+                    "access": "private",
+                    "arguments": [
+                        {
+                            "name": "path",
+                            "type": "QDBusObjectPath"
+                        },
+                        {
+                            "name": "interfaces",
+                            "type": "QStringList"
+                        }
+                    ],
+                    "name": "onInterfacesRemoved",
+                    "returnType": "void"
+                },
+                {
+                    "access": "private",
+                    "arguments": [
+                        {
+                            "name": "interface",
+                            "type": "QString"
+                        },
+                        {
+                            "name": "changedProperties",
+                            "type": "QVariantMap"
+                        },
+                        {
+                            "name": "invalidatedProperties",
+                            "type": "QStringList"
+                        },
+                        {
+                            "name": "message",
+                            "type": "QDBusMessage"
+                        }
+                    ],
+                    "name": "onPropertiesChanged",
+                    "returnType": "void"
+                }
+            ],
+            "superClasses": [
+                {
+                    "access": "public",
+                    "name": "QObject"
+                }
+            ]
+        }
+    ],
+    "inputFile": "BleServer.h",
+    "outputRevision": 68
+}

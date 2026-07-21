@@ -1,0 +1,144 @@
+{
+    "classes": [
+        {
+            "className": "LedController",
+            "object": true,
+            "properties": [
+                {
+                    "constant": false,
+                    "designable": true,
+                    "final": false,
+                    "index": 0,
+                    "name": "leftSignal",
+                    "notify": "stateChanged",
+                    "read": "leftSignal",
+                    "required": false,
+                    "scriptable": true,
+                    "stored": true,
+                    "type": "bool",
+                    "user": false
+                },
+                {
+                    "constant": false,
+                    "designable": true,
+                    "final": false,
+                    "index": 1,
+                    "name": "rightSignal",
+                    "notify": "stateChanged",
+                    "read": "rightSignal",
+                    "required": false,
+                    "scriptable": true,
+                    "stored": true,
+                    "type": "bool",
+                    "user": false
+                },
+                {
+                    "constant": false,
+                    "designable": true,
+                    "final": false,
+                    "index": 2,
+                    "name": "headLight",
+                    "notify": "stateChanged",
+                    "read": "headLight",
+                    "required": false,
+                    "scriptable": true,
+                    "stored": true,
+                    "type": "bool",
+                    "user": false
+                }
+            ],
+            "qualifiedClassName": "LedController",
+            "signals": [
+                {
+                    "access": "public",
+                    "name": "stateChanged",
+                    "returnType": "void"
+                }
+            ],
+            "slots": [
+                {
+                    "access": "public",
+                    "arguments": [
+                        {
+                            "name": "enabled",
+                            "type": "bool"
+                        }
+                    ],
+                    "name": "setLeftSignal",
+                    "returnType": "void"
+                },
+                {
+                    "access": "public",
+                    "arguments": [
+                        {
+                            "name": "enabled",
+                            "type": "bool"
+                        }
+                    ],
+                    "name": "setRightSignal",
+                    "returnType": "void"
+                },
+                {
+                    "access": "public",
+                    "arguments": [
+                        {
+                            "name": "enabled",
+                            "type": "bool"
+                        }
+                    ],
+                    "name": "setHazard",
+                    "returnType": "void"
+                },
+                {
+                    "access": "public",
+                    "arguments": [
+                        {
+                            "name": "enabled",
+                            "type": "bool"
+                        }
+                    ],
+                    "name": "setHeadLight",
+                    "returnType": "void"
+                },
+                {
+                    "access": "public",
+                    "name": "toggleLeftSignal",
+                    "returnType": "void"
+                },
+                {
+                    "access": "public",
+                    "name": "toggleRightSignal",
+                    "returnType": "void"
+                },
+                {
+                    "access": "public",
+                    "name": "toggleHazard",
+                    "returnType": "void"
+                },
+                {
+                    "access": "public",
+                    "name": "toggleHeadLight",
+                    "returnType": "void"
+                },
+                {
+                    "access": "public",
+                    "name": "allOff",
+                    "returnType": "void"
+                },
+                {
+                    "access": "private",
+                    "name": "onBlink",
+                    "returnType": "void"
+                }
+            ],
+            "superClasses": [
+                {
+                    "access": "public",
+                    "name": "QObject"
+                }
+            ]
+        }
+    ],
+    "inputFile": "LedController.h",
+    "outputRevision": 68
+}

@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/">
+    <file alias="/DATN_dashboard_car">/home/quanghaictu/DATN_dashboard_car/build-vscode-rpi/DATN_dashboard_car</file>
+
+  </qresource>
+</RCC>

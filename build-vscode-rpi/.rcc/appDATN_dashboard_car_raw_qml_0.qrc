@@ -1,0 +1,16 @@
+<RCC>
+  <qresource prefix="/DATN_dashboard_car/">
+    <file alias="Main.qml">/home/quanghaictu/DATN_dashboard_car/Main.qml</file>
+    <file alias="ui/components/SpeedGauge.qml">/home/quanghaictu/DATN_dashboard_car/ui/components/SpeedGauge.qml</file>
+    <file alias="ui/components/TempDisplay.qml">/home/quanghaictu/DATN_dashboard_car/ui/components/TempDisplay.qml</file>
+    <file alias="ui/components/MotorControl.qml">/home/quanghaictu/DATN_dashboard_car/ui/components/MotorControl.qml</file>
+    <file alias="ui/components/VoiceIndicator.qml">/home/quanghaictu/DATN_dashboard_car/ui/components/VoiceIndicator.qml</file>
+    <file alias="ui/components/TopBar.qml">/home/quanghaictu/DATN_dashboard_car/ui/components/TopBar.qml</file>
+    <file alias="ui/components/LeftDashboardPanel.qml">/home/quanghaictu/DATN_dashboard_car/ui/components/LeftDashboardPanel.qml</file>
+    <file alias="ui/components/CenterGaugePanel.qml">/home/quanghaictu/DATN_dashboard_car/ui/components/CenterGaugePanel.qml</file>
+    <file alias="ui/components/RightStatsPanel.qml">/home/quanghaictu/DATN_dashboard_car/ui/components/RightStatsPanel.qml</file>
+    <file alias="ui/components/IntroOverlay.qml">/home/quanghaictu/DATN_dashboard_car/ui/components/IntroOverlay.qml</file>
+    <file alias="assets/intro.mp4">/home/quanghaictu/DATN_dashboard_car/assets/intro.mp4</file>
+  </qresource>
+</RCC>
+

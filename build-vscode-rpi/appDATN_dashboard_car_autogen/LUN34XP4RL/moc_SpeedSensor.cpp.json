@@ -1,0 +1,81 @@
+{
+    "classes": [
+        {
+            "className": "SpeedSensor",
+            "object": true,
+            "properties": [
+                {
+                    "constant": false,
+                    "designable": true,
+                    "final": false,
+                    "index": 0,
+                    "name": "rpm",
+                    "notify": "dataUpdated",
+                    "read": "rpm",
+                    "required": false,
+                    "scriptable": true,
+                    "stored": true,
+                    "type": "float",
+                    "user": false
+                },
+                {
+                    "constant": false,
+                    "designable": true,
+                    "final": false,
+                    "index": 1,
+                    "name": "speed",
+                    "notify": "dataUpdated",
+                    "read": "speed",
+                    "required": false,
+                    "scriptable": true,
+                    "stored": true,
+                    "type": "float",
+                    "user": false
+                }
+            ],
+            "qualifiedClassName": "SpeedSensor",
+            "signals": [
+                {
+                    "access": "public",
+                    "arguments": [
+                        {
+                            "name": "rpm",
+                            "type": "float"
+                        },
+                        {
+                            "name": "speed",
+                            "type": "float"
+                        }
+                    ],
+                    "name": "dataUpdated",
+                    "returnType": "void"
+                }
+            ],
+            "slots": [
+                {
+                    "access": "public",
+                    "name": "start",
+                    "returnType": "void"
+                },
+                {
+                    "access": "public",
+                    "name": "stop",
+                    "returnType": "void"
+                },
+                {
+                    "access": "private",
+                    "name": "calculate",
+                    "returnType": "void"
+                }
+            ],
+            "superClasses": [
+                {
+                    "access": "public",
+                    "name": "QObject"
+                }
+            ]
+        }
+    ],
+    "inputFile": "SpeedSensor.h",
+    "outputRevision": 68
+}

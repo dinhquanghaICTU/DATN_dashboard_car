@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 10.0.1, 2026-06-14T08:59:07. -->
+<!-- Written by QtCreator 10.0.1, 2026-06-20T08:58:16. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -423,8 +423,7 @@
     <value type="int" key="PE.EnvironmentAspect.Base">1</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes">
      <value type="QString">LD_LIBRARY_PATH=/usr/local/qt6/lib/</value>
-     <value type="QString">DISPLAY=:0</value>
-     <value type="QString">XAUTHORITY=/home/pi/.Xauthority</value>
+     <value type="QString">QT_QPA_PLATFORM=eglfs</value>
     </valuelist>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">appDATN_dashboard_car (on %{Device:Name})</value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">RemoteLinuxRunConfiguration:appDATN_dashboard_car</value>

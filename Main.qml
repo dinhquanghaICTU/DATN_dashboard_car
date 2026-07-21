@@ -5,6 +5,7 @@ import "ui/components"
 Window {
     id: root
     visible: true
+    visibility: Window.FullScreen
     width: 800
     height: 480
     minimumWidth: 800
@@ -36,7 +37,7 @@ Window {
     property color weatherPanelColor: themeIndex === 0 ? "#101827" : themeIndex === 1 ? "#10160f" : "#1f1208"
     property color rainColor: themeIndex === 0 ? "#ff4fd8" : themeIndex === 1 ? "#b36bff" : "#1f6fff"
     property color weatherIconColor: weatherMode === "sun" ? (themeIndex === 2 ? dangerColor : "#ffd21f") : weatherMode === "rain" ? rainColor : "#d8eef6"
-    property string weatherMode: "sun"
+    property string weatherMode: "rain"
 
     property bool themeReloading: false
     property int pendingThemeIndex: -1
@@ -44,7 +45,7 @@ Window {
     property bool rightSignal: ledCtrl.rightSignal
     property bool headLight: ledCtrl.headLight
     property int signalTick: 0
-    property real batteryLevel: 10.0
+    property real batteryLevel: 100.0
     property bool batteryBlinkOn: true
     property bool batteryCriticalVisible: batteryLevel >= 10.0 || batteryBlinkOn
     property real displaySpeed: vehicle.speed

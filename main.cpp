@@ -79,33 +79,51 @@ int main(int argc, char *argv[])
                      &vehicle, &VehicleModel::onBleConnected,
                      Qt::QueuedConnection);
 
-    QObject::connect(ble, &BleServer::commandReceived,
-        motor, [motor](const QString& cmd) {
-            const QString command = cmd.trimmed().toUpper();
-            const QStringList parts = command.split(':', Qt::SkipEmptyParts);
-            const QString op = parts.isEmpty() ? command : parts.first();
-            const int speed = parts.size() > 1 ? parts.at(1).toInt() : MOTOR_DEFAULT_SPEED;
+     QObject::connect(ble, &BleServer::commandReceived,
+         motor, [motor](const QString& cmd) {
+             const QString command = cmd.trimmed().toUpper();
+             const QStringList parts = command.split(':', Qt::SkipEmptyParts);
+             const QString op = parts.isEmpty() ? command : parts.first();
+             const int speed = parts.size() > 1 ? parts.at(1).toInt() : MOTOR_DEFAULT_SPEED;
 
-            qDebug() << "[Motor] BLE op:" << op << "speed:" << speed;
+             qDebug() << "[Motor] BLE CMD" << op << "speed:" << speed;
 
-            if      (op == "F")    motor->forward(speed);
-            else if (op == "B")    motor->backward(speed);
-            else if (op == "L")    motor->turnLeft(speed);
-            else if (op == "R")    motor->turnRight(speed);
-            else if (op == "S")    motor->stop();
-        }, Qt::QueuedConnection);
+             if (op == "F") {
+                 motor->forward(speed);
+                //  qDebug() << "tien";
+             }
+             else if (op == "B") {
+                 motor->backward(speed);
+             }
+             else if (op == "L")  {
+                 motor->turnLeft(speed);
+             }
+             else if (op == "R")  {
+                 motor->turnRight(speed);
+             }
+             else if (op == "S")  {
+                 motor->stop();
+             }
+         }, Qt::QueuedConnection);
 
-    QObject::connect(ble, &BleServer::commandReceived,
-        lights, [lights](const QString& cmd) {
-            if      (cmd == "TL")   lights->toggleLeftSignal();
-            else if (cmd == "TR")   lights->toggleRightSignal();
-            else if (cmd == "HAZ")  lights->toggleHazard();
-            else if (cmd == "LAMP") lights->toggleHeadLight();
-        }, Qt::QueuedConnection);
+     QObject::connect(ble, &BleServer::commandReceived,
+         lights, [lights](const QString& cmd) {
+             if      (cmd == "TL") {
+                lights->toggleLeftSignal();
+             }  
+             else if (cmd == "TR") {
+                lights->toggleRightSignal();
+             }  
+             else if (cmd == "HAZ") {
+                lights->toggleHazard();
+             } 
+             else if (cmd == "LAMP"){
+                lights->toggleHeadLight();
+             } 
+         }, Qt::QueuedConnection);
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("vehicle",   &vehicle);
-    engine.rootContext()->setContextProperty("motorCtrl", motor);
     engine.rootContext()->setContextProperty("ledCtrl",   lights);
 
     const QUrl url(u"qrc:/DATN_dashboard_car/Main.qml"_qs);

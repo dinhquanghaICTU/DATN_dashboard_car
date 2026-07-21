@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/DATN_dashboard_car">
+    <file alias="qmldir">/home/quanghaictu/DATN_dashboard_car/build-vscode-rpi/DATN_dashboard_car/qmldir</file>
+  </qresource>
+</RCC>
+

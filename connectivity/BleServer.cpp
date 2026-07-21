@@ -344,8 +344,8 @@ bool BleServer::start()
     if (!configureAdapter())
         return false;
 
+    forgetKnownDevices();
     connectBlueZSignals();
-    loadExistingDevices();
 
     m_application = new BleGattApplication(this);
     if (!bus.registerVirtualObject(
@@ -390,7 +390,7 @@ bool BleServer::configureAdapter()
         && setAdapterProperty(QStringLiteral("Alias"),
                               QStringLiteral("DATN-Car"))
         && setAdapterProperty(QStringLiteral("Discoverable"), true)
-        && setAdapterProperty(QStringLiteral("Pairable"), true);
+        && setAdapterProperty(QStringLiteral("Pairable"), false);
 }
 
 bool BleServer::setAdapterProperty(const QString& property,
@@ -476,7 +476,7 @@ void BleServer::disconnectBlueZSignals()
         SLOT(onPropertiesChanged(QString,QVariantMap,QStringList,QDBusMessage)));
 }
 
-void BleServer::loadExistingDevices()
+void BleServer::forgetKnownDevices()
 {
     QDBusInterface objectManager(
         QLatin1String(BLUEZ_SERVICE),
@@ -497,9 +497,43 @@ void BleServer::loadExistingDevices()
     for (auto it = objects.cbegin(); it != objects.cend(); ++it) {
         const auto device = it.value().constFind(
             QString::fromLatin1(DEVICE_IFACE));
-        if (device != it.value().cend())
-            processDevice(it.key(), device.value());
+        if (device == it.value().cend())
+            continue;
+
+        const QString address =
+            device.value().value(QStringLiteral("Address")).toString();
+        forgetDevice(it.key(), address);
     }
+}
+
+void BleServer::forgetDevice(const QDBusObjectPath& path,
+                             const QString& address)
+{
+    QDBusInterface device(
+        QLatin1String(BLUEZ_SERVICE),
+        path.path(),
+        QLatin1String(DEVICE_IFACE),
+        QDBusConnection::systemBus());
+    device.call(QStringLiteral("Disconnect"));
+
+    QDBusInterface adapter(
+        QLatin1String(BLUEZ_SERVICE),
+        QLatin1String(ADAPTER_PATH),
+        QLatin1String(ADAPTER_IFACE),
+        QDBusConnection::systemBus());
+
+    const QDBusMessage reply = adapter.call(
+        QStringLiteral("RemoveDevice"),
+        QVariant::fromValue(path));
+
+    if (reply.type() == QDBusMessage::ErrorMessage) {
+        qWarning() << "[BLE] Cannot forget device" << address
+                   << ":" << reply.errorName()
+                   << reply.errorMessage();
+        return;
+    }
+
+    qInfo() << "[BLE] Forgot device:" << address;
 }
 
 void BleServer::onInterfacesAdded(const QDBusObjectPath& path,

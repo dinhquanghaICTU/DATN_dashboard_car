@@ -1,0 +1,14 @@
+module DATN_dashboard_car
+typeinfo appDATN_dashboard_car.qmltypes
+prefer :/DATN_dashboard_car/
+Main 1.0 Main.qml
+SpeedGauge 1.0 ui/components/SpeedGauge.qml
+TempDisplay 1.0 ui/components/TempDisplay.qml
+MotorControl 1.0 ui/components/MotorControl.qml
+VoiceIndicator 1.0 ui/components/VoiceIndicator.qml
+TopBar 1.0 ui/components/TopBar.qml
+LeftDashboardPanel 1.0 ui/components/LeftDashboardPanel.qml
+CenterGaugePanel 1.0 ui/components/CenterGaugePanel.qml
+RightStatsPanel 1.0 ui/components/RightStatsPanel.qml
+IntroOverlay 1.0 ui/components/IntroOverlay.qml
+

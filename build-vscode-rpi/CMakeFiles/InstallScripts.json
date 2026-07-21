@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/quanghaictu/DATN_dashboard_car/build-vscode-rpi/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

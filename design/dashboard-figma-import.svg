@@ -1,0 +1,197 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#080c12"/>
+      <stop offset="1" stop-color="#0d1620"/>
+    </linearGradient>
+    <linearGradient id="aqua" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#00e5cc"/>
+      <stop offset="1" stop-color="#00ff88"/>
+    </linearGradient>
+    <filter id="glow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <style>
+      .mono { font-family: Inter, Arial, sans-serif; }
+      .label { font: 600 12px Inter, Arial, sans-serif; letter-spacing: 1.4px; fill: #68808d; }
+      .value { font: 700 24px Inter, Arial, sans-serif; }
+      .icon-stroke { fill: none; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2.2; }
+    </style>
+  </defs>
+
+  <rect width="1440" height="900" fill="#eef1f5"/>
+  <text x="70" y="58" class="mono" font-size="26" font-weight="700" fill="#17212b">DATN Dashboard Car</text>
+  <text x="70" y="83" class="mono" font-size="13" fill="#687481">Production UI board • 800×480 • AQUA theme</text>
+
+  <!-- Main dashboard artboard -->
+  <g id="Dashboard-AQUA" transform="translate(70 120)">
+    <rect width="800" height="480" rx="28" fill="url(#bg)" stroke="#00e5cc" stroke-width="3"/>
+
+    <!-- Top bar -->
+    <rect x="3" y="3" width="794" height="40" rx="20" fill="#00e5cc"/>
+    <rect x="17" y="9" width="766" height="28" rx="14" fill="#007d70" fill-opacity=".5" stroke="#fff" stroke-opacity=".16"/>
+    <text x="30" y="31" class="mono" font-size="21" font-weight="800" fill="#071015">14:32</text>
+    <text x="97" y="29" class="mono" font-size="10" font-weight="700" fill="#071015" fill-opacity=".6">08</text>
+    <g transform="translate(325 15)" stroke="#071015" fill="none" stroke-width="2">
+      <rect x="0" y="2" width="14" height="13"/>
+      <line x1="0" y1="6" x2="14" y2="6"/>
+      <line x1="3" y1="0" x2="3" y2="4"/>
+      <line x1="11" y1="0" x2="11" y2="4"/>
+    </g>
+    <text x="350" y="30" class="mono" font-size="14" font-weight="700" fill="#071015">FRI, 19 JUN 2026</text>
+    <rect x="634" y="9" width="150" height="28" rx="14" fill="#101827" stroke="#ffd21f"/>
+    <circle cx="658" cy="23" r="7" fill="#ffd21f" filter="url(#glow)"/>
+    <g stroke="#ffd21f" stroke-width="2">
+      <line x1="658" y1="11" x2="658" y2="8"/><line x1="658" y1="38" x2="658" y2="35"/>
+      <line x1="646" y1="23" x2="643" y2="23"/><line x1="673" y1="23" x2="670" y2="23"/>
+    </g>
+    <text x="683" y="29" class="mono" font-size="16" font-weight="800" fill="#ffd21f">SUNNY</text>
+
+    <line x1="246" y1="52" x2="246" y2="442" stroke="#00e5cc" stroke-opacity=".12"/>
+    <line x1="553" y1="52" x2="553" y2="442" stroke="#00e5cc" stroke-opacity=".12"/>
+
+    <!-- Left: battery -->
+    <path d="M63 182 A80 80 0 1 1 183 182" fill="none" stroke="#fff" stroke-opacity=".07" stroke-width="12" stroke-linecap="round"/>
+    <path d="M63 182 A80 80 0 0 1 69 92" fill="none" stroke="url(#aqua)" stroke-width="12" stroke-linecap="round" filter="url(#glow)"/>
+    <text x="123" y="142" class="mono" text-anchor="middle" font-size="34" font-weight="800" fill="#ff4444">10%</text>
+    <text x="123" y="165" class="label" text-anchor="middle">BATTERY</text>
+    <line x1="30" y1="268" x2="226" y2="268" stroke="#fff" stroke-opacity=".08"/>
+
+    <!-- Left status icons -->
+    <g transform="translate(26 284)">
+      <g transform="translate(0 0)" fill="#00ff88">
+        <path d="M32 4 14 18l18 14V23H18v-10h14z"/>
+        <text x="18" y="51" class="label" text-anchor="middle">L</text>
+      </g>
+      <g transform="translate(43 0)" fill="#ffcc00">
+        <path d="M18 2 35 34H1zm0 8-9 18h18z" fill-rule="evenodd"/>
+        <text x="18" y="51" class="label" text-anchor="middle">HAZ</text>
+      </g>
+      <g transform="translate(86 0)" fill="#00ff88">
+        <path d="M4 4 22 18 4 32v-9h14v-10H4z"/>
+        <text x="18" y="51" class="label" text-anchor="middle">R</text>
+      </g>
+      <g transform="translate(129 0)" stroke="#00ff88" class="icon-stroke">
+        <circle cx="18" cy="18" r="8"/>
+        <path d="M18 3v5M18 28v5M3 18h5M28 18h5M7 7l4 4M25 25l4 4M29 7l-4 4M11 25l-4 4"/>
+        <text x="18" y="51" class="label" stroke="none" text-anchor="middle">LAMP</text>
+      </g>
+      <g transform="translate(172 0)" stroke="#ffaa00" class="icon-stroke">
+        <path d="M14 5v20a7 7 0 1 0 8 0V5a4 4 0 0 0-8 0z"/>
+        <line x1="18" y1="12" x2="18" y2="28"/>
+        <text x="18" y="51" class="label" stroke="none" text-anchor="middle">TEMP</text>
+      </g>
+    </g>
+
+    <!-- Theme controls -->
+    <g transform="translate(22 359)">
+      <circle cx="16" cy="16" r="15" fill="#00e5cc" stroke="#fff" stroke-width="3"/>
+      <circle cx="60" cy="16" r="13" fill="#58d68d" stroke="#fff" stroke-opacity=".18"/>
+      <circle cx="102" cy="16" r="13" fill="#ffb347" stroke="#fff" stroke-opacity=".18"/>
+      <text x="132" y="21" class="mono" font-size="14" font-weight="700" letter-spacing="2" fill="#fff" fill-opacity=".38">AQUA</text>
+    </g>
+    <g transform="translate(26 414)">
+      <rect x="0" y="25" width="5" height="9" fill="#ffaa00"/>
+      <rect x="8" y="19" width="5" height="15" fill="#ffaa00"/>
+      <rect x="16" y="12" width="5" height="22" fill="#fff" fill-opacity=".1"/>
+      <rect x="24" y="5" width="5" height="29" fill="#fff" fill-opacity=".1"/>
+      <text x="42" y="20" class="mono" font-size="21" font-weight="800" fill="#ffaa00">32.5°C</text>
+      <text x="42" y="36" class="label">ENGINE TEMP</text>
+    </g>
+
+    <!-- Center gauge -->
+    <g transform="translate(260 56)">
+      <path d="M24 145 A125 125 0 0 1 274 145" fill="none" stroke="#fff" stroke-opacity=".07" stroke-width="12" stroke-linecap="round"/>
+      <path d="M24 145 A125 125 0 0 1 190 33" fill="none" stroke="#00e5cc" stroke-width="12" stroke-linecap="round" filter="url(#glow)"/>
+      <circle cx="190" cy="33" r="7" fill="#fff" filter="url(#glow)"/>
+      <text x="149" y="111" class="mono" text-anchor="middle" font-size="46" font-weight="800" fill="#fff">28.4</text>
+      <text x="149" y="145" class="mono" text-anchor="middle" font-size="16" letter-spacing="6" fill="#00e5cc">KM/H</text>
+      <text x="149" y="234" class="mono" text-anchor="middle" font-size="50" font-weight="800" fill="#9966ff">1420</text>
+      <text x="149" y="271" class="mono" text-anchor="middle" font-size="16" letter-spacing="6" fill="#9966ff" fill-opacity=".75">RPM</text>
+      <text x="149" y="302" class="mono" text-anchor="middle" font-size="13" fill="#fff" fill-opacity=".2">7.889 m/s</text>
+      <line x1="60" y1="355" x2="238" y2="355" stroke="#fff" stroke-opacity=".1" stroke-width="2"/>
+      <g transform="translate(97 318)" fill="#fff" fill-opacity=".05" stroke="#00e5cc" stroke-width="2.5">
+        <path d="M8 28 22 16h36l16 12h14q6 0 6 5H2q0-5 6-5z"/>
+        <circle cx="24" cy="34" r="6" fill="#00ff88" stroke="none"/>
+        <circle cx="72" cy="34" r="6" fill="#00ff88" stroke="none"/>
+      </g>
+    </g>
+
+    <!-- Right cards -->
+    <g transform="translate(568 60)">
+      <g>
+        <rect width="218" height="72" rx="12" fill="#fff" fill-opacity=".04" stroke="#00e5cc" stroke-opacity=".18"/>
+        <path d="M18 42a13 13 0 0 1 26 0M31 42l8-10" class="icon-stroke" stroke="#00d4ff"/>
+        <circle cx="31" cy="42" r="2" fill="#00d4ff"/>
+        <text x="62" y="35" class="value" fill="#00d4ff">28.40</text><text x="62" y="53" class="label">KM/H • SPEED</text>
+      </g>
+      <g transform="translate(0 86)">
+        <rect width="218" height="72" rx="12" fill="#fff" fill-opacity=".04" stroke="#9966ff" stroke-opacity=".25"/>
+        <path d="M18 42a13 13 0 1 1 24-9M31 36l10-7" class="icon-stroke" stroke="#9966ff"/>
+        <text x="62" y="35" class="value" fill="#9966ff">1420</text><text x="62" y="53" class="label">RPM</text>
+      </g>
+      <g transform="translate(0 172)">
+        <rect width="218" height="72" rx="12" fill="#fff" fill-opacity=".04" stroke="#ffaa00" stroke-opacity=".25"/>
+        <rect x="18" y="38" width="6" height="12" fill="#ffaa00"/><rect x="27" y="32" width="6" height="18" fill="#ffaa00"/>
+        <rect x="36" y="24" width="6" height="26" fill="#ffaa00"/><rect x="45" y="15" width="6" height="35" fill="#fff" fill-opacity=".1"/>
+        <text x="68" y="35" class="value" fill="#ffaa00">32.5°C</text><text x="68" y="53" class="label">ENGINE TEMP</text>
+      </g>
+      <g transform="translate(0 258)">
+        <rect width="218" height="72" rx="12" fill="#fff" fill-opacity=".04" stroke="#ff4444" stroke-opacity=".35"/>
+        <rect x="17" y="25" width="36" height="22" rx="2" fill="none" stroke="#ff4444" stroke-width="2"/>
+        <rect x="53" y="31" width="4" height="10" fill="#ff4444"/>
+        <rect x="20" y="28" width="4" height="16" fill="#ff4444"/>
+        <text x="72" y="35" class="value" fill="#ff4444">10%</text><text x="72" y="53" class="label">BATTERY</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- Component/icon sheet outside the product frame -->
+  <g id="Component-Sheet" transform="translate(930 120)">
+    <rect width="440" height="700" rx="20" fill="#fff" stroke="#d7dde4"/>
+    <text x="30" y="48" class="mono" font-size="22" font-weight="700" fill="#17212b">Components &amp; Icons</text>
+    <text x="30" y="72" class="mono" font-size="12" fill="#7a8793">Extracted from the production dashboard</text>
+
+    <text x="30" y="112" class="label">STATUS ICONS / 36 × 36</text>
+    <g transform="translate(30 132)">
+      <g id="Icon-Turn-Left"><rect width="72" height="72" rx="12" fill="#080c12"/><path d="M53 18 26 36l27 18V43H31V29h22z" fill="#00ff88"/></g>
+      <g id="Icon-Hazard" transform="translate(88)"><rect width="72" height="72" rx="12" fill="#080c12"/><path d="M36 12 61 59H11zm0 13L23 51h26z" fill="#ffcc00" fill-rule="evenodd"/></g>
+      <g id="Icon-Turn-Right" transform="translate(176)"><rect width="72" height="72" rx="12" fill="#080c12"/><path d="M19 18 46 36 19 54V43h22V29H19z" fill="#00ff88"/></g>
+      <g id="Icon-Headlamp" transform="translate(264)"><rect width="72" height="72" rx="12" fill="#080c12"/><circle cx="36" cy="36" r="13" class="icon-stroke" stroke="#00ff88"/><path d="M36 14v8M36 50v8M14 36h8M50 36h8M20 20l6 6M46 46l6 6M52 20l-6 6M26 46l-6 6" class="icon-stroke" stroke="#00ff88"/></g>
+    </g>
+
+    <text x="30" y="238" class="label">DATA ICONS / 48 × 48</text>
+    <g transform="translate(30 258)">
+      <g id="Icon-Speed"><rect width="88" height="88" rx="14" fill="#080c12"/><path d="M22 58a23 23 0 0 1 44 0M44 58l14-17" class="icon-stroke" stroke="#00d4ff"/><circle cx="44" cy="58" r="3" fill="#00d4ff"/></g>
+      <g id="Icon-RPM" transform="translate(104)"><rect width="88" height="88" rx="14" fill="#080c12"/><path d="M22 55a24 24 0 1 1 45-13M44 48l16-11" class="icon-stroke" stroke="#9966ff"/></g>
+      <g id="Icon-Temperature" transform="translate(208)"><rect width="88" height="88" rx="14" fill="#080c12"/><rect x="20" y="54" width="8" height="14" fill="#ffaa00"/><rect x="32" y="44" width="8" height="24" fill="#ffaa00"/><rect x="44" y="32" width="8" height="36" fill="#ffaa00"/><rect x="56" y="18" width="8" height="50" fill="#fff" fill-opacity=".1"/></g>
+      <g id="Icon-Battery" transform="translate(312)"><rect width="88" height="88" rx="14" fill="#080c12"/><rect x="17" y="30" width="48" height="29" rx="2" fill="none" stroke="#ff4444" stroke-width="3"/><rect x="65" y="38" width="6" height="13" fill="#ff4444"/><rect x="21" y="34" width="8" height="21" fill="#ff4444"/></g>
+    </g>
+
+    <text x="30" y="386" class="label">THEME TOKENS</text>
+    <g transform="translate(30 406)">
+      <g><circle cx="22" cy="22" r="22" fill="#00e5cc"/><text x="22" y="58" class="mono" font-size="11" text-anchor="middle" fill="#53616d">AQUA</text></g>
+      <g transform="translate(80)"><circle cx="22" cy="22" r="22" fill="#58d68d"/><text x="22" y="58" class="mono" font-size="11" text-anchor="middle" fill="#53616d">FOREST</text></g>
+      <g transform="translate(160)"><circle cx="22" cy="22" r="22" fill="#ffb347"/><text x="22" y="58" class="mono" font-size="11" text-anchor="middle" fill="#53616d">AMBER</text></g>
+      <g transform="translate(240)"><circle cx="22" cy="22" r="22" fill="#9966ff"/><text x="22" y="58" class="mono" font-size="11" text-anchor="middle" fill="#53616d">RPM</text></g>
+      <g transform="translate(320)"><circle cx="22" cy="22" r="22" fill="#ff4444"/><text x="22" y="58" class="mono" font-size="11" text-anchor="middle" fill="#53616d">DANGER</text></g>
+    </g>
+
+    <text x="30" y="510" class="label">REUSABLE UI COMPONENTS</text>
+    <g transform="translate(30 532)">
+      <rect width="180" height="72" rx="12" fill="#080c12" stroke="#00e5cc" stroke-opacity=".3"/>
+      <text x="18" y="27" class="mono" font-size="12" fill="#7c919c">STAT CARD</text>
+      <text x="18" y="54" class="mono" font-size="24" font-weight="800" fill="#00d4ff">28.40</text>
+      <rect x="198" width="180" height="72" rx="12" fill="#080c12" stroke="#ffcc00" stroke-opacity=".4"/>
+      <text x="216" y="27" class="mono" font-size="12" fill="#7c919c">WARNING CARD</text>
+      <text x="216" y="54" class="mono" font-size="24" font-weight="800" fill="#ffcc00">HAZARD</text>
+    </g>
+    <g transform="translate(30 622)">
+      <rect width="378" height="46" rx="23" fill="#00e5cc"/>
+      <text x="24" y="29" class="mono" font-size="14" font-weight="800" fill="#071015">TOP BAR / PRIMARY</text>
+      <rect x="270" y="9" width="96" height="28" rx="14" fill="#101827"/>
+      <text x="318" y="28" class="mono" font-size="12" font-weight="700" text-anchor="middle" fill="#ffd21f">SUNNY</text>
+    </g>
+  </g>
+</svg>

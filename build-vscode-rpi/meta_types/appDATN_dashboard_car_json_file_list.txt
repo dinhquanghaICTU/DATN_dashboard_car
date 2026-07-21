@@ -1,0 +1,6 @@
+/home/quanghaictu/DATN_dashboard_car/build-vscode-rpi/appDATN_dashboard_car_autogen/include/../3PL2EUVYPL/moc_BleServer.cpp.json
+/home/quanghaictu/DATN_dashboard_car/build-vscode-rpi/appDATN_dashboard_car_autogen/include/../IVK4DJNV27/moc_VehicleModel.cpp.json
+/home/quanghaictu/DATN_dashboard_car/build-vscode-rpi/appDATN_dashboard_car_autogen/include/../LUN34XP4RL/moc_LedController.cpp.json
+/home/quanghaictu/DATN_dashboard_car/build-vscode-rpi/appDATN_dashboard_car_autogen/include/../LUN34XP4RL/moc_MotorController.cpp.json
+/home/quanghaictu/DATN_dashboard_car/build-vscode-rpi/appDATN_dashboard_car_autogen/include/../LUN34XP4RL/moc_SpeedSensor.cpp.json
+/home/quanghaictu/DATN_dashboard_car/build-vscode-rpi/appDATN_dashboard_car_autogen/include/../LUN34XP4RL/moc_TempSensor.cpp.json

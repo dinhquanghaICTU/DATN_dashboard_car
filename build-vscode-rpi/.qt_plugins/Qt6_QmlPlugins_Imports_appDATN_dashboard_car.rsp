@@ -1,0 +1,14 @@
+-rootPath
+/home/quanghaictu/DATN_dashboard_car
+-cmake-output
+-output-file
+/home/quanghaictu/DATN_dashboard_car/build-vscode-rpi/.qt_plugins/Qt6_QmlPlugins_Imports_appDATN_dashboard_car.cmake
+-importPath
+/home/quanghaictu/DATN_dashboard_car/build-vscode-rpi/DATN_dashboard_car
+-importPath
+/home/quanghaictu/DATN_dashboard_car/build-vscode-rpi
+-importPath
+/home/quanghaictu/Qt6Cross/qt6/pi/./qml
+-qrcFiles
+/home/quanghaictu/DATN_dashboard_car/build-vscode-rpi/.rcc/qmake_DATN_dashboard_car.qrc
+/home/quanghaictu/DATN_dashboard_car/build-vscode-rpi/.rcc/appDATN_dashboard_car_raw_qml_0.qrc
