@@ -15,7 +15,9 @@ Window {
     color: bgColor
     title: "DATN Dashboard"
 
-    property bool introActive: true
+    // Desktop Qt was built without a multimedia backend. Only load the video
+    // intro on the Raspberry Pi; the Desktop dashboard appears immediately.
+    property bool introActive: rpiHardware
     property int themeIndex: 0
     property string themeName: themeIndex === 0 ? "AQUA" : themeIndex === 1 ? "FOREST" : "AMBER"
     property color bgColor: themeIndex === 0 ? "#080c12" : themeIndex === 1 ? "#07100c" : "#100d08"
@@ -230,9 +232,15 @@ Window {
         color: "black"
     }
 
-    IntroOverlay {
+    Loader {
+        id: introLoader
         anchors.fill: parent
-        introActive: root.introActive
-        onFinished: root.finishIntro()
+        active: rpiHardware
+        source: active ? "ui/components/IntroOverlay.qml" : ""
+
+        onLoaded: {
+            item.introActive = Qt.binding(function() { return root.introActive })
+            item.finished.connect(root.finishIntro)
+        }
     }
 }

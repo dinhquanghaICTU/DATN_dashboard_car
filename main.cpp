@@ -8,7 +8,7 @@
 #include <QStringList>
 #include <QUrl>
 #include <csignal>
-#include <pigpiod_if2.h>
+#include "hardware/PigpioCompat.h"
 #include "hardware/MotorController.h"
 #include "hardware/LedController.h"
 #include "hardware/SpeedSensor.h"
@@ -18,12 +18,23 @@
 
 int main(int argc, char *argv[])
 {
+#ifndef DATN_RPI_HARDWARE
+    // The locally built host Qt has an XCB platform plugin but no Wayland
+    // plugin. Select XCB before QGuiApplication tries to load a platform.
+    if (qEnvironmentVariableIsEmpty("QT_QPA_PLATFORM"))
+        qputenv("QT_QPA_PLATFORM", "xcb");
+#endif
+
     int pi = pigpio_start(NULL, NULL);
     if (pi < 0) 
     { qDebug() << "check bug failed gpio !";
         return -1; 
     }
+#ifdef DATN_RPI_HARDWARE
     qDebug() << "giao tiep duoc gpio";
+#else
+    qDebug() << "[Desktop] GPIO/I2C simulation enabled";
+#endif
 
     QGuiApplication app(argc, argv);
 
@@ -123,6 +134,13 @@ int main(int argc, char *argv[])
          }, Qt::QueuedConnection);
 
     QQmlApplicationEngine engine;
+    engine.rootContext()->setContextProperty("rpiHardware",
+#ifdef DATN_RPI_HARDWARE
+                                              true
+#else
+                                              false
+#endif
+    );
     engine.rootContext()->setContextProperty("vehicle",   &vehicle);
     engine.rootContext()->setContextProperty("ledCtrl",   lights);
 

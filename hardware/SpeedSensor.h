@@ -1,7 +1,7 @@
 #pragma once
 #include <QObject>
 #include <QTimer>
-#include <pigpiod_if2.h>
+#include "PigpioCompat.h"
 #include <atomic>
 #include <cstdint>
 #include "AppConfig.h"

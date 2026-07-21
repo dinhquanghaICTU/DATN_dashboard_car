@@ -3,7 +3,7 @@
 #include <QTimer>
 #include <QDebug>
 #include <cstdint>
-#include <pigpiod_if2.h>
+#include "PigpioCompat.h"
 #include "AppConfig.h"
 
 class TempSensor : public QObject {

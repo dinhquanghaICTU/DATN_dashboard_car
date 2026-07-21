@@ -4,6 +4,16 @@ project(DATN_dashboard_car VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# The Raspberry Pi build uses the real pigpio daemon. Desktop builds use the
+# small compatibility layer in hardware/PigpioCompat.h so the UI can be built
+# and run without Raspberry Pi hardware.
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(arm|armv[0-9].*|aarch64)$")
+    set(DATN_RPI_HARDWARE_DEFAULT ON)
+else()
+    set(DATN_RPI_HARDWARE_DEFAULT OFF)
+endif()
+option(DATN_RPI_HARDWARE "Enable Raspberry Pi GPIO/I2C hardware" ${DATN_RPI_HARDWARE_DEFAULT})
+
 find_package(Qt6 6.4 REQUIRED COMPONENTS Quick Core Network DBus Multimedia)
 
 qt_standard_project_setup()
@@ -54,25 +64,29 @@ target_include_directories(appDATN_dashboard_car PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/models
 )
 
-find_library(PIGPIOD_IF2_LIB
-    NAMES pigpiod_if2
-    PATHS
-        ${CMAKE_SYSROOT}/usr/lib
-        ${CMAKE_SYSROOT}/usr/local/lib
-    REQUIRED
-)
-
-message(STATUS "Found pigpiod_if2: ${PIGPIOD_IF2_LIB}")
-
 target_link_libraries(appDATN_dashboard_car
     PRIVATE Qt6::Quick
     PRIVATE Qt6::Core
     PRIVATE Qt6::Network
     PRIVATE Qt6::DBus
     PRIVATE Qt6::Multimedia
-    PRIVATE ${PIGPIOD_IF2_LIB}
     PRIVATE pthread rt
 )
+
+if(DATN_RPI_HARDWARE)
+    find_library(PIGPIOD_IF2_LIB
+        NAMES pigpiod_if2
+        PATHS
+            ${CMAKE_SYSROOT}/usr/lib
+            ${CMAKE_SYSROOT}/usr/local/lib
+        REQUIRED
+    )
+    message(STATUS "Raspberry Pi hardware enabled; pigpiod_if2: ${PIGPIOD_IF2_LIB}")
+    target_compile_definitions(appDATN_dashboard_car PRIVATE DATN_RPI_HARDWARE=1)
+    target_link_libraries(appDATN_dashboard_car PRIVATE ${PIGPIOD_IF2_LIB})
+else()
+    message(STATUS "Desktop mode enabled; GPIO and I2C calls are simulated")
+endif()
 
 install(TARGETS appDATN_dashboard_car
     BUNDLE DESTINATION .

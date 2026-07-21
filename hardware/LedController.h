@@ -2,7 +2,7 @@
 
 #include <QObject>
 #include <QTimer>
-#include <pigpiod_if2.h>
+#include "PigpioCompat.h"
 #include "AppConfig.h"
 
 class LedController : public QObject {

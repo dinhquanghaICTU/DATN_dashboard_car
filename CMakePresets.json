@@ -1,0 +1,22 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "desktop-debug",
+      "displayName": "Desktop x86_64 - Debug",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-desktop-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_PREFIX_PATH": "/home/quanghaictu/Qt6Cross/qt6/host",
+        "DATN_RPI_HARDWARE": "OFF"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "desktop-debug",
+      "configurePreset": "desktop-debug"
+    }
+  ]
+}

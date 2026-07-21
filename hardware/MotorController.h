@@ -1,6 +1,6 @@
 #pragma once
 #include <QObject>
-#include <pigpiod_if2.h>
+#include "PigpioCompat.h"
 #include "AppConfig.h"
 
 class MotorController : public QObject {
