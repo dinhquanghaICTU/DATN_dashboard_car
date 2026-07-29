@@ -796,3 +796,13 @@ QT 6.5.1 (host)
 ```
 
 ![Cấu hình kit RPI](image/setting_device_host.png)
+
+
+## VI. Chạy thử 
+
+
+- các bạn xem video trên kênh để chạy thử nhé 
+
+```text
+https://www.youtube.com/watch?v=-wIMu40Xcas
+```
