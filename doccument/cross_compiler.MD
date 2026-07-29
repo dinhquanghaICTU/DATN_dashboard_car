@@ -476,11 +476,65 @@ rsync -avz --rsync-path="sudo rsync" $HOME/Qt6Cross/qt6/pi/* <username>@<IP>:/us
 
 ---
 
+## cài đặt pigpio cho host và raspbery pi 4
+- mục đích sử dụng được các chân gpio trên raspberry pi thông qua service pigpio để nó gọi xuống tầng system call. Nó chứa các API để gọi xuống tầng dưới để điều khiển hardware
+
+
+(lưu ý lệnh này chạy ở trên raspbery pi 4)
+- lệnh này nó cài pigpio vào raspbery pi mục đích để sau này đồng bộ sang host có thể sử dụng để cho host build
+
+```bash
+sudo apt update
+sudo apt install -y pigpio libpigpio-dev
+```
+
+(lưu ý lệnh này chạy ở trên host- máy ảo ubuntu)
+- lệnh này nó tạo ra thư mục chứa header để linker có thể tìm thấy và build
+
+```bash
+mkdir -p ~/Qt6Cross/rpi-sysroot/usr/include
+```
+
+(lưu ý lệnh này chạy ở trên host- máy ảo ubuntu)
+- mục đích của lệnh này là đồng bộ thư mục include để nó có đủ các files header của pigpio
+
+> Thay `pi` và `192.168.1.9` bằng username và IP thật của Raspberry Pi.
+
+```bash
+rsync -avz \
+pi@192.168.1.9:/usr/include/pigpio.h \
+pi@192.168.1.9:/usr/include/pigpiod_if.h \
+pi@192.168.1.9:/usr/include/pigpiod_if2.h \
+~/Qt6Cross/rpi-sysroot/usr/include/
+```
+
+
+(lưu ý lệnh này chạy ở trên host- máy ảo ubuntu)
+- mục đích tạo ra thư mục chứa src code của pigpio
+
+```bash
+mkdir -p ~/Qt6Cross/rpi-sysroot/usr/lib
+```
+
+(lưu ý lệnh này chạy ở trên host- máy ảo ubuntu)
+- mục đích của lệnh này để đồng bộ laị các files src code của pigpio cho host
+
+> Thay `pi` và `192.168.1.9` bằng username và IP thật của Raspberry Pi.
+
+```bash
+rsync -avz \
+pi@192.168.1.9:/usr/lib/libpigpio.so \
+pi@192.168.1.9:/usr/lib/libpigpio.so.1 \
+pi@192.168.1.9:/usr/lib/libpigpiod_if.so \
+pi@192.168.1.9:/usr/lib/libpigpiod_if.so.1 \
+pi@192.168.1.9:/usr/lib/libpigpiod_if2.so \
+pi@192.168.1.9:/usr/lib/libpigpiod_if2.so.1 \
+~/Qt6Cross/rpi-sysroot/usr/lib/
+```
+
+
 ## IV. Cài đặt Qt Creator
 
 > Cần tải phiên bản Qt Creator phù hợp. Xem thêm trong file hướng dẫn đi kèm.
 
-```bash
-git clone git://code.qt.io/qt-creator/qt-creator.git
-git log --cherry-pick --pretty=oneline origin/v10.0.0..v10.0.1
-```
+https://github.com/qt-creator/qt-creator/releases/download/v10.0.1/qtcreator-linux-x64-10.0.1.deb
