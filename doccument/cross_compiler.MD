@@ -79,7 +79,7 @@ cd gcc-10.3.0
 contrib/download_prerequisites
 ```
 
-Ghi chú các câu lệnh bên trên (không cần tải, read only)
+Ghi chú các câu lệnh bên dưới (không cần tải, read only)
 
 Tải binutils: bao gồm các tool như as (assembler), ld (linker), ar (archive tool)… Đây là các công cụ cơ bản cần cho quá trình biên dịch.
 >wget https://ftpmirror.gnu.org/binutils/binutils-2.35.2.tar.bz2
@@ -537,4 +537,75 @@ pi@192.168.1.9:/usr/lib/libpigpiod_if2.so.1 \
 
 > Cần tải phiên bản Qt Creator phù hợp. Xem thêm trong file hướng dẫn đi kèm.
 
+- đoạn này các bạn copy lên trình duyệt tải xuống nhé  
+
 https://github.com/qt-creator/qt-creator/releases/download/v10.0.1/qtcreator-linux-x64-10.0.1.deb
+
+
+- di chuyển tới thư mục download 
+
+cd ~/Downloads
+
+- sau khi di chuyển vào thư mục download ta tiến hành install app QTcreator lên 
+sudo apt install ./qtcreator-linux-x64-10.0.1.deb
+
+
+
+## V. Cấu hình Qt Creator
+
+
+vào Edit->Preference->Kits->Compilers-> Add -> Custom -> C
+
+- đặt name là 
+RPI_RCC
+
+- Compiler path
+
+/opt/cross-pi-gcc/bin/aarch64-linux-gnu-gcc
+
+- nhấn apply 
+
+
+![compiler C Raspbery pi ](image/compiler_c.png)
+
+
+
+vào Edit->Preference->Kits->Compilers-> Add -> Custom -> C
+
+- đặt name là 
+DESKTOP
+
+- Compiler path
+
+/bin/gcc
+
+- nhấn apply 
+
+![compiler C host ](image/compiler_c_host.png)
+
+
+
+
+vào Edit->Preference->Kits->Compilers-> Add -> Custom -> C++
+
+- đặt name là 
+RPI_RCC
+- Compiler path
+/opt/cross-pi-gcc/bin/aarch64-linux-gnu-g++
+- nhấn apply 
+
+
+![compiler C++ raspbery pi  ](image/compiler_C++_raspbery_pi.png)
+
+
+vào Edit->Preference->Kits->Compilers-> Add -> Custom -> C++
+
+- đặt name là 
+RPI_RCC
+- Compiler path
+/bin/g++
+
+- nhấn apply 
+
+
+![compiler C++ host ](image/compiler_C++_host.png)
