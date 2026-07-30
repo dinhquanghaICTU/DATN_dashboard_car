@@ -12,7 +12,43 @@ Link drive lưu 1 vài file mình sử dụng trong quá trình build, đề ph�
 https://drive.google.com/drive/folders/1INfJcckDI_olr4NDbNYfu6JdJKIJMWz6?usp=sharing
 
 
+# Lưu ý
+
+- khi làm phải chạy theo thứ tự chạy của raspberry pi trước sau đó với chạy của máy ubuntu 
+- không thì khi đồng bộ sẽ mắc lỗi khi chạy lệnh này  
+
+
+(lệnh này không cần chạy chỉ là lưu ý )
+
+cd $HOME/Qt6Cross/qt6/pi-build
+cmake ../src/qtbase-everywhere-src-6.5.1/ -GNinja -DCMAKE_BUILD_TYPE=Release -DINPUT_opengl=es2 -DQT_BUILD_EXAMPLES=OFF -DQT_BUILD_TESTS=OFF -DQT_HOST_PATH=$HOME/Qt6Cross/qt6/host -DCMAKE_STAGING_PREFIX=$HOME/Qt6Cross/qt6/pi -DCMAKE_INSTALL_PREFIX=/usr/local/qt6 -DCMAKE_TOOLCHAIN_FILE=$HOME/Qt6Cross/qt6/pi-build/toolchain.cmake -DQT_QMAKE_TARGET_MKSPEC=devices/linux-rasp-pi4-aarch64 -DQT_FEATURE_xcb=ON -DFEATURE_xcb_xlib=ON -DQT_FEATURE_xlib=ON
+cmake --build . --parallel 8
+cmake --install .
+
+
+
 # Chuẩn bị cho RPI
+
+- để dùng được remote desktop của windown khi dùng cần phải cài thêm các gói này 
+```Bash
+sudo adduser <nhập tên user của các bạn> 
+sudo usermod -aG  sudo <nhập tên user của các bạn vừa tạo>
+```
+- mục đích của lệnh này là để tạo user mới tránh màn hình xanh các bạn phải xem trên video https://www.youtube.com/watch?v=r3NnexcZB6o để biết cách làm tiếp
+
+```Bash
+sudo apt update && sudo apt upgrade -y && \
+sudo apt install xrdp xorgxrdp -y && \
+sudo adduser xrdp ssl-cert && \
+sudo systemctl enable xrdp && \
+sudo systemctl restart xrdp
+```
+
+```Bash
+su <nhâp tên user mới tạo>
+```
+- mục đích để chuyển qua user mới sau này dùng remote desktop thì dùng user mới tránh lỗi màn hình xanh của remote desktop
+
 Cật nhập repo mới nhất
 ```Bash
 sudo apt update
@@ -36,6 +72,7 @@ Thêm đường dẫn thư viện
 echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/qt6/lib/' >> ~/.bashrc
 source ~/.bashrc
 ```
+
 
 # Chuẩn bị cho máy Host
 Cập nhật repo mới nhất
