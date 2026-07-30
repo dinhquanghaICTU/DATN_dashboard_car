@@ -14,29 +14,30 @@ https://drive.google.com/drive/folders/1INfJcckDI_olr4NDbNYfu6JdJKIJMWz6?usp=sha
 
 # Lưu ý
 
-- khi làm phải chạy theo thứ tự chạy của raspberry pi trước sau đó với chạy của máy ubuntu 
-- không thì khi đồng bộ sẽ mắc lỗi khi chạy lệnh này  
+- khi làm phải chạy theo thứ tự chạy của raspberry pi trước sau đó với chạy của máy ubuntu
+- không thì khi đồng bộ sẽ mắc lỗi khi chạy lệnh này
 
+> **(lệnh này không cần chạy chỉ là lưu ý)**
 
-(lệnh này không cần chạy chỉ là lưu ý )
-
+```bash
 cd $HOME/Qt6Cross/qt6/pi-build
 cmake ../src/qtbase-everywhere-src-6.5.1/ -GNinja -DCMAKE_BUILD_TYPE=Release -DINPUT_opengl=es2 -DQT_BUILD_EXAMPLES=OFF -DQT_BUILD_TESTS=OFF -DQT_HOST_PATH=$HOME/Qt6Cross/qt6/host -DCMAKE_STAGING_PREFIX=$HOME/Qt6Cross/qt6/pi -DCMAKE_INSTALL_PREFIX=/usr/local/qt6 -DCMAKE_TOOLCHAIN_FILE=$HOME/Qt6Cross/qt6/pi-build/toolchain.cmake -DQT_QMAKE_TARGET_MKSPEC=devices/linux-rasp-pi4-aarch64 -DQT_FEATURE_xcb=ON -DFEATURE_xcb_xlib=ON -DQT_FEATURE_xlib=ON
 cmake --build . --parallel 8
 cmake --install .
-
-
+```
 
 # Chuẩn bị cho RPI
 
-- để dùng được remote desktop của windown khi dùng cần phải cài thêm các gói này 
-```Bash
-sudo adduser <nhập tên user của các bạn> 
+- để dùng được remote desktop của windown khi dùng cần phải cài thêm các gói này
+
+```bash
+sudo adduser <nhập tên user của các bạn>
 sudo usermod -aG  sudo <nhập tên user của các bạn vừa tạo>
 ```
+
 - mục đích của lệnh này là để tạo user mới tránh màn hình xanh các bạn phải xem trên video https://www.youtube.com/watch?v=r3NnexcZB6o để biết cách làm tiếp
 
-```Bash
+```bash
 sudo apt update && sudo apt upgrade -y && \
 sudo apt install xrdp xorgxrdp -y && \
 sudo adduser xrdp ssl-cert && \
@@ -44,60 +45,73 @@ sudo systemctl enable xrdp && \
 sudo systemctl restart xrdp
 ```
 
-```Bash
+```bash
 su <nhâp tên user mới tạo>
 ```
+
 - mục đích để chuyển qua user mới sau này dùng remote desktop thì dùng user mới tránh lỗi màn hình xanh của remote desktop
 
 Cật nhập repo mới nhất
-```Bash
+
+```bash
 sudo apt update
 sudo apt upgrade
 ```
+
 Cài các package liên quan
-```Bash
-sudo apt-get install libboost-all-dev libudev-dev libinput-dev libts-dev libmtdev-dev libjpeg-dev libfontconfig1-dev libssl-dev libdbus-1-dev libglib2.0-dev libxkbcommon-dev libegl1-mesa-dev libgbm-dev libgles2-mesa-dev mesa-common-dev libasound2-dev libpulse-dev gstreamer1.0-omx libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev  gstreamer1.0-alsa libvpx-dev libsrtp2-dev libsnappy-dev libnss3-dev "^libxcb.*" flex bison libxslt-dev ruby gperf libbz2-dev libcups2-dev libatkmm-1.6-dev libxi6 libxcomposite1 libfreetype6-dev libicu-dev libsqlite3-dev libxslt1-dev 
+
+```bash
+sudo apt-get install libboost-all-dev libudev-dev libinput-dev libts-dev libmtdev-dev libjpeg-dev libfontconfig1-dev libssl-dev libdbus-1-dev libglib2.0-dev libxkbcommon-dev libegl1-mesa-dev libgbm-dev libgles2-mesa-dev mesa-common-dev libasound2-dev libpulse-dev gstreamer1.0-omx libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev  gstreamer1.0-alsa libvpx-dev libsrtp2-dev libsnappy-dev libnss3-dev "^libxcb.*" flex bison libxslt-dev ruby gperf libbz2-dev libcups2-dev libatkmm-1.6-dev libxi6 libxcomposite1 libfreetype6-dev libicu-dev libsqlite3-dev libxslt1-dev
 ```
-```Bash
+
+```bash
 sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev libx11-dev freetds-dev libsqlite3-dev libpq-dev libiodbc2-dev firebird-dev libxext-dev libxcb1 libxcb1-dev libx11-xcb1 libx11-xcb-dev libxcb-keysyms1 libxcb-keysyms1-dev libxcb-image0 libxcb-image0-dev libxcb-shm0 libxcb-shm0-dev libxcb-icccm4 libxcb-icccm4-dev libxcb-sync1 libxcb-sync-dev libxcb-render-util0 libxcb-render-util0-dev libxcb-xfixes0-dev libxrender-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-glx0-dev libxi-dev libdrm-dev libxcb-xinerama0 libxcb-xinerama0-dev libatspi2.0-dev libxcursor-dev libxcomposite-dev libxdamage-dev libxss-dev libxtst-dev libpci-dev libcap-dev libxrandr-dev libdirectfb-dev libaudio-dev libxkbcommon-x11-dev gdbserver
 ```
 
 Tạo folder chứa binaries của Qt6
-```Bash
+
+```bash
 sudo mkdir /usr/local/qt6
 sudo chmod 777 /usr/local/bin
 ```
-Thêm đường dẫn thư viện 
-```Bash
+
+Thêm đường dẫn thư viện
+
+```bash
 echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/qt6/lib/' >> ~/.bashrc
 source ~/.bashrc
 ```
 
-
 # Chuẩn bị cho máy Host
+
 Cập nhật repo mới nhất
-```Bash
+
+```bash
 sudo apt update
 sudo apt upgrade
 ```
-Cài các gói cần thiết 
-```Bash
+
+Cài các gói cần thiết
+
+```bash
 sudo apt-get install make build-essential libclang-dev ninja-build gcc git bison python3 gperf pkg-config libfontconfig1-dev libfreetype6-dev libx11-dev libx11-xcb-dev libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libxcb-glx0-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-util-dev libxcb-xinerama0-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev libatspi2.0-dev libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev build-essential gawk git texinfo bison file wget libssl-dev gdbserver gdb-multiarch libxcb-cursor-dev
 ```
 
 Tạo folder làm việt
-```Bash
+
+```bash
 cd ~
-mkdir Qt6Cross 
+mkdir Qt6Cross
 ```
+
 # Tải và cài đặt CMake mới nhất từ repo github
-```Bash
+
+```bash
 cd ~/Qt6Cross
 git clone https://github.com/Kitware/CMake.git
 cd CMake
 ./bootstrap && make -j8&& sudo make install
 ```
-
 # Tải tool biên dịch chéo (sử dụng GCC)
 
 
