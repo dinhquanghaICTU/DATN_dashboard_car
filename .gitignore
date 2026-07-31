@@ -1,0 +1,6 @@
+# Local credentials and machine-specific Qt Creator state
+/auto/config.txt
+/CMakeLists.txt.user
+
+# Local build directories
+/build*/
