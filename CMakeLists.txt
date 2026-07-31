@@ -74,6 +74,13 @@ target_link_libraries(appDATN_dashboard_car
 )
 
 if(DATN_RPI_HARDWARE)
+    find_path(PIGPIOD_IF2_INCLUDE_DIR
+        NAMES pigpiod_if2.h
+        PATHS
+            ${CMAKE_SYSROOT}/usr/include
+            ${CMAKE_SYSROOT}/usr/local/include
+        REQUIRED
+    )
     find_library(PIGPIOD_IF2_LIB
         NAMES pigpiod_if2
         PATHS
@@ -81,8 +88,10 @@ if(DATN_RPI_HARDWARE)
             ${CMAKE_SYSROOT}/usr/local/lib
         REQUIRED
     )
-    message(STATUS "Raspberry Pi hardware enabled; pigpiod_if2: ${PIGPIOD_IF2_LIB}")
+    message(STATUS "Raspberry Pi hardware enabled; pigpiod_if2 header: ${PIGPIOD_IF2_INCLUDE_DIR}")
+    message(STATUS "Raspberry Pi hardware enabled; pigpiod_if2 library: ${PIGPIOD_IF2_LIB}")
     target_compile_definitions(appDATN_dashboard_car PRIVATE DATN_RPI_HARDWARE=1)
+    target_include_directories(appDATN_dashboard_car SYSTEM PRIVATE ${PIGPIOD_IF2_INCLUDE_DIR})
     target_link_libraries(appDATN_dashboard_car PRIVATE ${PIGPIOD_IF2_LIB})
 else()
     message(STATUS "Desktop mode enabled; GPIO and I2C calls are simulated")

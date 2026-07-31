@@ -26,8 +26,9 @@ int main(int argc, char *argv[])
 #endif
 
     int pi = pigpio_start(NULL, NULL);
-    if (pi < 0) 
-    { qDebug() << "check bug failed gpio !";
+    if (pi < 0)
+    { qCritical() << "pigpio_start failed with code" << pi
+                  << "- check that pigpiod is running and TCP port 8888 is reachable";
         return -1; 
     }
 #ifdef DATN_RPI_HARDWARE
