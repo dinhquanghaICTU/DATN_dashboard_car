@@ -68,14 +68,20 @@ echo "Remote Desktop user: $RDP_USER"
 echo
 
 # Tao user rieng de dang nhap Windows Remote Desktop, tranh dung session desktop hien tai.
-if id "$RDP_USER" >/dev/null 2>&1; then
+if getent passwd "$RDP_USER" >/dev/null 2>&1; then
   echo "User Remote Desktop '$RDP_USER' da ton tai, bo qua buoc tao user."
 else
-  adduser --disabled-password --gecos "" "$RDP_USER"
+  useradd --create-home --shell /bin/bash "$RDP_USER"
+fi
+
+if ! getent passwd "$RDP_USER" >/dev/null 2>&1; then
+  echo "Khong tao duoc user Remote Desktop: $RDP_USER" >&2
+  exit 1
 fi
 
 printf '%s:%s\n' "$RDP_USER" "$RDP_PASS" | chpasswd
 usermod -aG sudo "$RDP_USER"
+RDP_GROUP="$(id -gn "$RDP_USER")"
 
 echo "Cap nhat he thong..."
 apt-get update
@@ -127,17 +133,26 @@ else
 fi
 
 # Thu muc cai Qt tren Raspberry Pi.
+if ! getent passwd "$RASPI_USER" >/dev/null 2>&1; then
+  echo "Khong ton tai Raspberry Pi user trong config: $RASPI_USER" >&2
+  exit 1
+fi
+RASPI_GROUP="$(id -gn "$RASPI_USER")"
 install -d -m 0755 /usr/local/qt6
-chown -R "$RASPI_USER:$RASPI_USER" /usr/local/qt6
+chown -R "$RASPI_USER:$RASPI_GROUP" /usr/local/qt6
 
 # Them duong dan thu vien cho user dung Remote Desktop, khong ghi vao .bashrc cua root.
 RDP_HOME="$(getent passwd "$RDP_USER" | cut -d: -f6)"
+if [ -z "$RDP_HOME" ] || [ ! -d "$RDP_HOME" ]; then
+  echo "Home directory cua Remote Desktop user khong hop le: $RDP_USER" >&2
+  exit 1
+fi
 LD_LIBRARY_LINE='export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/qt6/lib/'
 touch "$RDP_HOME/.bashrc"
 if ! grep -Fqx "$LD_LIBRARY_LINE" "$RDP_HOME/.bashrc"; then
   printf '\n%s\n' "$LD_LIBRARY_LINE" >> "$RDP_HOME/.bashrc"
 fi
-chown "$RDP_USER:$RDP_USER" "$RDP_HOME/.bashrc"
+chown "$RDP_USER:$RDP_GROUP" "$RDP_HOME/.bashrc"
 
 echo
 echo "Da cai xong moi truong Raspberry Pi va XRDP."
