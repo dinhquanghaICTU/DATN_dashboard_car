@@ -42,6 +42,16 @@ RASPI_IP="${config_values[4]:-}"
 RDP_USER="${config_values[5]:-}"
 RDP_PASS="${config_values[6]:-}"
 
+# Khi chay truc tiep tren Pi bang sudo, user goi sudo moi la Raspberry Pi user that.
+LOCAL_PI_USER="${SUDO_USER:-}"
+if [ -n "$LOCAL_PI_USER" ] && [ "$LOCAL_PI_USER" != "root" ] && \
+   getent passwd "$LOCAL_PI_USER" >/dev/null 2>&1; then
+  if [ "$RASPI_USER" != "$LOCAL_PI_USER" ]; then
+    echo "[WARN] Raspberry Pi user trong config la '$RASPI_USER', tu dong dung user dang chay: '$LOCAL_PI_USER'."
+  fi
+  RASPI_USER="$LOCAL_PI_USER"
+fi
+
 # HOST_USER va HOST_PASS danh cho auto.sh tren host, khong dung trong file nay.
 : "$HOST_USER" "$HOST_PASS"
 
@@ -56,6 +66,10 @@ if ! [[ "$RASPI_USER" =~ ^[a-z_][a-z0-9_-]*$ ]]; then
   exit 1
 fi
 
+if [ "$RDP_USER" = "$RASPI_USER" ]; then
+  echo "Remote Desktop user phai khac Raspberry Pi user de tranh loi man hinh xanh: $RDP_USER" >&2
+  exit 1
+fi
 if ! [[ "$RDP_USER" =~ ^[a-z_][a-z0-9_-]*$ ]]; then
   echo "Username Remote Desktop khong hop le: $RDP_USER" >&2
   exit 1
@@ -95,7 +109,7 @@ systemctl restart xrdp
 
 echo "Cai cac package can cho Qt 6..."
 QT_PACKAGES_1=(
-  libboost-all-dev libudev-dev libinput-dev libts-dev libmtdev-dev
+  libboost-all-dev libc6-dev libudev-dev libinput-dev libts-dev libmtdev-dev
   libjpeg-dev libfontconfig1-dev libssl-dev libdbus-1-dev libglib2.0-dev
   libxkbcommon-dev libegl1-mesa-dev libgbm-dev libgles2-mesa-dev
   mesa-common-dev libasound2-dev libpulse-dev
