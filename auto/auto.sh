@@ -408,9 +408,19 @@ else
   cd "$QT_SHADERTOOLS_PI_BUILD"
   # Lan configure truoc co the da luu flags toolchain loi trong cache.
   rm -f CMakeCache.txt
-  "$QT_PI_DIR/bin/qt-configure-module" "$QT_SHADERTOOLS_SOURCE" -- \
+  cmake "$QT_SHADERTOOLS_SOURCE" -GNinja \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DINPUT_opengl=es2 \
     -DQT_BUILD_EXAMPLES=OFF \
-    -DQT_BUILD_TESTS=OFF
+    -DQT_BUILD_TESTS=OFF \
+    -DQT_HOST_PATH="$HOME/$FOLDER_WORK/qt6/host" \
+    -DCMAKE_STAGING_PREFIX="$HOME/$FOLDER_WORK/qt6/pi" \
+    -DCMAKE_INSTALL_PREFIX=/usr/local/qt6 \
+    -DCMAKE_TOOLCHAIN_FILE="$HOME/$FOLDER_WORK/qt6/pi-build/toolchain.cmake" \
+    -DQT_QMAKE_TARGET_MKSPEC=devices/linux-rasp-pi4-aarch64 \
+    -DQT_FEATURE_xcb=ON \
+    -DFEATURE_xcb_xlib=ON \
+    -DQT_FEATURE_xlib=ON
   cmake --build . --parallel 8
   cmake --install .
   touch "$QT_SHADERTOOLS_PI_BUILD/.install-complete"
@@ -476,9 +486,19 @@ if [ -f "$QT_DECLARATIVE_PI_BUILD/.install-complete" ] || \
 else
   cd "$QT_DECLARATIVE_PI_BUILD"
   rm -f CMakeCache.txt
-  "$QT_PI_DIR/bin/qt-configure-module" "$QT_DECLARATIVE_SOURCE" -- \
+  cmake "$QT_DECLARATIVE_SOURCE" -GNinja \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DINPUT_opengl=es2 \
     -DQT_BUILD_EXAMPLES=OFF \
-    -DQT_BUILD_TESTS=OFF
+    -DQT_BUILD_TESTS=OFF \
+    -DQT_HOST_PATH="$HOME/$FOLDER_WORK/qt6/host" \
+    -DCMAKE_STAGING_PREFIX="$HOME/$FOLDER_WORK/qt6/pi" \
+    -DCMAKE_INSTALL_PREFIX=/usr/local/qt6 \
+    -DCMAKE_TOOLCHAIN_FILE="$HOME/$FOLDER_WORK/qt6/pi-build/toolchain.cmake" \
+    -DQT_QMAKE_TARGET_MKSPEC=devices/linux-rasp-pi4-aarch64 \
+    -DQT_FEATURE_xcb=ON \
+    -DFEATURE_xcb_xlib=ON \
+    -DQT_FEATURE_xlib=ON
   cmake --build . --parallel 8
   cmake --install .
   touch "$QT_DECLARATIVE_PI_BUILD/.install-complete"
@@ -542,9 +562,19 @@ if [ -f "$QT_HTTPSERVER_PI_BUILD/.install-complete" ] || \
 else
   cd "$QT_HTTPSERVER_PI_BUILD"
   rm -f CMakeCache.txt
-  "$QT_PI_DIR/bin/qt-configure-module" "$QT_HTTPSERVER_SOURCE" -- \
+  cmake "$QT_HTTPSERVER_SOURCE" -GNinja \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DINPUT_opengl=es2 \
     -DQT_BUILD_EXAMPLES=OFF \
-    -DQT_BUILD_TESTS=OFF
+    -DQT_BUILD_TESTS=OFF \
+    -DQT_HOST_PATH="$HOME/$FOLDER_WORK/qt6/host" \
+    -DCMAKE_STAGING_PREFIX="$HOME/$FOLDER_WORK/qt6/pi" \
+    -DCMAKE_INSTALL_PREFIX=/usr/local/qt6 \
+    -DCMAKE_TOOLCHAIN_FILE="$HOME/$FOLDER_WORK/qt6/pi-build/toolchain.cmake" \
+    -DQT_QMAKE_TARGET_MKSPEC=devices/linux-rasp-pi4-aarch64 \
+    -DQT_FEATURE_xcb=ON \
+    -DFEATURE_xcb_xlib=ON \
+    -DQT_FEATURE_xlib=ON
   cmake --build . --parallel 8
   cmake --install .
   touch "$QT_HTTPSERVER_PI_BUILD/.install-complete"
@@ -593,9 +623,19 @@ if [ -f "$QT_CHARTS_PI_BUILD/.install-complete" ] || \
 else
   cd "$QT_CHARTS_PI_BUILD"
   rm -f CMakeCache.txt
-  "$QT_PI_DIR/bin/qt-configure-module" "$QT_CHARTS_SOURCE" -- \
+  cmake "$QT_CHARTS_SOURCE" -GNinja \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DINPUT_opengl=es2 \
     -DQT_BUILD_EXAMPLES=OFF \
-    -DQT_BUILD_TESTS=OFF
+    -DQT_BUILD_TESTS=OFF \
+    -DQT_HOST_PATH="$HOME/$FOLDER_WORK/qt6/host" \
+    -DCMAKE_STAGING_PREFIX="$HOME/$FOLDER_WORK/qt6/pi" \
+    -DCMAKE_INSTALL_PREFIX=/usr/local/qt6 \
+    -DCMAKE_TOOLCHAIN_FILE="$HOME/$FOLDER_WORK/qt6/pi-build/toolchain.cmake" \
+    -DQT_QMAKE_TARGET_MKSPEC=devices/linux-rasp-pi4-aarch64 \
+    -DQT_FEATURE_xcb=ON \
+    -DFEATURE_xcb_xlib=ON \
+    -DQT_FEATURE_xlib=ON
   cmake --build . --parallel 8
   cmake --install .
   touch "$QT_CHARTS_PI_BUILD/.install-complete"
@@ -633,9 +673,19 @@ if [ -f "$QT_SERIALPORT_PI_BUILD/.install-complete" ]; then
 else
   cd "$QT_SERIALPORT_PI_BUILD"
   rm -f CMakeCache.txt
-  "$QT_PI_DIR/bin/qt-configure-module" "$QT_SERIALPORT_SOURCE" -- \
+  cmake "$QT_SERIALPORT_SOURCE" -GNinja \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DINPUT_opengl=es2 \
     -DQT_BUILD_EXAMPLES=OFF \
-    -DQT_BUILD_TESTS=OFF
+    -DQT_BUILD_TESTS=OFF \
+    -DQT_HOST_PATH="$HOME/$FOLDER_WORK/qt6/host" \
+    -DCMAKE_STAGING_PREFIX="$HOME/$FOLDER_WORK/qt6/pi" \
+    -DCMAKE_INSTALL_PREFIX=/usr/local/qt6 \
+    -DCMAKE_TOOLCHAIN_FILE="$HOME/$FOLDER_WORK/qt6/pi-build/toolchain.cmake" \
+    -DQT_QMAKE_TARGET_MKSPEC=devices/linux-rasp-pi4-aarch64 \
+    -DQT_FEATURE_xcb=ON \
+    -DFEATURE_xcb_xlib=ON \
+    -DQT_FEATURE_xlib=ON
   cmake --build . --parallel 8
   cmake --install .
   touch "$QT_SERIALPORT_PI_BUILD/.install-complete"
