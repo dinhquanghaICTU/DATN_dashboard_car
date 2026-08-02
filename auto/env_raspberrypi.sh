@@ -97,19 +97,20 @@ printf '%s:%s\n' "$RDP_USER" "$RDP_PASS" | chpasswd
 usermod -aG sudo "$RDP_USER"
 RDP_GROUP="$(id -gn "$RDP_USER")"
 
-echo "Cap nhat he thong..."
-apt-get update
-DEBIAN_FRONTEND=noninteractive apt-get upgrade -y
+APT_GET=(apt-get -o DPkg::Lock::Timeout=300)
+
+echo "Cap nhat danh sach package..."
+"${APT_GET[@]}" update
 
 echo "Cai XRDP..."
-DEBIAN_FRONTEND=noninteractive apt-get install -y xrdp xorgxrdp
+DEBIAN_FRONTEND=noninteractive "${APT_GET[@]}" install -y xrdp xorgxrdp
 usermod -aG ssl-cert xrdp
 systemctl enable xrdp
 systemctl restart xrdp
 
 echo "Cai cac package can cho Qt 6..."
 QT_PACKAGES_1=(
-  libboost-all-dev libc6-dev libudev-dev libinput-dev libts-dev libmtdev-dev
+  libboost-all-dev libudev-dev libinput-dev libts-dev libmtdev-dev
   libjpeg-dev libfontconfig1-dev libssl-dev libdbus-1-dev libglib2.0-dev
   libxkbcommon-dev libegl1-mesa-dev libgbm-dev libgles2-mesa-dev
   mesa-common-dev libasound2-dev libpulse-dev
@@ -136,12 +137,12 @@ QT_PACKAGES_2=(
   libxrandr-dev libdirectfb-dev libaudio-dev libxkbcommon-x11-dev gdbserver
 )
 
-DEBIAN_FRONTEND=noninteractive apt-get install -y "${QT_PACKAGES_1[@]}"
-DEBIAN_FRONTEND=noninteractive apt-get install -y "${QT_PACKAGES_2[@]}"
+DEBIAN_FRONTEND=noninteractive "${APT_GET[@]}" install -y "${QT_PACKAGES_1[@]}"
+DEBIAN_FRONTEND=noninteractive "${APT_GET[@]}" install -y "${QT_PACKAGES_2[@]}"
 
 # gstreamer1.0-omx khong con co tren mot so ban Raspberry Pi OS moi.
 if apt-cache show gstreamer1.0-omx >/dev/null 2>&1; then
-  DEBIAN_FRONTEND=noninteractive apt-get install -y gstreamer1.0-omx
+  DEBIAN_FRONTEND=noninteractive "${APT_GET[@]}" install -y gstreamer1.0-omx
 else
   echo "Bo qua gstreamer1.0-omx: package khong co trong repo hien tai."
 fi
