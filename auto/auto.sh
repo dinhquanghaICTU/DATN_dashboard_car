@@ -23,6 +23,9 @@ fi
 #doc file, loai bo comment va dong trong thua
 lines=()
 while IFS= read -r rawline; do
+  # Loai bo CRLF va UTF-8 BOM neu config duoc tao/sua tren Windows.
+  rawline="${rawline%$'\r'}"
+  rawline="${rawline#$'\xEF\xBB\xBF'}"
   #Lam sach khoang trang 2 dau
   line="$(printf '%s' "$rawline" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
   #Loai bo dong trong va comment
@@ -37,6 +40,38 @@ HOST_PASS="${lines[1]:-}"
 RASPI_USER="${lines[2]:-}"
 RASPI_PASS="${lines[3]:-}"
 RASPI_IP="${lines[4]:-}"
+
+if [ "${#lines[@]}" -lt 5 ]; then
+  echo "config.txt phai co it nhat 5 gia tri: host user/pass, Pi user/pass va Pi IP." >&2
+  exit 1
+fi
+
+if [[ ! "$HOST_USER" =~ ^[a-z_][a-z0-9_-]*$ ]]; then
+  echo "Username may host trong config.txt khong hop le: chi dung chu thuong, so, _ hoac -." >&2
+  exit 1
+fi
+
+if [[ ! "$RASPI_USER" =~ ^[a-z_][a-z0-9_-]*$ ]]; then
+  echo "Username Raspberry Pi trong config.txt khong hop le: chi dung chu thuong, so, _ hoac -." >&2
+  exit 1
+fi
+
+is_valid_ipv4() {
+  local ip="$1"
+  local octet
+  local -a octets
+  IFS='.' read -r -a octets <<< "$ip"
+  [ "${#octets[@]}" -eq 4 ] || return 1
+  for octet in "${octets[@]}"; do
+    [[ "$octet" =~ ^[0-9]{1,3}$ ]] || return 1
+    (( 10#$octet <= 255 )) || return 1
+  done
+}
+
+if ! is_valid_ipv4 "$RASPI_IP"; then
+  echo "Dia chi IP Raspberry Pi trong config.txt khong hop le: '$RASPI_IP'." >&2
+  exit 1
+fi
 
 #Dinh nghia ten cac folder neu muon thay doi
 #trong file nay dong 187, trong file cau hinh toolchain.cmake, co hardcode duong link, neu thay doi xin hay thay doi ca ben trong toolchain.cmake
