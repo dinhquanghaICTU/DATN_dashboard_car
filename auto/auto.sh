@@ -277,32 +277,27 @@ fi
 #Tao folder chua sysroot cua raspi
 cd ~/$FOLDER_WORK
 SYSROOT_AUXV_HEADER="$HOME/$FOLDER_WORK/rpi-sysroot/usr/include/aarch64-linux-gnu/bits/auxv.h"
-if [ -f "$HOME/$FOLDER_WORK/rpi-sysroot/.sysroot-ready" ] && [ -f "$SYSROOT_AUXV_HEADER" ]; then
-  echo "[SKIP] Raspberry Pi sysroot da duoc dong bo."
-else
-  mkdir -p rpi-sysroot/usr/lib
+mkdir -p rpi-sysroot/usr/lib
 
-  PI_ARCH="$(sshpass -p "$RASPI_PASS" ssh -o StrictHostKeyChecking=no "${RASPI_USER}@${RASPI_IP}" "dpkg --print-architecture")"
-  if [ "$PI_ARCH" != "arm64" ]; then
-    echo "Raspberry Pi userland phai la arm64, nhung hien tai la: $PI_ARCH" >&2
-    exit 1
-  fi
+PI_ARCH="$(sshpass -p "$RASPI_PASS" ssh -o StrictHostKeyChecking=no "${RASPI_USER}@${RASPI_IP}" "dpkg --print-architecture")"
+if [ "$PI_ARCH" != "arm64" ]; then
+  echo "Raspberry Pi userland phai la arm64, nhung hien tai la: $PI_ARCH" >&2
+  exit 1
+fi
 
-  #Copy sysroot cua pi sang may host
-  sshpass -p "$RASPI_PASS" rsync -avz --rsync-path="rsync" "${RASPI_USER}@${RASPI_IP}:/usr/include" rpi-sysroot/usr
-  sshpass -p "$RASPI_PASS" rsync -avz --rsync-path="rsync" "${RASPI_USER}@${RASPI_IP}:/lib" rpi-sysroot
-  sshpass -p "$RASPI_PASS" rsync -avz --exclude='/cups/backend/***' --rsync-path="rsync" "${RASPI_USER}@${RASPI_IP}:/usr/lib/" rpi-sysroot/usr/lib/
+# Luon dong bo lai sysroot tu Raspberry Pi moi lan chay script.
+sshpass -p "$RASPI_PASS" rsync -avz --rsync-path="rsync" "${RASPI_USER}@${RASPI_IP}:/usr/include" rpi-sysroot/usr
+sshpass -p "$RASPI_PASS" rsync -avz --rsync-path="rsync" "${RASPI_USER}@${RASPI_IP}:/lib" rpi-sysroot
+sshpass -p "$RASPI_PASS" rsync -avz --exclude='/cups/backend/***' --rsync-path="rsync" "${RASPI_USER}@${RASPI_IP}:/usr/lib/" rpi-sysroot/usr/lib/
 
-  #Sua chua symbol link, tranh bi loi link lien ket khi copy sysroot tu pi sang host
-  wget -nc https://raw.githubusercontent.com/riscv/riscv-poky/master/scripts/sysroot-relativelinks.py
-  chmod +x sysroot-relativelinks.py
-  python3 sysroot-relativelinks.py rpi-sysroot
-  if [ ! -f "$SYSROOT_AUXV_HEADER" ]; then
-    echo "Sysroot thieu header bat buoc: $SYSROOT_AUXV_HEADER" >&2
-    echo "Kiem tra tren Pi: sudo apt install -y libc6-dev" >&2
-    exit 1
-  fi
-  touch rpi-sysroot/.sysroot-ready
+# Sua chua symbolic link sau moi lan cap nhat sysroot.
+wget -nc https://raw.githubusercontent.com/riscv/riscv-poky/master/scripts/sysroot-relativelinks.py
+chmod +x sysroot-relativelinks.py
+python3 sysroot-relativelinks.py rpi-sysroot
+if [ ! -f "$SYSROOT_AUXV_HEADER" ]; then
+  echo "Sysroot thieu header bat buoc: $SYSROOT_AUXV_HEADER" >&2
+  echo "Kiem tra tren Pi: sudo apt install -y libc6-dev" >&2
+  exit 1
 fi
 
 # Tao/cap nhat toolchain ke ca khi QtBase da duoc build tu lan chay truoc.
