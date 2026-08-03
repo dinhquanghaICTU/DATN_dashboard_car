@@ -89,19 +89,13 @@ printf '%s\n' "$HOST_PASS" | sudo -S -p '' apt install -y $(tr -d '\r' < dep_lis
 printf '%s\n' "$HOST_PASS" | sudo -S -p '' apt install -y unzip
 
 #=============================================SCRIPT SETUP BEN RASPI=============================================
-# Tam thoi bo qua viec cap nhat va cai dependency tren Raspberry Pi.
-# Dat SKIP_RASPI_APT_SETUP=0 neu muon bat lai buoc nay.
-SKIP_RASPI_APT_SETUP="${SKIP_RASPI_APT_SETUP:-1}"
-if [ "$SKIP_RASPI_APT_SETUP" = "1" ]; then
-  echo "[SKIP] Bo qua apt update/full-upgrade va cai dependency tren Raspberry Pi."
-else
-  sshpass -p "$RASPI_PASS" ssh -o StrictHostKeyChecking=no "${RASPI_USER}@${RASPI_IP}" \
-      "printf '%s\n' '$RASPI_PASS' | sudo -S -p '' apt update && printf '%s\n' '$RASPI_PASS' | sudo -S -p '' apt full-upgrade -y"
+# Luon cap nhat va cai dependency tren Raspberry Pi truoc khi build.
+sshpass -p "$RASPI_PASS" ssh -o StrictHostKeyChecking=no "${RASPI_USER}@${RASPI_IP}" \
+  "printf '%s\n' '$RASPI_PASS' | sudo -S -p '' apt update && printf '%s\n' '$RASPI_PASS' | sudo -S -p '' apt full-upgrade -y"
 
-  PKGS="$(tr -d '\r' < dep_list_raspi.txt | tr '\n' ' ')"
-  sshpass -p "$RASPI_PASS" ssh -t -o StrictHostKeyChecking=no "${RASPI_USER}@${RASPI_IP}" \
-    "printf '%s\n' \"$RASPI_PASS\" | sudo -S -p '' apt install -y $PKGS"
-fi
+PKGS="$(tr -d '\r' < dep_list_raspi.txt | tr '\n' ' ')"
+sshpass -p "$RASPI_PASS" ssh -t -o StrictHostKeyChecking=no "${RASPI_USER}@${RASPI_IP}" \
+  "printf '%s\n' \"$RASPI_PASS\" | sudo -S -p '' apt install -y $PKGS"
 
 # Cho phep user chay app truy cap DRM/KMS, GPU render, input va GPIO ma khong
 # can chay toan bo ung dung bang root. Can tao phien dang nhap moi de co hieu luc.
