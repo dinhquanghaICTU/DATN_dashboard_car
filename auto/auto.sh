@@ -305,6 +305,14 @@ if [ "$PI_ARCH" != "arm64" ]; then
   exit 1
 fi
 
+# Kiem tra file that thay vi chi tin trang thai APT. Qt DeviceDiscovery can header nay.
+if ! sshpass -p "$RASPI_PASS" ssh -o StrictHostKeyChecking=no "${RASPI_USER}@${RASPI_IP}" \
+  "test -r /usr/include/libudev.h"; then
+  echo "[FIX] Raspberry Pi thieu libudev.h, cai lai libudev-dev."
+  sshpass -p "$RASPI_PASS" ssh -o StrictHostKeyChecking=no "${RASPI_USER}@${RASPI_IP}" \
+    "printf '%s\n' '$RASPI_PASS' | sudo -S -p '' apt install --reinstall -y libudev-dev"
+fi
+
 # Luon dong bo lai sysroot tu Raspberry Pi moi lan chay script.
 sshpass -p "$RASPI_PASS" rsync -avz --rsync-path="rsync" "${RASPI_USER}@${RASPI_IP}:/usr/include" rpi-sysroot/usr
 sshpass -p "$RASPI_PASS" rsync -avz --rsync-path="rsync" "${RASPI_USER}@${RASPI_IP}:/lib" rpi-sysroot
@@ -317,6 +325,11 @@ python3 sysroot-relativelinks.py rpi-sysroot
 if [ ! -f "$SYSROOT_AUXV_HEADER" ]; then
   echo "Sysroot thieu header bat buoc: $SYSROOT_AUXV_HEADER" >&2
   echo "Kiem tra tren Pi: sudo apt install -y libc6-dev" >&2
+  exit 1
+fi
+SYSROOT_LIBUDEV_HEADER="$HOME/$FOLDER_WORK/rpi-sysroot/usr/include/libudev.h"
+if [ ! -f "$SYSROOT_LIBUDEV_HEADER" ]; then
+  echo "Sysroot thieu header bat buoc sau rsync: $SYSROOT_LIBUDEV_HEADER" >&2
   exit 1
 fi
 
