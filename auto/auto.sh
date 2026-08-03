@@ -570,6 +570,17 @@ if [ ! -d "$QT_DECLARATIVE_SOURCE" ]; then
   tar xf "$QT_DECLARATIVE_ARCHIVE"
 fi
 
+# Qt 6.5.1 bundled MASM dung PATH_MAX nhung thieu limits.h voi mot so sysroot.
+QT_DECLARATIVE_OS_ALLOCATOR="$QT_DECLARATIVE_SOURCE/src/3rdparty/masm/wtf/OSAllocatorPosix.cpp"
+if [ ! -f "$QT_DECLARATIVE_OS_ALLOCATOR" ]; then
+  echo "Khong tim thay source can patch: $QT_DECLARATIVE_OS_ALLOCATOR" >&2
+  exit 1
+fi
+if ! grep -Fq '#include <limits.h>' "$QT_DECLARATIVE_OS_ALLOCATOR"; then
+  sed -i '1i#include <limits.h>' "$QT_DECLARATIVE_OS_ALLOCATOR"
+  echo "[PATCH] Da them limits.h cho PATH_MAX trong Qt Declarative."
+fi
+
 mkdir -p "$QT_DECLARATIVE_HOST_BUILD"
 if [ -f "$QT_DECLARATIVE_HOST_BUILD/.install-complete" ] || \
    qt_declarative_is_installed "$QT_HOST_DIR" host; then
