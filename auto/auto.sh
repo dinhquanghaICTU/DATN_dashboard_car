@@ -324,6 +324,13 @@ set(TARGET_ARCHITECTURE aarch64-linux-gnu)
 set(TARGET_LIBRARY_DIR ${TARGET_SYSROOT}/usr/lib/${TARGET_ARCHITECTURE})
 set(CMAKE_SYSROOT ${TARGET_SYSROOT})
 
+# Module Qt target phai tim Qt6 da staging trong qt6/pi. Package mode ben duoi
+# la ONLY, nen staging prefix cung phai nam trong CMAKE_FIND_ROOT_PATH.
+list(APPEND CMAKE_FIND_ROOT_PATH ${TARGET_SYSROOT} ${QT_TARGET_STAGING_DIR})
+list(PREPEND CMAKE_PREFIX_PATH ${QT_TARGET_STAGING_DIR})
+set(Qt6_DIR "${QT_TARGET_STAGING_DIR}/lib/cmake/Qt6" CACHE PATH "Qt6 target package")
+set(Qt6BuildInternals_DIR "${QT_TARGET_STAGING_DIR}/lib/cmake/Qt6BuildInternals" CACHE PATH "Qt6 target build internals")
+
 set(ENV{PKG_CONFIG_PATH} $PKG_CONFIG_PATH:${CMAKE_SYSROOT}/usr/lib/${TARGET_ARCHITECTURE}/pkgconfig)
 set(ENV{PKG_CONFIG_LIBDIR} /usr/lib/pkgconfig:/usr/share/pkgconfig/:${TARGET_SYSROOT}/usr/lib/${TARGET_ARCHITECTURE}/pkgconfig:${TARGET_SYSROOT}/usr/lib/pkgconfig)
 set(ENV{PKG_CONFIG_SYSROOT_DIR} ${CMAKE_SYSROOT})
