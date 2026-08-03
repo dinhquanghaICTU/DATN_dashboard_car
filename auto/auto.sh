@@ -381,10 +381,17 @@ printf '%s\n' 'int main(void) { return 0; }' > "$TOOLCHAIN_SMOKE_DIR/main.c"
 rm -rf "$TOOLCHAIN_SMOKE_DIR"
 trap - EXIT
 
-#Tao folder chua bien dich cheo cua qt
-if [ -x "$HOME/$FOLDER_WORK/qt6/pi/bin/qt-configure-module" ]; then
-  echo "[SKIP] QtBase target cho Raspberry Pi da duoc cai."
+# Tao folder chua bien dich cheo cua Qt. Chi bo qua khi bo SDK target da du
+# executable cau hinh va cac CMake package ma module Qt phia sau can dung.
+QTBASE_PI_PREFIX="$HOME/$FOLDER_WORK/qt6/pi"
+QTBASE_PI_CONFIG="$QTBASE_PI_PREFIX/lib/cmake/Qt6/Qt6Config.cmake"
+QTBASE_PI_INTERNALS="$QTBASE_PI_PREFIX/lib/cmake/Qt6BuildInternals/Qt6BuildInternalsConfig.cmake"
+if [ -x "$QTBASE_PI_PREFIX/bin/qt-configure-module" ] && \
+   [ -f "$QTBASE_PI_CONFIG" ] && \
+   [ -f "$QTBASE_PI_INTERNALS" ]; then
+  echo "[SKIP] QtBase target cho Raspberry Pi da duoc cai day du."
 else
+  echo "[INFO] QtBase target chua du Qt6Config/BuildInternals, tien hanh build va cai lai."
 
 cd $HOME/$FOLDER_WORK/qt6/pi-build
 
