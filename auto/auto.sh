@@ -448,17 +448,29 @@ sshpass -p "$RASPI_PASS" rsync -avz \
   "$HOME/$FOLDER_WORK/qt6/pi/" "${RASPI_USER}@${RASPI_IP}:/usr/local/qt6/"
 #================================================================================================================
 
-#=============================================CAI QT SHADER TOOLS===============================================
+#=============================================CAI CAC QT MODULE==================================================
 QT_VERSION="6.5.1"
+QT_DOWNLOAD_BASE="https://download.qt.io/official_releases/qt/6.5/${QT_VERSION}/submodules"
 QT_SRC_DIR="$HOME/$FOLDER_WORK/qt6/src"
 QT_HOST_DIR="$HOME/$FOLDER_WORK/qt6/host"
 QT_PI_DIR="$HOME/$FOLDER_WORK/qt6/pi"
 QT_PI_BUILD="$HOME/$FOLDER_WORK/qt6/pi-build"
 QT_PI_TOOLCHAIN="$QT_PI_BUILD/toolchain.cmake"
+QT_MODULE_MARKER_DIR="$HOME/$FOLDER_WORK/qt6/module-markers"
+mkdir -p "$QT_MODULE_MARKER_DIR"
+
+qt_module_is_installed() {
+  local prefix="$1"
+  local cmake_config="$2"
+  local library_name="$3"
+
+  [ -f "$prefix/$cmake_config" ] && \
+    compgen -G "$prefix/lib/${library_name}.so*" >/dev/null
+}
 
 prepare_shared_qt_pi_build() {
   local actual_build_dir
-  local expected_build_dir="$HOME/$FOLDER_WORK/qt6/pi-build"
+  local expected_build_dir="$(cd "$HOME/$FOLDER_WORK/qt6" && pwd -P)/pi-build"
 
   mkdir -p "$QT_PI_BUILD"
   actual_build_dir="$(cd "$QT_PI_BUILD" && pwd -P)"
@@ -471,277 +483,95 @@ prepare_shared_qt_pi_build() {
     exit 1
   fi
 
-  # Moi module dung chung pi-build, nen xoa output module truoc va giu toolchain.cmake.
+  # Tai lieu dung rm -rf *; script giu toolchain.cmake va xoa moi output module cu.
   find "$QT_PI_BUILD" -mindepth 1 -maxdepth 1 ! -name toolchain.cmake -exec rm -rf -- {} +
   cd "$QT_PI_BUILD"
 }
 
-build_and_sync_qt_pi_module() {
-  local module_name="$1"
-  local module_source="$2"
-  local module_marker="$3"
+build_qt_module() {
+  local module_key="$1"
+  local module_title="$2"
+  local cmake_config="$3"
+  local library_name="$4"
+  local archive="${module_key}-everywhere-src-${QT_VERSION}.tar.xz"
+  local source_dir="$QT_SRC_DIR/${module_key}-everywhere-src-${QT_VERSION}"
+  local host_build="$HOME/$FOLDER_WORK/qt6/host-build-${module_key}"
+  local host_marker="$QT_MODULE_MARKER_DIR/${module_key}-host.complete"
+  local pi_marker="$QT_MODULE_MARKER_DIR/${module_key}-pi.complete"
 
-  prepare_shared_qt_pi_build
-  cmake "$module_source" -GNinja \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DINPUT_opengl=es2 \
-    -DQT_BUILD_EXAMPLES=OFF \
-    -DQT_BUILD_TESTS=OFF \
-    -DQT_HOST_PATH="$QT_HOST_DIR" \
-    -DCMAKE_STAGING_PREFIX="$QT_PI_DIR" \
-    -DCMAKE_INSTALL_PREFIX=/usr/local/qt6 \
-    -DCMAKE_TOOLCHAIN_FILE="$QT_PI_TOOLCHAIN" \
-    -DQT_QMAKE_TARGET_MKSPEC=devices/linux-rasp-pi4-aarch64 \
-    -DQT_FEATURE_xcb=ON \
-    -DFEATURE_xcb_xlib=ON \
-    -DQT_FEATURE_xlib=ON
-  cmake --build . --parallel 8
-  cmake --install .
-
-  sshpass -p "$RASPI_PASS" rsync -avz \
-    "$QT_PI_DIR/" "${RASPI_USER}@${RASPI_IP}:/usr/local/qt6/"
-  touch "$module_marker"
-  echo "[DONE] $module_name da build, install va dong bo sang Raspberry Pi."
-}
-
-QT_SHADERTOOLS_ARCHIVE="qtshadertools-everywhere-src-${QT_VERSION}.tar.xz"
-QT_SHADERTOOLS_SOURCE="$QT_SRC_DIR/qtshadertools-everywhere-src-${QT_VERSION}"
-QT_SHADERTOOLS_HOST_BUILD="$HOME/$FOLDER_WORK/qt6/host-build-qtshadertools"
-QT_SHADERTOOLS_PI_MARKER="$QT_PI_DIR/.install-complete-qtshadertools"
-
-cd "$QT_SRC_DIR"
-wget -nc "https://download.qt.io/official_releases/qt/6.5/${QT_VERSION}/submodules/${QT_SHADERTOOLS_ARCHIVE}"
-if [ ! -d "$QT_SHADERTOOLS_SOURCE" ]; then
-  tar xf "$QT_SHADERTOOLS_ARCHIVE"
-fi
-
-mkdir -p "$QT_SHADERTOOLS_HOST_BUILD"
-if [ -f "$QT_SHADERTOOLS_HOST_BUILD/.install-complete" ]; then
-  echo "[SKIP] Qt Shader Tools cho host da duoc cai."
-else
-  cd "$QT_SHADERTOOLS_HOST_BUILD"
-  "$QT_HOST_DIR/bin/qt-configure-module" "$QT_SHADERTOOLS_SOURCE" -- \
-    -DQT_BUILD_EXAMPLES=OFF \
-    -DQT_BUILD_TESTS=OFF
-  cmake --build . --parallel 8
-  cmake --install .
-  touch "$QT_SHADERTOOLS_HOST_BUILD/.install-complete"
-fi
-
-if [ -f "$QT_SHADERTOOLS_PI_MARKER" ]; then
-  echo "[SKIP] Qt Shader Tools cho Raspberry Pi da duoc cai."
-else
-  build_and_sync_qt_pi_module "Qt Shader Tools" "$QT_SHADERTOOLS_SOURCE" "$QT_SHADERTOOLS_PI_MARKER"
-fi
-#================================================================================================================
-
-#=============================================CAI QT DECLARATIVE=================================================
-QT_DECLARATIVE_ARCHIVE="qtdeclarative-everywhere-src-${QT_VERSION}.tar.xz"
-QT_DECLARATIVE_SOURCE="$QT_SRC_DIR/qtdeclarative-everywhere-src-${QT_VERSION}"
-QT_DECLARATIVE_HOST_BUILD="$HOME/$FOLDER_WORK/qt6/host-build-qtdeclarative"
-QT_DECLARATIVE_PI_MARKER="$QT_PI_DIR/.install-complete-qtdeclarative"
-
-qt_declarative_is_installed() {
-  local prefix="$1"
-  local installation_kind="$2"
-  local required_file
-  local required_files=(
-    "lib/libQt6Qml.so.${QT_VERSION}"
-    "lib/libQt6Quick.so.${QT_VERSION}"
-    "lib/cmake/Qt6Qml/Qt6QmlConfig.cmake"
-    "lib/cmake/Qt6Quick/Qt6QuickConfig.cmake"
-  )
-
-  # Cac tool nay chi chay tren host; ban target dung tool tu QT_HOST_PATH.
-  if [ "$installation_kind" = "host" ]; then
-    required_files+=("libexec/qmlcachegen" "libexec/qmltyperegistrar")
+  cd "$QT_SRC_DIR"
+  if [ ! -f "$archive" ]; then
+    wget "$QT_DOWNLOAD_BASE/$archive"
+  else
+    echo "[SKIP] Archive da ton tai: $archive"
+  fi
+  if [ ! -d "$source_dir" ]; then
+    tar xf "$archive"
+  else
+    echo "[SKIP] Source da ton tai: $source_dir"
   fi
 
-  for required_file in "${required_files[@]}"; do
-    if [ ! -e "$prefix/$required_file" ]; then
-      return 1
-    fi
-  done
-}
-
-cd "$QT_SRC_DIR"
-wget -nc "https://download.qt.io/official_releases/qt/6.5/${QT_VERSION}/submodules/${QT_DECLARATIVE_ARCHIVE}"
-if [ ! -d "$QT_DECLARATIVE_SOURCE" ]; then
-  tar xf "$QT_DECLARATIVE_ARCHIVE"
-fi
-
-# Qt 6.5.1 bundled MASM dung PATH_MAX nhung thieu limits.h voi mot so sysroot.
-QT_DECLARATIVE_OS_ALLOCATOR="$QT_DECLARATIVE_SOURCE/src/3rdparty/masm/wtf/OSAllocatorPosix.cpp"
-if [ ! -f "$QT_DECLARATIVE_OS_ALLOCATOR" ]; then
-  echo "Khong tim thay source can patch: $QT_DECLARATIVE_OS_ALLOCATOR" >&2
-  exit 1
-fi
-if ! grep -Fq '#include <limits.h>' "$QT_DECLARATIVE_OS_ALLOCATOR"; then
-  sed -i '1i#include <limits.h>' "$QT_DECLARATIVE_OS_ALLOCATOR"
-  echo "[PATCH] Da them limits.h cho PATH_MAX trong Qt Declarative."
-fi
-
-mkdir -p "$QT_DECLARATIVE_HOST_BUILD"
-if [ -f "$QT_DECLARATIVE_HOST_BUILD/.install-complete" ] || \
-   qt_declarative_is_installed "$QT_HOST_DIR" host; then
-  echo "[SKIP] Qt Declarative cho host da duoc cai."
-  # Chuyen doi ban cai cu, truoc khi script su dung marker.
-  touch "$QT_DECLARATIVE_HOST_BUILD/.install-complete"
-else
-  cd "$QT_DECLARATIVE_HOST_BUILD"
-  "$QT_HOST_DIR/bin/qt-configure-module" "$QT_DECLARATIVE_SOURCE" -- \
-    -DQT_BUILD_EXAMPLES=OFF \
-    -DQT_BUILD_TESTS=OFF
-  cmake --build . --parallel 8
-  cmake --install .
-  touch "$QT_DECLARATIVE_HOST_BUILD/.install-complete"
-fi
-
-if [ -f "$QT_DECLARATIVE_PI_MARKER" ] || \
-   qt_declarative_is_installed "$QT_PI_DIR" target; then
-  echo "[SKIP] Qt Declarative cho Raspberry Pi da duoc cai."
-  touch "$QT_DECLARATIVE_PI_MARKER"
-else
-  build_and_sync_qt_pi_module "Qt Declarative" "$QT_DECLARATIVE_SOURCE" "$QT_DECLARATIVE_PI_MARKER"
-fi
-#================================================================================================================
-
-#=============================================CAI QT HTTP SERVER=================================================
-QT_HTTPSERVER_ARCHIVE="qthttpserver-everywhere-src-${QT_VERSION}.tar.xz"
-QT_HTTPSERVER_SOURCE="$QT_SRC_DIR/qthttpserver-everywhere-src-${QT_VERSION}"
-QT_HTTPSERVER_HOST_BUILD="$HOME/$FOLDER_WORK/qt6/host-build-qthttpserver"
-QT_HTTPSERVER_PI_MARKER="$QT_PI_DIR/.install-complete-qthttpserver"
-
-download_qt_module_archive() {
-  local archive="$1"
-  local url="https://download.qt.io/official_releases/qt/6.5/${QT_VERSION}/submodules/${archive}"
-
-  if [ -f "$archive" ] && tar tf "$archive" >/dev/null 2>&1; then
-    echo "[SKIP] Archive hop le da ton tai: $archive"
-    return
+  if qt_module_is_installed "$QT_HOST_DIR" "$cmake_config" "$library_name"; then
+    echo "[SKIP] $module_title cho host da duoc cai."
+    touch "$host_marker"
+  else
+    mkdir -p "$host_build"
+    cd "$host_build"
+    rm -f CMakeCache.txt
+    rm -rf CMakeFiles
+    cmake "$source_dir" -GNinja \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DQT_BUILD_EXAMPLES=OFF \
+      -DQT_BUILD_TESTS=OFF \
+      -DCMAKE_INSTALL_PREFIX="$QT_HOST_DIR" \
+      -DCMAKE_PREFIX_PATH="$QT_HOST_DIR" \
+      -DQt6_DIR="$QT_HOST_DIR/lib/cmake/Qt6" \
+      -DQt6BuildInternals_DIR="$QT_HOST_DIR/lib/cmake/Qt6BuildInternals"
+    cmake --build . --parallel 8
+    cmake --install .
+    touch "$host_marker"
   fi
 
-  rm -f "${archive}.part"
-  wget -O "${archive}.part" "$url"
-  tar tf "${archive}.part" >/dev/null
-  mv -f "${archive}.part" "$archive"
+  if qt_module_is_installed "$QT_PI_DIR" "$cmake_config" "$library_name"; then
+    echo "[SKIP] $module_title cho Raspberry Pi da duoc cai."
+    touch "$pi_marker"
+  else
+    prepare_shared_qt_pi_build
+    cmake "$source_dir" -GNinja \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DINPUT_opengl=es2 \
+      -DQT_BUILD_EXAMPLES=OFF \
+      -DQT_BUILD_TESTS=OFF \
+      -DQT_HOST_PATH="$QT_HOST_DIR" \
+      -DCMAKE_STAGING_PREFIX="$QT_PI_DIR" \
+      -DCMAKE_INSTALL_PREFIX=/usr/local/qt6 \
+      -DCMAKE_TOOLCHAIN_FILE="$QT_PI_TOOLCHAIN" \
+      -DQT_QMAKE_TARGET_MKSPEC=devices/linux-rasp-pi4-aarch64 \
+      -DQT_FEATURE_xcb=ON \
+      -DFEATURE_xcb_xlib=ON \
+      -DQT_FEATURE_xlib=ON
+    cmake --build . --parallel 8
+    cmake --install .
+
+    sshpass -p "$RASPI_PASS" rsync -avz \
+      "$QT_PI_DIR/" "${RASPI_USER}@${RASPI_IP}:/usr/local/qt6/"
+    touch "$pi_marker"
+    echo "[DONE] $module_title da build, install va dong bo sang Raspberry Pi."
+  fi
 }
 
-qt_httpserver_is_installed() {
-  local prefix="$1"
-  [ -f "$prefix/lib/cmake/Qt6HttpServer/Qt6HttpServerConfig.cmake" ] && \
-    [ -e "$prefix/lib/libQt6HttpServer.so.${QT_VERSION}" ]
-}
-
-cd "$QT_SRC_DIR"
-download_qt_module_archive "$QT_HTTPSERVER_ARCHIVE"
-if [ ! -f "$QT_HTTPSERVER_SOURCE/.extract-complete" ]; then
-  tar xf "$QT_HTTPSERVER_ARCHIVE"
-  touch "$QT_HTTPSERVER_SOURCE/.extract-complete"
-fi
-
-mkdir -p "$QT_HTTPSERVER_HOST_BUILD"
-if [ -f "$QT_HTTPSERVER_HOST_BUILD/.install-complete" ] || \
-   qt_httpserver_is_installed "$QT_HOST_DIR"; then
-  echo "[SKIP] Qt HTTP Server cho host da duoc cai."
-  touch "$QT_HTTPSERVER_HOST_BUILD/.install-complete"
-else
-  cd "$QT_HTTPSERVER_HOST_BUILD"
-  "$QT_HOST_DIR/bin/qt-configure-module" "$QT_HTTPSERVER_SOURCE" -- \
-    -DQT_BUILD_EXAMPLES=OFF \
-    -DQT_BUILD_TESTS=OFF
-  cmake --build . --parallel 8
-  cmake --install .
-  touch "$QT_HTTPSERVER_HOST_BUILD/.install-complete"
-fi
-
-if [ -f "$QT_HTTPSERVER_PI_MARKER" ] || \
-   qt_httpserver_is_installed "$QT_PI_DIR"; then
-  echo "[SKIP] Qt HTTP Server cho Raspberry Pi da duoc cai."
-  touch "$QT_HTTPSERVER_PI_MARKER"
-else
-  build_and_sync_qt_pi_module "Qt HTTP Server" "$QT_HTTPSERVER_SOURCE" "$QT_HTTPSERVER_PI_MARKER"
-fi
+# Tat ca module cung mot flow; chi thay ten source, package CMake va library kiem tra.
+build_qt_module "qtshadertools" "Qt Shader Tools" \
+  "lib/cmake/Qt6ShaderTools/Qt6ShaderToolsConfig.cmake" "libQt6ShaderTools"
+build_qt_module "qtdeclarative" "Qt Declarative" \
+  "lib/cmake/Qt6Qml/Qt6QmlConfig.cmake" "libQt6Qml"
+build_qt_module "qthttpserver" "Qt HTTP Server" \
+  "lib/cmake/Qt6HttpServer/Qt6HttpServerConfig.cmake" "libQt6HttpServer"
+build_qt_module "qtcharts" "Qt Charts" \
+  "lib/cmake/Qt6Charts/Qt6ChartsConfig.cmake" "libQt6Charts"
+build_qt_module "qtserialport" "Qt Serial Port" \
+  "lib/cmake/Qt6SerialPort/Qt6SerialPortConfig.cmake" "libQt6SerialPort"
 #================================================================================================================
-
-#=============================================CAI QT CHARTS======================================================
-QT_CHARTS_ARCHIVE="qtcharts-everywhere-src-${QT_VERSION}.tar.xz"
-QT_CHARTS_SOURCE="$QT_SRC_DIR/qtcharts-everywhere-src-${QT_VERSION}"
-QT_CHARTS_HOST_BUILD="$HOME/$FOLDER_WORK/qt6/host-build-qtcharts"
-QT_CHARTS_PI_MARKER="$QT_PI_DIR/.install-complete-qtcharts"
-
-qt_charts_is_installed() {
-  local prefix="$1"
-  [ -f "$prefix/lib/cmake/Qt6Charts/Qt6ChartsConfig.cmake" ] && \
-    [ -e "$prefix/lib/libQt6Charts.so.${QT_VERSION}" ]
-}
-
-cd "$QT_SRC_DIR"
-download_qt_module_archive "$QT_CHARTS_ARCHIVE"
-if [ ! -f "$QT_CHARTS_SOURCE/.extract-complete" ]; then
-  tar xf "$QT_CHARTS_ARCHIVE"
-  touch "$QT_CHARTS_SOURCE/.extract-complete"
-fi
-
-mkdir -p "$QT_CHARTS_HOST_BUILD"
-if [ -f "$QT_CHARTS_HOST_BUILD/.install-complete" ] || \
-   qt_charts_is_installed "$QT_HOST_DIR"; then
-  echo "[SKIP] Qt Charts cho host da duoc cai."
-  touch "$QT_CHARTS_HOST_BUILD/.install-complete"
-else
-  cd "$QT_CHARTS_HOST_BUILD"
-  "$QT_HOST_DIR/bin/qt-configure-module" "$QT_CHARTS_SOURCE" -- \
-    -DQT_BUILD_EXAMPLES=OFF \
-    -DQT_BUILD_TESTS=OFF
-  cmake --build . --parallel 8
-  cmake --install .
-  touch "$QT_CHARTS_HOST_BUILD/.install-complete"
-fi
-
-if [ -f "$QT_CHARTS_PI_MARKER" ] || \
-   qt_charts_is_installed "$QT_PI_DIR"; then
-  echo "[SKIP] Qt Charts cho Raspberry Pi da duoc cai."
-  touch "$QT_CHARTS_PI_MARKER"
-else
-  build_and_sync_qt_pi_module "Qt Charts" "$QT_CHARTS_SOURCE" "$QT_CHARTS_PI_MARKER"
-fi
-#================================================================================================================
-
-#=============================================CAI QT SERIAL PORT=================================================
-QT_SERIALPORT_ARCHIVE="qtserialport-everywhere-src-${QT_VERSION}.tar.xz"
-QT_SERIALPORT_SOURCE="$QT_SRC_DIR/qtserialport-everywhere-src-${QT_VERSION}"
-QT_SERIALPORT_HOST_BUILD="$HOME/$FOLDER_WORK/qt6/host-build-qtserialport"
-QT_SERIALPORT_PI_MARKER="$QT_PI_DIR/.install-complete-qtserialport"
-
-cd "$QT_SRC_DIR"
-wget -nc "https://download.qt.io/official_releases/qt/6.5/${QT_VERSION}/submodules/${QT_SERIALPORT_ARCHIVE}"
-if [ ! -d "$QT_SERIALPORT_SOURCE" ]; then
-  tar xf "$QT_SERIALPORT_ARCHIVE"
-fi
-
-mkdir -p "$QT_SERIALPORT_HOST_BUILD"
-if [ -f "$QT_SERIALPORT_HOST_BUILD/.install-complete" ]; then
-  echo "[SKIP] Qt Serial Port cho host da duoc cai."
-else
-  cd "$QT_SERIALPORT_HOST_BUILD"
-  "$QT_HOST_DIR/bin/qt-configure-module" "$QT_SERIALPORT_SOURCE" -- \
-    -DQT_BUILD_EXAMPLES=OFF \
-    -DQT_BUILD_TESTS=OFF
-  cmake --build . --parallel 8
-  cmake --install .
-  touch "$QT_SERIALPORT_HOST_BUILD/.install-complete"
-fi
-
-if [ -f "$QT_SERIALPORT_PI_MARKER" ]; then
-  echo "[SKIP] Qt Serial Port cho Raspberry Pi da duoc cai."
-else
-  build_and_sync_qt_pi_module "Qt Serial Port" "$QT_SERIALPORT_SOURCE" "$QT_SERIALPORT_PI_MARKER"
-fi
-#================================================================================================================
-
-# Moi module target da duoc dong bo ngay sau khi cmake --install.
-#================================================================================================================
-
 #=============================================CAI DAT QT CREATOR================================================
 QT_CREATOR_VERSION="10.0.1"
 QT_CREATOR_DEB="qtcreator-linux-x64-${QT_CREATOR_VERSION}.deb"
