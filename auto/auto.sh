@@ -203,10 +203,7 @@ mkdir -p build-binutils && cd build-binutils
 make -j 8
 make install
 
-ASAN_LINUX_FILE="$HOME/$FOLDER_WORK/gcc_all/gcc-10.3.0/libsanitizer/asan/asan_linux.cpp"
-if ! grep -Fq '#define PATH_MAX 4096' "$ASAN_LINUX_FILE"; then
-  sed -i '1i#ifndef PATH_MAX\n#define PATH_MAX 4096\n#endif' "$ASAN_LINUX_FILE"
-fi
+sed -i '1i#ifndef PATH_MAX\n#define PATH_MAX 4096\n#endif' ~/Qt6Cross/gcc_all/gcc-10.3.0/libsanitizer/asan/asan_linux.cpp
 
 
 #build GCC cross-compiler chính
