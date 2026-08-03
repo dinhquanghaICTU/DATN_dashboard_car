@@ -1,12 +1,12 @@
 #Username ghi dau tien, sau do la password
 #Username cho may host
-quanghaictu
+nguyenson
 123456
 #Username cho may raspi, bao gom ca ip cua raspi
-quanghaictu
+nhungpi
 123456
-192.168.12.66
+192.168.137.240
 
 #username moi de fix loi man hinh xanh remote desktop and pass moi
-quanghaictu
+nhungpi
 123456
