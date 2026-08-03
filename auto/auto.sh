@@ -367,7 +367,7 @@ set(CMAKE_CXX_COMPILER /opt/cross-pi-gcc/bin/${TARGET_ARCHITECTURE}-g++)
 set(CMAKE_C_FLAGS_INIT "-B${TARGET_LIBRARY_DIR}/")
 set(CMAKE_CXX_FLAGS_INIT "-B${TARGET_LIBRARY_DIR}/")
 
-set(QT_COMPILER_FLAGS "-march=armv8-a -B${TARGET_LIBRARY_DIR}/ -isystem ${TARGET_SYSROOT}/usr/include/${TARGET_ARCHITECTURE}")
+set(QT_COMPILER_FLAGS "-march=armv8-a -B${TARGET_LIBRARY_DIR}/ -isystem ${TARGET_SYSROOT}/usr/include -isystem ${TARGET_SYSROOT}/usr/include/${TARGET_ARCHITECTURE}")
 set(QT_COMPILER_FLAGS_RELEASE "-O2 -pipe")
 set(QT_LINKER_FLAGS "-Wl,-O1 -Wl,--hash-style=gnu -Wl,--as-needed -Wl,-rpath-link=${TARGET_SYSROOT}/usr/lib/${TARGET_ARCHITECTURE} -Wl,-rpath-link=${QT_TARGET_STAGING_DIR}/lib")
 
