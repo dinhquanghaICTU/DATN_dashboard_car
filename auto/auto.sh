@@ -260,10 +260,39 @@ fi
 if [ -x "$HOME/$FOLDER_WORK/qt6/host/bin/qt-configure-module" ]; then
   echo "[SKIP] Qt host da duoc cai."
 else
-  cd "$HOME/$FOLDER_WORK/qt6/host-build/"
-  cmake ../src/qtbase-everywhere-src-6.5.1/ -GNinja -DCMAKE_BUILD_TYPE=Release -DQT_BUILD_EXAMPLES=OFF -DQT_BUILD_TESTS=OFF -DCMAKE_INSTALL_PREFIX="$HOME/$FOLDER_WORK/qt6/host"
-  cmake --build . --parallel 8
-  cmake --install .
+  # Build host trong subshell sach. Khi ket thuc, moi bien moi truong cu tu dong
+  # duoc khoi phuc trong shell chinh de cac buoc cross-compile phia sau su dung.
+  (
+    unset CMAKE_PREFIX_PATH CMAKE_TOOLCHAIN_FILE CMAKE_SYSROOT CMAKE_LIBRARY_PATH
+    unset PKG_CONFIG_PATH PKG_CONFIG_LIBDIR PKG_CONFIG_SYSROOT_DIR
+    unset LIBRARY_PATH CPATH CPLUS_INCLUDE_PATH
+
+    QT_HOST_BUILD_DIR="$HOME/Qt6Cross/qt6/host-build"
+    if [ "$QT_HOST_BUILD_DIR" != "$HOME/Qt6Cross/qt6/host-build" ]; then
+      echo "Tu choi xoa host-build khong dung: $QT_HOST_BUILD_DIR" >&2
+      exit 1
+    fi
+    rm -rf -- "$QT_HOST_BUILD_DIR"
+    mkdir -p "$QT_HOST_BUILD_DIR"
+
+    cmake \
+      -S "$HOME/Qt6Cross/qt6/src/qtbase-everywhere-src-6.5.1" \
+      -B "$QT_HOST_BUILD_DIR" \
+      -GNinja \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DQT_BUILD_EXAMPLES=OFF \
+      -DQT_BUILD_TESTS=OFF \
+      -DCMAKE_INSTALL_PREFIX="$HOME/Qt6Cross/qt6/host"
+
+    if grep -qi 'rpi-sysroot' "$QT_HOST_BUILD_DIR/CMakeCache.txt"; then
+      echo "Qt host cache van chua duong dan rpi-sysroot; dung build de tranh tron thu vien ARM." >&2
+      grep -i 'rpi-sysroot' "$QT_HOST_BUILD_DIR/CMakeCache.txt" >&2
+      exit 1
+    fi
+
+    cmake --build "$QT_HOST_BUILD_DIR" --parallel 8
+    cmake --install "$QT_HOST_BUILD_DIR"
+  )
 fi
 
 
