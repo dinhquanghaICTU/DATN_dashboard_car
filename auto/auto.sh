@@ -119,14 +119,35 @@ else
 cd ~/$FOLDER_WORK
 mkdir -p gcc_all && cd gcc_all
 GITHUB_RELEASE_URL="https://github.com/dinhquanghaICTU/DATN_dashboard_car/releases/download/v1.0.0"
-wget -nc "$GITHUB_RELEASE_URL/binutils-2.35.2.tar.bz2"
-wget -nc "$GITHUB_RELEASE_URL/glibc-2.31.tar.bz2"
-wget -nc "$GITHUB_RELEASE_URL/gcc-10.3.0.tar.gz"
-wget -nc "$GITHUB_RELEASE_URL/linux.zip"
-[ -d binutils-2.35.2 ] || tar xf binutils-2.35.2.tar.bz2
-[ -d glibc-2.31 ] || tar xf glibc-2.31.tar.bz2
-[ -d gcc-10.3.0 ] || tar xf gcc-10.3.0.tar.gz
-[ -d linux ] || unzip -q linux.zip
+
+if [ -d binutils-2.35.2 ]; then
+  echo "[SKIP] Source binutils-2.35.2 da ton tai."
+else
+  [ -f binutils-2.35.2.tar.bz2 ] || wget "$GITHUB_RELEASE_URL/binutils-2.35.2.tar.bz2"
+  tar xf binutils-2.35.2.tar.bz2
+fi
+
+if [ -d glibc-2.31 ]; then
+  echo "[SKIP] Source glibc-2.31 da ton tai."
+else
+  [ -f glibc-2.31.tar.bz2 ] || wget "$GITHUB_RELEASE_URL/glibc-2.31.tar.bz2"
+  tar xf glibc-2.31.tar.bz2
+fi
+
+if [ -d gcc-10.3.0 ]; then
+  echo "[SKIP] Source gcc-10.3.0 da ton tai."
+else
+  [ -f gcc-10.3.0.tar.gz ] || wget "$GITHUB_RELEASE_URL/gcc-10.3.0.tar.gz"
+  tar xf gcc-10.3.0.tar.gz
+fi
+
+if [ -d linux ]; then
+  echo "[SKIP] Source linux da ton tai."
+else
+  [ -f linux.zip ] || wget "$GITHUB_RELEASE_URL/linux.zip"
+  unzip -q linux.zip
+fi
+
 if [ ! -d linux ]; then
   echo "File linux.zip phai chua folder co ten la 'linux'." >&2
   exit 1
