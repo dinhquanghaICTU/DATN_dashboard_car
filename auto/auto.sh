@@ -520,6 +520,20 @@ build_qt_module() {
     echo "[SKIP] Source da ton tai: $source_dir"
   fi
 
+  # Qt Declarative 6.5.1 bundled MASM dung PATH_MAX nhung thieu limits.h
+  # voi sysroot Raspberry Pi. Patch idempotent, khong chen lai neu da co.
+  if [ "$module_key" = "qtdeclarative" ]; then
+    local os_allocator="$source_dir/src/3rdparty/masm/wtf/OSAllocatorPosix.cpp"
+    if [ ! -f "$os_allocator" ]; then
+      echo "Khong tim thay source can patch: $os_allocator" >&2
+      exit 1
+    fi
+    if ! grep -Fq '#include <limits.h>' "$os_allocator"; then
+      sed -i '1i#include <limits.h>' "$os_allocator"
+      echo "[PATCH] Da them limits.h cho PATH_MAX trong Qt Declarative."
+    fi
+  fi
+
   if qt_module_is_installed "$QT_HOST_DIR" "$cmake_config" "$library_name"; then
     echo "[SKIP] $module_title cho host da duoc cai."
     touch "$host_marker"
