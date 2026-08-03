@@ -560,13 +560,17 @@ if [ -f "$QT_DECLARATIVE_PI_BUILD/.install-complete" ] || \
 else
   cd "$QT_DECLARATIVE_PI_BUILD"
   rm -f CMakeCache.txt
+  rm -rf CMakeFiles
   cmake "$QT_DECLARATIVE_SOURCE" -GNinja \
     -DCMAKE_BUILD_TYPE=Release \
     -DINPUT_opengl=es2 \
     -DQT_BUILD_EXAMPLES=OFF \
     -DQT_BUILD_TESTS=OFF \
-    -DQT_HOST_PATH="$HOME/$FOLDER_WORK/qt6/host" \
-    -DCMAKE_STAGING_PREFIX="$HOME/$FOLDER_WORK/qt6/pi" \
+    -DQT_HOST_PATH="$QT_HOST_DIR" \
+    -DQt6_DIR="$QT_PI_DIR/lib/cmake/Qt6" \
+    -DQt6BuildInternals_DIR="$QT_PI_DIR/lib/cmake/Qt6BuildInternals" \
+    -DCMAKE_PREFIX_PATH="$QT_PI_DIR" \
+    -DCMAKE_STAGING_PREFIX="$QT_PI_DIR" \
     -DCMAKE_INSTALL_PREFIX=/usr/local/qt6 \
     -DCMAKE_TOOLCHAIN_FILE="$HOME/$FOLDER_WORK/qt6/pi-build/toolchain.cmake" \
     -DQT_QMAKE_TARGET_MKSPEC=devices/linux-rasp-pi4-aarch64 \
@@ -636,13 +640,17 @@ if [ -f "$QT_HTTPSERVER_PI_BUILD/.install-complete" ] || \
 else
   cd "$QT_HTTPSERVER_PI_BUILD"
   rm -f CMakeCache.txt
+  rm -rf CMakeFiles
   cmake "$QT_HTTPSERVER_SOURCE" -GNinja \
     -DCMAKE_BUILD_TYPE=Release \
     -DINPUT_opengl=es2 \
     -DQT_BUILD_EXAMPLES=OFF \
     -DQT_BUILD_TESTS=OFF \
-    -DQT_HOST_PATH="$HOME/$FOLDER_WORK/qt6/host" \
-    -DCMAKE_STAGING_PREFIX="$HOME/$FOLDER_WORK/qt6/pi" \
+    -DQT_HOST_PATH="$QT_HOST_DIR" \
+    -DQt6_DIR="$QT_PI_DIR/lib/cmake/Qt6" \
+    -DQt6BuildInternals_DIR="$QT_PI_DIR/lib/cmake/Qt6BuildInternals" \
+    -DCMAKE_PREFIX_PATH="$QT_PI_DIR" \
+    -DCMAKE_STAGING_PREFIX="$QT_PI_DIR" \
     -DCMAKE_INSTALL_PREFIX=/usr/local/qt6 \
     -DCMAKE_TOOLCHAIN_FILE="$HOME/$FOLDER_WORK/qt6/pi-build/toolchain.cmake" \
     -DQT_QMAKE_TARGET_MKSPEC=devices/linux-rasp-pi4-aarch64 \
@@ -697,13 +705,17 @@ if [ -f "$QT_CHARTS_PI_BUILD/.install-complete" ] || \
 else
   cd "$QT_CHARTS_PI_BUILD"
   rm -f CMakeCache.txt
+  rm -rf CMakeFiles
   cmake "$QT_CHARTS_SOURCE" -GNinja \
     -DCMAKE_BUILD_TYPE=Release \
     -DINPUT_opengl=es2 \
     -DQT_BUILD_EXAMPLES=OFF \
     -DQT_BUILD_TESTS=OFF \
-    -DQT_HOST_PATH="$HOME/$FOLDER_WORK/qt6/host" \
-    -DCMAKE_STAGING_PREFIX="$HOME/$FOLDER_WORK/qt6/pi" \
+    -DQT_HOST_PATH="$QT_HOST_DIR" \
+    -DQt6_DIR="$QT_PI_DIR/lib/cmake/Qt6" \
+    -DQt6BuildInternals_DIR="$QT_PI_DIR/lib/cmake/Qt6BuildInternals" \
+    -DCMAKE_PREFIX_PATH="$QT_PI_DIR" \
+    -DCMAKE_STAGING_PREFIX="$QT_PI_DIR" \
     -DCMAKE_INSTALL_PREFIX=/usr/local/qt6 \
     -DCMAKE_TOOLCHAIN_FILE="$HOME/$FOLDER_WORK/qt6/pi-build/toolchain.cmake" \
     -DQT_QMAKE_TARGET_MKSPEC=devices/linux-rasp-pi4-aarch64 \
@@ -747,13 +759,17 @@ if [ -f "$QT_SERIALPORT_PI_BUILD/.install-complete" ]; then
 else
   cd "$QT_SERIALPORT_PI_BUILD"
   rm -f CMakeCache.txt
+  rm -rf CMakeFiles
   cmake "$QT_SERIALPORT_SOURCE" -GNinja \
     -DCMAKE_BUILD_TYPE=Release \
     -DINPUT_opengl=es2 \
     -DQT_BUILD_EXAMPLES=OFF \
     -DQT_BUILD_TESTS=OFF \
-    -DQT_HOST_PATH="$HOME/$FOLDER_WORK/qt6/host" \
-    -DCMAKE_STAGING_PREFIX="$HOME/$FOLDER_WORK/qt6/pi" \
+    -DQT_HOST_PATH="$QT_HOST_DIR" \
+    -DQt6_DIR="$QT_PI_DIR/lib/cmake/Qt6" \
+    -DQt6BuildInternals_DIR="$QT_PI_DIR/lib/cmake/Qt6BuildInternals" \
+    -DCMAKE_PREFIX_PATH="$QT_PI_DIR" \
+    -DCMAKE_STAGING_PREFIX="$QT_PI_DIR" \
     -DCMAKE_INSTALL_PREFIX=/usr/local/qt6 \
     -DCMAKE_TOOLCHAIN_FILE="$HOME/$FOLDER_WORK/qt6/pi-build/toolchain.cmake" \
     -DQT_QMAKE_TARGET_MKSPEC=devices/linux-rasp-pi4-aarch64 \
