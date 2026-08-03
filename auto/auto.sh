@@ -434,15 +434,19 @@ if [ -f "$QT_SHADERTOOLS_PI_BUILD/.install-complete" ]; then
   echo "[SKIP] Qt Shader Tools cho Raspberry Pi da duoc cai."
 else
   cd "$QT_SHADERTOOLS_PI_BUILD"
-  # Lan configure truoc co the da luu flags toolchain loi trong cache.
+  # Xoa cache configure loi va chi ro Qt target; QT_HOST_PATH chi dung cho tool host.
   rm -f CMakeCache.txt
+  rm -rf CMakeFiles
   cmake "$QT_SHADERTOOLS_SOURCE" -GNinja \
     -DCMAKE_BUILD_TYPE=Release \
     -DINPUT_opengl=es2 \
     -DQT_BUILD_EXAMPLES=OFF \
     -DQT_BUILD_TESTS=OFF \
-    -DQT_HOST_PATH="$HOME/$FOLDER_WORK/qt6/host" \
-    -DCMAKE_STAGING_PREFIX="$HOME/$FOLDER_WORK/qt6/pi" \
+    -DQT_HOST_PATH="$QT_HOST_DIR" \
+    -DQt6_DIR="$QT_PI_DIR/lib/cmake/Qt6" \
+    -DQt6BuildInternals_DIR="$QT_PI_DIR/lib/cmake/Qt6BuildInternals" \
+    -DCMAKE_PREFIX_PATH="$QT_PI_DIR" \
+    -DCMAKE_STAGING_PREFIX="$QT_PI_DIR" \
     -DCMAKE_INSTALL_PREFIX=/usr/local/qt6 \
     -DCMAKE_TOOLCHAIN_FILE="$HOME/$FOLDER_WORK/qt6/pi-build/toolchain.cmake" \
     -DQT_QMAKE_TARGET_MKSPEC=devices/linux-rasp-pi4-aarch64 \
