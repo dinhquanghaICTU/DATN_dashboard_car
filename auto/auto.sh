@@ -629,6 +629,48 @@ else
   touch "$QT_SERIALPORT_PI_BUILD/.install-complete"
 fi
 #================================================================================================================
+#=============================================CAI QT qtvirtualkeyboard=================================================
+QT_SERIALPORT_ARCHIVE="qtvirtualkeyboard-everywhere-src-${QT_VERSION}.tar.xz"
+QT_SERIALPORT_SOURCE="$QT_SRC_DIR/qtvirtualkeyboard-everywhere-src-${QT_VERSION}"
+QT_SERIALPORT_HOST_BUILD="$HOME/$FOLDER_WORK/qt6/host-build-qtvirtualkeyboard"
+QT_SERIALPORT_PI_BUILD="$HOME/$FOLDER_WORK/qt6/pi-build-qtvirtualkeyboard"
+
+cd "$QT_SRC_DIR"
+wget -nc "https://download.qt.io/official_releases/qt/6.5/${QT_VERSION}/submodules/${QT_SERIALPORT_ARCHIVE}"
+if [ ! -d "$QT_SERIALPORT_SOURCE" ]; then
+  tar xf "$QT_SERIALPORT_ARCHIVE"
+fi
+
+mkdir -p "$QT_SERIALPORT_HOST_BUILD"
+if [ -f "$QT_SERIALPORT_HOST_BUILD/.install-complete" ]; then
+  echo "[SKIP] Qt Serial Port cho host da duoc cai."
+else
+  cd "$QT_SERIALPORT_HOST_BUILD"
+  "$QT_HOST_DIR/bin/qt-configure-module" "$QT_SERIALPORT_SOURCE" -- \
+    -DQT_BUILD_EXAMPLES=OFF \
+    -DQT_BUILD_TESTS=OFF
+  cmake --build . --parallel 8
+  cmake --install .
+  touch "$QT_SERIALPORT_HOST_BUILD/.install-complete"
+fi
+
+mkdir -p "$QT_SERIALPORT_PI_BUILD"
+if [ -f "$QT_SERIALPORT_PI_BUILD/.install-complete" ]; then
+  echo "[SKIP] Qt Serial Port cho Raspberry Pi da duoc cai."
+else
+  cd "$QT_SERIALPORT_PI_BUILD"
+  rm -f CMakeCache.txt
+  "$QT_PI_DIR/bin/qt-configure-module" "$QT_SERIALPORT_SOURCE" -- \
+    -DQT_BUILD_EXAMPLES=OFF \
+    -DQT_BUILD_TESTS=OFF
+  cmake --build . --parallel 8
+  cmake --install .
+  touch "$QT_SERIALPORT_PI_BUILD/.install-complete"
+fi
+#================================================================================================================
+
+
+
 
 # Dong bo toan bo Qt staging sang Raspberry Pi mot lan sau khi build xong cac module.
 sshpass -p "$RASPI_PASS" rsync -avz \
