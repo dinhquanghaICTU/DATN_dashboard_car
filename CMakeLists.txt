@@ -45,6 +45,7 @@ qt_add_qml_module(appDATN_dashboard_car
     ui/components/CenterGaugePanel.qml
     ui/components/RightStatsPanel.qml
     ui/components/IntroOverlay.qml
+    ui/components/DashCard.qml
     RESOURCES assets/intro.mp4
 )
 

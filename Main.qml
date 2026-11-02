@@ -20,7 +20,7 @@ Window {
     property bool introActive: rpiHardware
     property int themeIndex: 0
     property string themeName: themeIndex === 0 ? "AQUA" : themeIndex === 1 ? "FOREST" : "AMBER"
-    property color bgColor: themeIndex === 0 ? "#080c12" : themeIndex === 1 ? "#07100c" : "#100d08"
+    property color bgColor: themeIndex === 0 ? "#060a10" : themeIndex === 1 ? "#050c09" : "#0d0a06"
     property color primaryLine: themeIndex === 0 ? Qt.rgba(0, 0.9, 0.8, 0.12) : themeIndex === 1 ? Qt.rgba(0.35, 0.84, 0.55, 0.12) : Qt.rgba(1.0, 0.7, 0.28, 0.12)
     property color primaryBorder: themeIndex === 0 ? Qt.rgba(0, 0.9, 0.8, 0.15) : themeIndex === 1 ? Qt.rgba(0.35, 0.84, 0.55, 0.15) : Qt.rgba(1.0, 0.7, 0.28, 0.15)
     property color rpmBorder: themeIndex === 0 ? Qt.rgba(0.6, 0.4, 1, 0.2) : themeIndex === 1 ? Qt.rgba(0.49, 0.78, 1, 0.2) : Qt.rgba(1, 0.56, 0.44, 0.2)
@@ -133,12 +133,23 @@ Window {
         opacity: introActive ? 0.0 : 1.0
         Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
 
+        // Background: subtle vertical gradient
+        Rectangle {
+            anchors.fill: parent
+            radius: 24
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: Qt.lighter(root.bgColor, 1.7) }
+                GradientStop { position: 1.0; color: root.bgColor }
+            }
+        }
+
+        // Outer frame
         Rectangle {
             anchors.fill: parent
             color: "transparent"
-            border.color: primary
-            border.width: 3
-            radius: 28
+            border.color: Qt.rgba(primary.r, primary.g, primary.b, 0.55)
+            border.width: 2
+            radius: 24
             z: 100
         }
 
@@ -149,32 +160,27 @@ Window {
             introActive: root.introActive
             bgColor: root.bgColor
             primary: root.primary
-            topPanelColor: root.topPanelColor
+            accent: root.accent
             weatherPanelColor: root.weatherPanelColor
             weatherMode: root.weatherMode
             weatherIconColor: root.weatherIconColor
+            bleConnected: vehicle.bleConnected
         }
 
-        Rectangle { x: 246; y: 52; width: 1; height: 390; color: primaryLine }
-        Rectangle { x: parent.width - 247; y: 52; width: 1; height: 390; color: primaryLine }
-
         LeftDashboardPanel {
-            x: 10; y: 52
+            x: 16; y: 58
             themeIndex: root.themeIndex
             themeName: root.themeName
             primary: root.primary
             accent: root.accent
             warningColor: root.warningColor
             dangerColor: root.dangerColor
-            tempColor: root.tempColor
-            displayTempColor: root.displayTempColor
             batteryLevel: root.batteryLevel
             batteryCriticalVisible: root.batteryCriticalVisible
             leftSignal: root.leftSignal
             rightSignal: root.rightSignal
             headLight: root.headLight
             signalTick: root.signalTick
-            temperature: vehicle.temperature
             temperatureHazardLocked: root.temperatureHazardLocked
             onToggleLeftSignal: ledCtrl.toggleLeftSignal()
             onToggleRightSignal: ledCtrl.toggleRightSignal()
@@ -185,9 +191,9 @@ Window {
         }
 
         CenterGaugePanel {
-            x: 246; y: 48
-            width: parent.width - 492
-            height: 432
+            x: 244; y: 54
+            width: parent.width - 488
+            height: 418
             introActive: root.introActive
             themeIndex: root.themeIndex
             primary: root.primary
@@ -199,29 +205,26 @@ Window {
             displaySpeed: root.displaySpeed
             displaySpeedKmh: root.displaySpeedKmh
             displayRpm: root.displayRpm
+            leftSignal: root.leftSignal
+            rightSignal: root.rightSignal
+            signalTick: root.signalTick
+            temperatureHazardLocked: root.temperatureHazardLocked
         }
 
         RightStatsPanel {
-            x: parent.width - 256; y: 52
-            themeIndex: root.themeIndex
+            x: parent.width - 236; y: 58
+            introActive: root.introActive
             primary: root.primary
             accent: root.accent
-            speedColor: root.speedColor
             rpmColor: root.rpmColor
-            tempColor: root.tempColor
             dangerColor: root.dangerColor
             warningColor: root.warningColor
             displayTempColor: root.displayTempColor
-            primaryBorder: root.primaryBorder
-            rpmBorder: root.rpmBorder
-            tempBorder: root.tempBorder
-            accentBorder: root.accentBorder
-            warningBorder: root.warningBorder
-            displaySpeedKmh: root.displaySpeedKmh
+            displaySpeed: root.displaySpeed
             displayRpm: root.displayRpm
             temperature: vehicle.temperature
-            batteryLevel: root.batteryLevel
-            batteryCriticalVisible: root.batteryCriticalVisible
+            temperatureHazardLocked: root.temperatureHazardLocked
+            bleConnected: vehicle.bleConnected
         }
     }
 

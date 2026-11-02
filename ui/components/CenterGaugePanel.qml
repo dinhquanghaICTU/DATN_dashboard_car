@@ -2,8 +2,8 @@ import QtQuick 2.15
 
 Item {
     id: root
-    width: 308
-    height: 432
+    width: 312
+    height: 418
 
     property bool introActive: false
     property int themeIndex: 0
@@ -11,174 +11,282 @@ Item {
     property color accent: "#00ff88"
     property color warningColor: "#ffcc00"
     property color dangerColor: "#ff4444"
-    property color bgColor: "#080c12"
+    property color bgColor: "#060a10"
     property color rpmColor: "#9966ff"
     property real displaySpeed: 0
     property real displaySpeedKmh: 0
     property real displayRpm: 0
+    property bool leftSignal: false
+    property bool rightSignal: false
+    property int signalTick: 0
+    property bool temperatureHazardLocked: false
+
+    readonly property string fontFamily: "DejaVu Sans"
+    readonly property real maxSpeed: 120
+    readonly property real dangerSpeed: 80
+    readonly property bool overSpeed: displaySpeedKmh >= dangerSpeed
+    // Gauge geometry (shared by both canvases)
+    readonly property real gcx: 156
+    readonly property real gcy: 160
+    readonly property real gr: 104
 
     onThemeIndexChanged: repaint()
     onPrimaryChanged: repaint()
     onAccentChanged: repaint()
-    onWarningColorChanged: repaint()
     onDangerColorChanged: repaint()
-    onDisplaySpeedKmhChanged: speedGaugeCanvas.requestPaint()
+    onDisplaySpeedKmhChanged: gaugeCanvas.requestPaint()
 
     function repaint() {
-        speedGaugeStaticCanvas.requestPaint()
-        speedGaugeCanvas.requestPaint()
+        gaugeStatic.requestPaint()
+        gaugeCanvas.requestPaint()
         movingCarIcon.requestPaint()
     }
 
+    function angleFor(v) {
+        return Math.PI * 0.75 + Math.min(Math.max(v / maxSpeed, 0), 1) * Math.PI * 1.5
+    }
+
+    // --------------------------------------------------------- Gauge (static)
     Canvas {
-        id: speedGaugeStaticCanvas
-        x: 10; y: 4; width: parent.width - 20; height: 280
+        id: gaugeStatic
+        width: parent.width; height: 300
         onPaint: {
             var ctx = getContext("2d")
             ctx.clearRect(0, 0, width, height)
-            var cx = width / 2, cy = 172, r = 112
-            var startA = Math.PI * 0.72
-            ctx.beginPath(); ctx.arc(cx, cy, r, Math.PI * 0.72, Math.PI * 2.28)
-            ctx.strokeStyle = "rgba(255,255,255,0.06)"; ctx.lineWidth = 18; ctx.lineCap = "round"; ctx.stroke()
-            for (var i = 0; i <= 12; i++) {
-                var a = startA + (i / 12) * Math.PI * 1.56
-                ctx.strokeStyle = i % 4 === 0 ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.2)"
-                ctx.lineWidth = i % 4 === 0 ? 2.5 : 1.2
-                var r1 = r + 12, r2 = i % 4 === 0 ? r + 30 : r + 22
+            var cx = root.gcx, cy = root.gcy, r = root.gr
+
+            // soft glow behind the dial
+            var glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, r + 30)
+            glow.addColorStop(0, Qt.rgba(root.primary.r, root.primary.g, root.primary.b, 0.13))
+            glow.addColorStop(1, Qt.rgba(root.primary.r, root.primary.g, root.primary.b, 0.0))
+            ctx.fillStyle = glow
+            ctx.beginPath(); ctx.arc(cx, cy, r + 30, 0, Math.PI * 2); ctx.fill()
+
+            // inner disc
+            ctx.beginPath(); ctx.arc(cx, cy, r - 16, 0, Math.PI * 2)
+            ctx.fillStyle = "rgba(255,255,255,0.025)"; ctx.fill()
+            ctx.strokeStyle = "rgba(255,255,255,0.06)"; ctx.lineWidth = 1; ctx.stroke()
+
+            // track
+            ctx.lineCap = "round"
+            ctx.beginPath(); ctx.arc(cx, cy, r, root.angleFor(0), root.angleFor(root.maxSpeed))
+            ctx.strokeStyle = "rgba(255,255,255,0.07)"; ctx.lineWidth = 12; ctx.stroke()
+
+            // red zone
+            ctx.lineCap = "butt"
+            ctx.beginPath(); ctx.arc(cx, cy, r + 12, root.angleFor(root.dangerSpeed), root.angleFor(root.maxSpeed))
+            ctx.strokeStyle = Qt.rgba(root.dangerColor.r, root.dangerColor.g, root.dangerColor.b, 0.75)
+            ctx.lineWidth = 2; ctx.stroke()
+
+            // ticks
+            for (var v = 0; v <= root.maxSpeed; v += 5) {
+                var a = root.angleFor(v)
+                var major = v % 20 === 0, mid = v % 10 === 0
+                var r1 = r + 15
+                var r2 = major ? r + 26 : mid ? r + 21 : r + 18
+                var danger = v >= root.dangerSpeed
+                ctx.strokeStyle = danger ? root.dangerColor
+                                 : major ? "rgba(255,255,255,0.75)" : mid ? "rgba(255,255,255,0.35)" : "rgba(255,255,255,0.18)"
+                ctx.lineWidth = major ? 2.2 : 1.2
                 ctx.beginPath()
                 ctx.moveTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1)
                 ctx.lineTo(cx + Math.cos(a) * r2, cy + Math.sin(a) * r2)
                 ctx.stroke()
             }
-            ctx.fillStyle = "rgba(255,255,255,0.4)"; ctx.font = "12px Courier New"
-            ctx.textAlign = "center"
-            var labels = ["0", "", "", "", "40", "", "", "", "80", "", "", "", "120"]
-            for (var j = 0; j <= 12; j++) {
-                var la = startA + (j / 12) * Math.PI * 1.56
-                var lx = cx + Math.cos(la) * (r + 42), ly = cy + Math.sin(la) * (r + 42)
-                ctx.fillText(labels[j], lx, ly + 4)
+
+            // labels
+            ctx.font = "bold 11px \"DejaVu Sans\""
+            ctx.textAlign = "center"; ctx.textBaseline = "middle"
+            for (var s = 0; s <= root.maxSpeed; s += 20) {
+                var la = root.angleFor(s)
+                var lr = r + 38
+                ctx.fillStyle = s >= root.dangerSpeed ? root.dangerColor : "rgba(255,255,255,0.55)"
+                ctx.fillText(String(s), cx + Math.cos(la) * lr, cy + Math.sin(la) * lr)
             }
         }
     }
 
+    // -------------------------------------------------------- Gauge (dynamic)
     Canvas {
-        id: speedGaugeCanvas
-        x: 10; y: 4; width: parent.width - 20; height: 280
+        id: gaugeCanvas
+        width: parent.width; height: 300
         onPaint: {
             var ctx = getContext("2d")
             ctx.clearRect(0, 0, width, height)
-            var cx = width / 2, cy = 172, r = 112
-            var pct = Math.min(root.displaySpeedKmh / 120.0, 1.0)
+            var cx = root.gcx, cy = root.gcy, r = root.gr
+            var pct = Math.min(root.displaySpeedKmh / root.maxSpeed, 1.0)
             if (pct <= 0.001) return
-            var startA = Math.PI * 0.72
-            var endA = startA + pct * Math.PI * 1.56
-            var grad = ctx.createLinearGradient(0, 0, width, 0)
-            grad.addColorStop(0, root.primary); grad.addColorStop(0.5, root.accent); grad.addColorStop(1.0, root.warningColor)
+            var startA = root.angleFor(0)
+            var endA = root.angleFor(root.displaySpeedKmh)
+            var stroke
+            if (root.overSpeed) {
+                stroke = root.dangerColor
+            } else {
+                stroke = ctx.createLinearGradient(cx - r, 0, cx + r, 0)
+                stroke.addColorStop(0, root.primary)
+                stroke.addColorStop(1, root.accent)
+            }
+            var glowColor = root.overSpeed ? root.dangerColor : root.primary
+            ctx.lineCap = "round"
+            ctx.shadowColor = glowColor; ctx.shadowBlur = 14
             ctx.beginPath(); ctx.arc(cx, cy, r, startA, endA)
-            ctx.strokeStyle = root.displaySpeedKmh >= 80.0 ? root.dangerColor : grad; ctx.lineWidth = 18; ctx.lineCap = "round"; ctx.stroke()
-            var na = endA
-            ctx.shadowColor = root.displaySpeedKmh >= 80.0 ? root.dangerColor : "#ffffff"; ctx.shadowBlur = 8
-            ctx.beginPath(); ctx.arc(cx + Math.cos(na) * r, cy + Math.sin(na) * r, 7, 0, Math.PI * 2)
-            ctx.fillStyle = root.displaySpeedKmh >= 80.0 ? root.dangerColor : "#ffffff"; ctx.fill(); ctx.shadowBlur = 0
+            ctx.strokeStyle = stroke; ctx.lineWidth = 12; ctx.stroke()
+
+            // tip
+            ctx.shadowColor = glowColor; ctx.shadowBlur = 10
+            ctx.beginPath(); ctx.arc(cx + Math.cos(endA) * r, cy + Math.sin(endA) * r, 6.5, 0, Math.PI * 2)
+            ctx.fillStyle = "#ffffff"; ctx.fill()
+            ctx.shadowBlur = 0
         }
     }
 
-    Text {
-        anchors.horizontalCenter: parent.horizontalCenter; y: 100
-        text: root.displaySpeedKmh.toFixed(1)
-        color: "white"; font.pixelSize: 45; font.bold: true; font.family: "Courier New"
-    }
-    Text {
-        anchors.horizontalCenter: parent.horizontalCenter; y: 162
-        text: "km/h"; color: root.primary; font.pixelSize: 17; font.family: "Courier New"; font.letterSpacing: 6
+    // ------------------------------------------------------- Speed readout
+    Item {
+        x: root.gcx; y: root.gcy
+        Row {
+            id: speedRow
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottom: parent.top; anchors.bottomMargin: -14
+            Text {
+                id: speedInt
+                text: Math.floor(root.displaySpeedKmh).toString()
+                color: root.overSpeed ? root.dangerColor : "white"
+                font.family: root.fontFamily; font.pixelSize: 62; font.bold: true
+            }
+            Text {
+                anchors.baseline: speedInt.baseline
+                text: "." + Math.floor((root.displaySpeedKmh % 1) * 10)
+                color: Qt.rgba(1, 1, 1, 0.45)
+                font.family: root.fontFamily; font.pixelSize: 24; font.bold: true
+            }
+        }
+        Text {
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top: speedRow.bottom; anchors.topMargin: -4
+            text: "KM/H"
+            color: root.primary
+            font.family: root.fontFamily; font.pixelSize: 12; font.bold: true; font.letterSpacing: 4
+        }
+
+        Rectangle {
+            anchors.horizontalCenter: parent.horizontalCenter
+            y: 50
+            width: rpmRow.width + 28; height: 30; radius: 15
+            color: Qt.rgba(root.rpmColor.r, root.rpmColor.g, root.rpmColor.b, 0.12)
+            border.width: 1
+            border.color: Qt.rgba(root.rpmColor.r, root.rpmColor.g, root.rpmColor.b, 0.45)
+            Row {
+                id: rpmRow
+                anchors.centerIn: parent; spacing: 6
+                Text {
+                    id: rpmValue
+                    text: root.displayRpm.toFixed(0)
+                    color: root.rpmColor
+                    font.family: root.fontFamily; font.pixelSize: 16; font.bold: true
+                }
+                Text {
+                    anchors.baseline: rpmValue.baseline
+                    text: "RPM"
+                    color: Qt.rgba(1, 1, 1, 0.5)
+                    font.family: root.fontFamily; font.pixelSize: 10; font.bold: true; font.letterSpacing: 1.5
+                }
+            }
+        }
     }
 
-    Text {
-        anchors.horizontalCenter: parent.horizontalCenter; y: 210
-        text: root.displayRpm.toFixed(0)
-        color: root.rpmColor; font.pixelSize: 50; font.bold: true; font.family: "Courier New"
-    }
-    Text {
-        anchors.horizontalCenter: parent.horizontalCenter; y: 284
-        text: "RPM"; color: root.rpmColor; font.pixelSize: 17; font.family: "Courier New"; font.letterSpacing: 6; opacity: 0.7
+    // ------------------------------------------------------- Turn signals
+    Repeater {
+        model: 2
+        Canvas {
+            id: arrow
+            width: 34; height: 26
+            x: index === 0 ? 4 : root.width - width - 4
+            y: 4
+            property bool active: index === 0 ? root.leftSignal : root.rightSignal
+            property bool lit: active && root.signalTick === 0
+            property color tone: root.accent
+            onLitChanged: requestPaint()
+            onActiveChanged: requestPaint()
+            onToneChanged: requestPaint()
+            onPaint: {
+                var ctx = getContext("2d"); ctx.clearRect(0, 0, width, height)
+                ctx.save()
+                if (index === 1) { ctx.translate(width, 0); ctx.scale(-1, 1) }
+                ctx.fillStyle = lit ? tone : active ? Qt.rgba(tone.r, tone.g, tone.b, 0.25) : "rgba(255,255,255,0.08)"
+                ctx.beginPath()
+                ctx.moveTo(3, 13); ctx.lineTo(15, 2); ctx.lineTo(15, 8); ctx.lineTo(31, 8)
+                ctx.lineTo(31, 18); ctx.lineTo(15, 18); ctx.lineTo(15, 24); ctx.closePath()
+                ctx.fill()
+                ctx.restore()
+            }
+        }
     }
 
-    Text {
-        anchors.horizontalCenter: parent.horizontalCenter; y: 312
-        text: root.displaySpeed.toFixed(3) + " m/s"
-        color: Qt.rgba(1, 1, 1, 0.2); font.pixelSize: 14; font.family: "Courier New"
-    }
-
+    // ----------------------------------------------------------- Moving car
     Canvas {
         id: movingCarIcon
         anchors.horizontalCenter: parent.horizontalCenter
-        y: 344
-        width: 180; height: 48
+        y: 300
+        width: 200; height: 46
         property int animTick: 0
+        property int theme: root.themeIndex
+        property real speedValue: root.displaySpeedKmh
+        onThemeChanged: requestPaint()
+        onSpeedValueChanged: requestPaint()
         onPaint: {
             var ctx = getContext("2d")
             ctx.clearRect(0, 0, width, height)
 
-            ctx.strokeStyle = Qt.rgba(1, 1, 1, 0.10)
-            ctx.lineWidth = 2
-            ctx.beginPath(); ctx.moveTo(18, 38); ctx.lineTo(162, 38); ctx.stroke()
+            // road
+            var road = ctx.createLinearGradient(0, 0, width, 0)
+            road.addColorStop(0, "rgba(255,255,255,0)")
+            road.addColorStop(0.5, "rgba(255,255,255,0.18)")
+            road.addColorStop(1, "rgba(255,255,255,0)")
+            ctx.strokeStyle = road; ctx.lineWidth = 2
+            ctx.beginPath(); ctx.moveTo(0, 41); ctx.lineTo(width, 41); ctx.stroke()
 
+            // speed streaks
             ctx.strokeStyle = root.primary
             ctx.lineWidth = 2
-            ctx.globalAlpha = 0.28
+            ctx.globalAlpha = 0.3
             for (var i = 0; i < 4; ++i) {
-                var x = 18 + ((animTick * 6 + i * 42) % 132)
-                ctx.beginPath(); ctx.moveTo(x, 33); ctx.lineTo(x - 22, 33); ctx.stroke()
+                var x = 10 + ((animTick * 6 + i * 46) % 180)
+                ctx.beginPath(); ctx.moveTo(x, 34); ctx.lineTo(x - 20, 34); ctx.stroke()
             }
             ctx.globalAlpha = 1
 
-            var carX = 58 + Math.sin(animTick * 0.22) * 4
-            ctx.fillStyle = Qt.rgba(1, 1, 1, 0.05)
+            var carX = 52 + Math.sin(animTick * 0.22) * 4
+            ctx.fillStyle = Qt.rgba(root.primary.r, root.primary.g, root.primary.b, 0.10)
             ctx.strokeStyle = root.primary
-            ctx.lineWidth = 2.5
+            ctx.lineWidth = 2.2
+            ctx.lineJoin = "round"
             ctx.beginPath()
             ctx.moveTo(carX + 8, 28)
-            ctx.lineTo(carX + 22, 16)
-            ctx.lineTo(carX + 58, 16)
-            ctx.lineTo(carX + 74, 28)
-            ctx.lineTo(carX + 88, 28)
-            ctx.quadraticCurveTo(carX + 94, 28, carX + 94, 33)
-            ctx.lineTo(carX + 2, 33)
+            ctx.lineTo(carX + 24, 15)
+            ctx.lineTo(carX + 58, 15)
+            ctx.lineTo(carX + 76, 27)
+            ctx.lineTo(carX + 90, 29)
+            ctx.quadraticCurveTo(carX + 96, 30, carX + 96, 35)
+            ctx.lineTo(carX + 2, 35)
             ctx.quadraticCurveTo(carX + 2, 28, carX + 8, 28)
             ctx.closePath()
             ctx.fill()
             ctx.stroke()
 
-            ctx.fillStyle = Qt.rgba(1, 1, 1, 0.18)
-            ctx.beginPath()
-            ctx.moveTo(carX + 28, 18)
-            ctx.lineTo(carX + 39, 18)
-            ctx.lineTo(carX + 39, 27)
-            ctx.lineTo(carX + 19, 27)
-            ctx.closePath()
-            ctx.fill()
-            ctx.beginPath()
-            ctx.moveTo(carX + 43, 18)
-            ctx.lineTo(carX + 56, 18)
-            ctx.lineTo(carX + 67, 27)
-            ctx.lineTo(carX + 43, 27)
-            ctx.closePath()
-            ctx.fill()
+            ctx.fillStyle = "rgba(255,255,255,0.22)"
+            ctx.beginPath(); ctx.moveTo(carX + 29, 18); ctx.lineTo(carX + 40, 18); ctx.lineTo(carX + 40, 27); ctx.lineTo(carX + 20, 27); ctx.closePath(); ctx.fill()
+            ctx.beginPath(); ctx.moveTo(carX + 44, 18); ctx.lineTo(carX + 56, 18); ctx.lineTo(carX + 68, 27); ctx.lineTo(carX + 44, 27); ctx.closePath(); ctx.fill()
 
             ctx.fillStyle = root.accent
-            ctx.beginPath(); ctx.arc(carX + 24, 34, 6, 0, Math.PI * 2); ctx.fill()
-            ctx.beginPath(); ctx.arc(carX + 72, 34, 6, 0, Math.PI * 2); ctx.fill()
+            ctx.beginPath(); ctx.arc(carX + 24, 36, 6, 0, Math.PI * 2); ctx.fill()
+            ctx.beginPath(); ctx.arc(carX + 74, 36, 6, 0, Math.PI * 2); ctx.fill()
             ctx.fillStyle = root.bgColor
-            ctx.beginPath(); ctx.arc(carX + 24, 34, 3, 0, Math.PI * 2); ctx.fill()
-            ctx.beginPath(); ctx.arc(carX + 72, 34, 3, 0, Math.PI * 2); ctx.fill()
+            ctx.beginPath(); ctx.arc(carX + 24, 36, 3, 0, Math.PI * 2); ctx.fill()
+            ctx.beginPath(); ctx.arc(carX + 74, 36, 3, 0, Math.PI * 2); ctx.fill()
 
-            ctx.fillStyle = root.displaySpeedKmh >= 80.0 ? root.dangerColor : root.warningColor
-            ctx.beginPath(); ctx.moveTo(carX + 94, 29); ctx.lineTo(carX + 102, 31); ctx.lineTo(carX + 94, 33); ctx.closePath(); ctx.fill()
+            ctx.fillStyle = root.overSpeed ? root.dangerColor : root.warningColor
+            ctx.beginPath(); ctx.moveTo(carX + 96, 30); ctx.lineTo(carX + 104, 32); ctx.lineTo(carX + 96, 34); ctx.closePath(); ctx.fill()
         }
-        property int theme: root.themeIndex
-        property real speedValue: root.displaySpeedKmh
-        onThemeChanged: requestPaint()
-        onSpeedValueChanged: requestPaint()
         Timer {
             interval: 90
             running: !root.introActive
@@ -186,6 +294,42 @@ Item {
             onTriggered: {
                 movingCarIcon.animTick = (movingCarIcon.animTick + 1) % 1000
                 movingCarIcon.requestPaint()
+            }
+        }
+    }
+
+    // --------------------------------------------------------- Status banner
+    Rectangle {
+        id: banner
+        readonly property int level: root.temperatureHazardLocked ? 2 : root.overSpeed ? 1 : 0
+        readonly property color tone: level === 2 ? root.dangerColor : level === 1 ? root.warningColor : root.primary
+        anchors.horizontalCenter: parent.horizontalCenter
+        y: 362
+        width: 252; height: 32; radius: 16
+        color: level > 0 ? Qt.rgba(tone.r, tone.g, tone.b, 0.14) : Qt.rgba(1, 1, 1, 0.03)
+        border.width: 1
+        border.color: level > 0 ? Qt.rgba(tone.r, tone.g, tone.b, 0.6) : Qt.rgba(1, 1, 1, 0.08)
+
+        Row {
+            anchors.centerIn: parent; spacing: 8
+            Rectangle {
+                width: 8; height: 8; radius: 4
+                anchors.verticalCenter: parent.verticalCenter
+                color: banner.tone
+                SequentialAnimation on opacity {
+                    running: banner.level > 0 && !root.introActive
+                    loops: Animation.Infinite
+                    onRunningChanged: if (!running) parent.opacity = 1
+                    NumberAnimation { to: 0.2; duration: 450 }
+                    NumberAnimation { to: 1.0; duration: 450 }
+                }
+            }
+            Text {
+                text: banner.level === 2 ? "ENGINE OVERHEAT · HAZARD ON"
+                    : banner.level === 1 ? "OVER SPEED · SLOW DOWN"
+                    : "ALL SYSTEMS NORMAL"
+                color: banner.level > 0 ? banner.tone : Qt.rgba(1, 1, 1, 0.55)
+                font.family: root.fontFamily; font.pixelSize: 10; font.bold: true; font.letterSpacing: 1.4
             }
         }
     }

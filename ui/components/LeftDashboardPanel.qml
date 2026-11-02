@@ -2,8 +2,8 @@ import QtQuick 2.15
 
 Item {
     id: root
-    width: 246
-    height: 400
+    width: 220
+    height: 406
 
     property int themeIndex: 0
     property string themeName: "AQUA"
@@ -11,15 +11,12 @@ Item {
     property color accent: "#00ff88"
     property color warningColor: "#ffcc00"
     property color dangerColor: "#ff4444"
-    property color tempColor: "#ffaa00"
-    property color displayTempColor: tempColor
-    property real batteryLevel: 10.0
+    property real batteryLevel: 100.0
     property bool batteryCriticalVisible: true
     property bool leftSignal: false
     property bool rightSignal: false
     property bool headLight: false
     property int signalTick: 0
-    property real temperature: 0
     property bool temperatureHazardLocked: false
 
     signal toggleLeftSignal()
@@ -29,211 +26,242 @@ Item {
     signal applyTheme(int index)
     signal nextTheme()
 
-    onThemeIndexChanged: repaint()
-    onPrimaryChanged: repaint()
-    onAccentChanged: repaint()
-    onWarningColorChanged: repaint()
-    onDangerColorChanged: repaint()
-    onDisplayTempColorChanged: repaint()
+    readonly property string fontFamily: "DejaVu Sans"
+    readonly property bool hazardOn: leftSignal && rightSignal
+    readonly property color batteryColor: batteryLevel > 50 ? accent : batteryLevel > 20 ? warningColor : dangerColor
+    readonly property var themeSwatches: ["#00e5cc", "#58d68d", "#ffb347"]
 
-    function repaint() {
-        batteryArc.requestPaint()
-        leftSignalIcon.requestPaint()
-        hazardIcon.requestPaint()
-        rightSignalIcon.requestPaint()
-        lampIcon.requestPaint()
-        tempIconSmall.requestPaint()
-        tempBarsLeft.requestPaint()
-    }
+    onThemeIndexChanged: batteryArc.requestPaint()
+    onBatteryColorChanged: batteryArc.requestPaint()
+    onPrimaryChanged: batteryArc.requestPaint()
 
-    Canvas {
-        id: batteryArc
-        x: 23; y: 8; width: 200; height: 200
-        opacity: root.batteryCriticalVisible ? 1.0 : 0.2
-        onPaint: {
-            var ctx = getContext("2d")
-            ctx.clearRect(0, 0, width, height)
-            var cx = 100, cy = 100, r = 80
-            ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI * 0.8, Math.PI * 0.8)
-            ctx.strokeStyle = "rgba(255,255,255,0.07)"; ctx.lineWidth = 12; ctx.lineCap = "round"; ctx.stroke()
-            var pct = root.batteryLevel / 100.0
-            var grad = ctx.createLinearGradient(0, 0, 200, 0)
-            if (root.batteryLevel > 50) { grad.addColorStop(0, root.primary); grad.addColorStop(1, root.accent) }
-            else if (root.batteryLevel > 20) { grad.addColorStop(0, root.warningColor); grad.addColorStop(1, root.tempColor) }
-            else { grad.addColorStop(0, root.dangerColor); grad.addColorStop(1, "#ff0000") }
-            ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI * 0.8, -Math.PI * 0.8 + pct * Math.PI * 1.6)
-            ctx.strokeStyle = grad; ctx.lineWidth = 12; ctx.lineCap = "round"; ctx.stroke()
-        }
-        property real batt: root.batteryLevel
-        onBattChanged: requestPaint()
-    }
-    Text {
-        x: 23; y: 80; width: 200
-        text: root.batteryLevel.toFixed(0) + "%"
-        color: root.batteryLevel > 50 ? root.primary : root.batteryLevel > 20 ? root.warningColor : root.dangerColor
-        opacity: root.batteryCriticalVisible ? 1.0 : 0.2
-        font.pixelSize: 34; font.bold: true; font.family: "Courier New"
-        horizontalAlignment: Text.AlignHCenter
-    }
-    Text {
-        x: 23; y: 122; width: 200
-        text: "Battery"
-        color: Qt.rgba(1, 1, 1, 0.35); font.pixelSize: 12; font.family: "Courier New"
-        opacity: root.batteryCriticalVisible ? 1.0 : 0.2
-        font.letterSpacing: 2; horizontalAlignment: Text.AlignHCenter
-    }
-
-    Rectangle { x: 20; y: 216; width: 206; height: 1; color: Qt.rgba(1, 1, 1, 0.07) }
-
-    Row {
-        x: 16; y: 228; spacing: 10
+    // ---------------------------------------------------------------- Battery
+    DashCard {
+        id: batteryCard
+        y: 0; width: parent.width; height: 192
+        title: "BATTERY"
+        accentColor: root.batteryColor
+        alert: root.batteryLevel < 10.0
 
         Canvas {
-            id: leftSignalIcon
-            width: 36; height: 36
+            id: batteryArc
+            width: 148; height: 148
+            anchors.horizontalCenter: parent.horizontalCenter
+            y: 30
+            opacity: root.batteryCriticalVisible ? 1.0 : 0.25
+            property real batt: root.batteryLevel
+            onBattChanged: requestPaint()
             onPaint: {
-                var ctx = getContext("2d"); ctx.clearRect(0, 0, width, height)
-                ctx.fillStyle = (root.leftSignal && root.signalTick === 0) ? root.accent : "rgba(255,255,255,0.1)"
-                ctx.beginPath(); ctx.moveTo(36, 6); ctx.lineTo(16, 18); ctx.lineTo(36, 30); ctx.closePath(); ctx.fill()
-                ctx.beginPath(); ctx.moveTo(20, 6); ctx.lineTo(0, 18); ctx.lineTo(20, 30); ctx.closePath(); ctx.fill()
-            }
-            property bool ls: root.leftSignal; property int st: root.signalTick
-            onLsChanged: requestPaint()
-            onStChanged: requestPaint()
-            MouseArea { anchors.fill: parent; enabled: !root.temperatureHazardLocked; onClicked: root.toggleLeftSignal() }
-        }
-        Canvas {
-            id: hazardIcon
-            width: 36; height: 36
-            onPaint: {
-                var ctx = getContext("2d"); ctx.clearRect(0, 0, width, height)
-                ctx.fillStyle = (root.leftSignal && root.rightSignal) ? root.warningColor : "rgba(255,255,255,0.1)"
-                ctx.beginPath(); ctx.moveTo(18, 2); ctx.lineTo(34, 32); ctx.lineTo(2, 32); ctx.closePath(); ctx.fill()
-            }
-            property bool ls: root.leftSignal; property bool rs: root.rightSignal
-            onLsChanged: requestPaint()
-            onRsChanged: requestPaint()
-            MouseArea { anchors.fill: parent; enabled: !root.temperatureHazardLocked; onClicked: root.toggleHazard() }
-        }
-        Canvas {
-            id: rightSignalIcon
-            width: 36; height: 36
-            onPaint: {
-                var ctx = getContext("2d"); ctx.clearRect(0, 0, width, height)
-                ctx.fillStyle = (root.rightSignal && root.signalTick === 0) ? root.accent : "rgba(255,255,255,0.1)"
-                ctx.beginPath(); ctx.moveTo(0, 6); ctx.lineTo(20, 18); ctx.lineTo(0, 30); ctx.closePath(); ctx.fill()
-                ctx.beginPath(); ctx.moveTo(14, 6); ctx.lineTo(34, 18); ctx.lineTo(14, 30); ctx.closePath(); ctx.fill()
-            }
-            property bool rs: root.rightSignal; property int st: root.signalTick
-            onRsChanged: requestPaint()
-            onStChanged: requestPaint()
-            MouseArea { anchors.fill: parent; enabled: !root.temperatureHazardLocked; onClicked: root.toggleRightSignal() }
-        }
-        Canvas {
-            id: lampIcon
-            width: 36; height: 36
-            onPaint: {
-                var ctx = getContext("2d"); ctx.clearRect(0, 0, width, height)
-                ctx.strokeStyle = root.headLight ? root.accent : "rgba(255,255,255,0.15)"
-                ctx.lineWidth = 2
-                ctx.beginPath(); ctx.arc(18, 18, 9, 0, Math.PI * 2); ctx.stroke()
-                for (var i = 0; i < 6; i++) {
-                    var a = (i / 6) * Math.PI * 2
-                    ctx.beginPath(); ctx.moveTo(18 + Math.cos(a) * 11, 18 + Math.sin(a) * 11)
-                    ctx.lineTo(18 + Math.cos(a) * 16, 18 + Math.sin(a) * 16); ctx.stroke()
+                var ctx = getContext("2d")
+                ctx.clearRect(0, 0, width, height)
+                var cx = 74, cy = 74, r = 62
+                var start = Math.PI * 0.75, sweep = Math.PI * 1.5
+                ctx.lineCap = "round"
+                ctx.beginPath(); ctx.arc(cx, cy, r, start, start + sweep)
+                ctx.strokeStyle = "rgba(255,255,255,0.07)"; ctx.lineWidth = 10; ctx.stroke()
+                var pct = Math.max(0, Math.min(root.batteryLevel / 100.0, 1))
+                if (pct > 0.005) {
+                    var grad = ctx.createLinearGradient(0, height, width, 0)
+                    grad.addColorStop(0, root.batteryLevel > 50 ? root.primary : root.batteryColor)
+                    grad.addColorStop(1, root.batteryColor)
+                    ctx.shadowColor = root.batteryColor; ctx.shadowBlur = 8
+                    ctx.beginPath(); ctx.arc(cx, cy, r, start, start + pct * sweep)
+                    ctx.strokeStyle = grad; ctx.lineWidth = 10; ctx.stroke()
+                    ctx.shadowBlur = 0
                 }
             }
-            property bool hl: root.headLight
-            onHlChanged: requestPaint()
-            MouseArea { anchors.fill: parent; enabled: !root.temperatureHazardLocked; onClicked: root.toggleHeadLight() }
         }
-        Canvas {
-            id: tempIconSmall
-            width: 36; height: 36
-            onPaint: {
-                var ctx = getContext("2d"); ctx.clearRect(0, 0, width, height)
-                ctx.strokeStyle = root.displayTempColor; ctx.lineWidth = 2
-                ctx.beginPath(); ctx.moveTo(14, 4); ctx.lineTo(14, 26); ctx.stroke()
-                ctx.beginPath(); ctx.moveTo(22, 4); ctx.lineTo(22, 26); ctx.stroke()
-                ctx.beginPath(); ctx.moveTo(14, 4); ctx.arc(18, 4, 4, -Math.PI, 0); ctx.stroke()
-                ctx.beginPath(); ctx.arc(18, 30, 6, 0, Math.PI * 2)
-                ctx.fillStyle = root.displayTempColor; ctx.fill()
-                var pct = Math.min(Math.max((root.temperature - 20) / 60, 0), 1)
-                ctx.fillStyle = root.displayTempColor
-                ctx.fillRect(15, 26 - pct * 20, 6, pct * 20)
+
+        Row {
+            anchors.horizontalCenter: batteryArc.horizontalCenter
+            y: batteryArc.y + 46
+            opacity: root.batteryCriticalVisible ? 1.0 : 0.25
+            Text {
+                id: battValue
+                text: root.batteryLevel.toFixed(0)
+                color: "white"
+                font.family: root.fontFamily; font.pixelSize: 38; font.bold: true
             }
-            property real tmp: root.temperature
-            onTmpChanged: requestPaint()
+            Text {
+                anchors.baseline: battValue.baseline
+                text: "%"
+                color: root.batteryColor
+                font.family: root.fontFamily; font.pixelSize: 16; font.bold: true
+            }
+        }
+        Text {
+            anchors.horizontalCenter: batteryArc.horizontalCenter
+            y: batteryArc.y + 96
+            text: root.batteryLevel > 50 ? "GOOD" : root.batteryLevel > 20 ? "MEDIUM" : root.batteryLevel >= 10 ? "LOW" : "CRITICAL"
+            color: root.batteryColor
+            opacity: root.batteryCriticalVisible ? 0.9 : 0.25
+            font.family: root.fontFamily; font.pixelSize: 10; font.bold: true; font.letterSpacing: 2
         }
     }
 
-    Row {
-        x: 16; y: 270; spacing: 10
-        Text { width: 36; text: "L"; color: Qt.rgba(1, 1, 1, 0.2); font.pixelSize: 9; font.family: "Courier New"; horizontalAlignment: Text.AlignHCenter }
-        Text { width: 36; text: "HAZ"; color: Qt.rgba(1, 1, 1, 0.2); font.pixelSize: 9; font.family: "Courier New"; horizontalAlignment: Text.AlignHCenter }
-        Text { width: 36; text: "R"; color: Qt.rgba(1, 1, 1, 0.2); font.pixelSize: 9; font.family: "Courier New"; horizontalAlignment: Text.AlignHCenter }
-        Text { width: 36; text: "LAMP"; color: Qt.rgba(1, 1, 1, 0.2); font.pixelSize: 9; font.family: "Courier New"; horizontalAlignment: Text.AlignHCenter }
-        Text { width: 36; text: "TEMP"; color: Qt.rgba(1, 1, 1, 0.2); font.pixelSize: 9; font.family: "Courier New"; horizontalAlignment: Text.AlignHCenter }
+    // ----------------------------------------------------------------- Lights
+    DashCard {
+        id: lightsCard
+        y: batteryCard.y + batteryCard.height + 10
+        width: parent.width; height: 122
+        title: "LIGHTS"
+        accentColor: root.temperatureHazardLocked ? root.dangerColor : root.primary
+        alert: root.temperatureHazardLocked
+
+        Text {
+            visible: root.temperatureHazardLocked
+            anchors.right: parent.right; anchors.rightMargin: 14; y: 12
+            text: "LOCKED"
+            color: root.dangerColor
+            font.family: root.fontFamily; font.pixelSize: 9; font.bold: true; font.letterSpacing: 1.4
+        }
+
+        Row {
+            x: 10; y: 36; spacing: 8
+            opacity: root.temperatureHazardLocked ? 0.75 : 1.0
+
+            Repeater {
+                // kind: 0 = left, 1 = hazard, 2 = right, 3 = lamp
+                model: [
+                    { kind: 0, label: "LEFT" },
+                    { kind: 1, label: "HAZARD" },
+                    { kind: 2, label: "RIGHT" },
+                    { kind: 3, label: "LAMP" }
+                ]
+
+                Column {
+                    id: tile
+                    spacing: 6
+                    property int kind: modelData.kind
+                    property bool active: kind === 0 ? root.leftSignal
+                                        : kind === 1 ? root.hazardOn
+                                        : kind === 2 ? root.rightSignal
+                                        : root.headLight
+                    property bool blinking: kind !== 3
+                    property bool lit: active && (!blinking || root.signalTick === 0)
+                    property color tone: kind === 1 ? root.warningColor : kind === 3 ? root.primary : root.accent
+
+                    Rectangle {
+                        width: 44; height: 48; radius: 12
+                        color: tile.active ? Qt.rgba(tile.tone.r, tile.tone.g, tile.tone.b, 0.16) : Qt.rgba(1, 1, 1, 0.04)
+                        border.width: 1
+                        border.color: tile.active ? Qt.rgba(tile.tone.r, tile.tone.g, tile.tone.b, 0.65) : Qt.rgba(1, 1, 1, 0.08)
+                        scale: tileMouse.pressed ? 0.92 : 1.0
+                        Behavior on scale { NumberAnimation { duration: 80 } }
+
+                        Canvas {
+                            id: icon
+                            width: 24; height: 24
+                            anchors.centerIn: parent
+                            property bool lit: tile.lit
+                            property bool active: tile.active
+                            property color tone: tile.tone
+                            onLitChanged: requestPaint()
+                            onActiveChanged: requestPaint()
+                            onToneChanged: requestPaint()
+                            onPaint: {
+                                var ctx = getContext("2d"); ctx.clearRect(0, 0, width, height)
+                                var c = lit ? tone : active ? Qt.rgba(tone.r, tone.g, tone.b, 0.35) : "rgba(255,255,255,0.32)"
+                                ctx.fillStyle = c; ctx.strokeStyle = c
+                                ctx.lineJoin = "round"; ctx.lineCap = "round"
+                                if (tile.kind === 0 || tile.kind === 2) {
+                                    ctx.save()
+                                    if (tile.kind === 2) { ctx.translate(24, 0); ctx.scale(-1, 1) }
+                                    ctx.beginPath()
+                                    ctx.moveTo(2, 12); ctx.lineTo(11, 3.5); ctx.lineTo(11, 8.5); ctx.lineTo(22, 8.5)
+                                    ctx.lineTo(22, 15.5); ctx.lineTo(11, 15.5); ctx.lineTo(11, 20.5); ctx.closePath()
+                                    ctx.fill()
+                                    ctx.restore()
+                                } else if (tile.kind === 1) {
+                                    ctx.lineWidth = 2.4
+                                    ctx.beginPath(); ctx.moveTo(12, 2.5); ctx.lineTo(22, 20.5); ctx.lineTo(2, 20.5); ctx.closePath(); ctx.stroke()
+                                    ctx.lineWidth = 1.8
+                                    ctx.beginPath(); ctx.moveTo(12, 9.5); ctx.lineTo(16.5, 17); ctx.lineTo(7.5, 17); ctx.closePath(); ctx.stroke()
+                                } else {
+                                    ctx.lineWidth = 2.2
+                                    ctx.beginPath(); ctx.moveTo(11, 4.5)
+                                    ctx.bezierCurveTo(1.5, 4.5, 1.5, 19.5, 11, 19.5)
+                                    ctx.closePath(); ctx.stroke()
+                                    if (active) { ctx.fill() }
+                                    for (var i = 0; i < 4; ++i) {
+                                        var yy = 6 + i * 4
+                                        ctx.beginPath(); ctx.moveTo(15, yy); ctx.lineTo(22, yy); ctx.stroke()
+                                    }
+                                }
+                            }
+                        }
+
+                        MouseArea {
+                            id: tileMouse
+                            anchors.fill: parent
+                            enabled: !root.temperatureHazardLocked
+                            onClicked: {
+                                if (tile.kind === 0) root.toggleLeftSignal()
+                                else if (tile.kind === 1) root.toggleHazard()
+                                else if (tile.kind === 2) root.toggleRightSignal()
+                                else root.toggleHeadLight()
+                            }
+                        }
+                    }
+                    Text {
+                        width: 44
+                        horizontalAlignment: Text.AlignHCenter
+                        text: modelData.label
+                        color: tile.active ? tile.tone : Qt.rgba(1, 1, 1, 0.4)
+                        font.family: root.fontFamily; font.pixelSize: 8; font.bold: true; font.letterSpacing: 0.6
+                    }
+                }
+            }
+        }
     }
 
-    Row {
-        x: 14; y: 284; spacing: 8
-        Repeater {
-            model: 3
-            Item {
-                width: 36; height: 36
-                Rectangle {
-                    anchors.centerIn: parent
-                    width: root.themeIndex === index ? 32 : 28
-                    height: width
-                    radius: width / 2
-                    color: index === 0 ? "#00e5cc" : index === 1 ? "#58d68d" : "#ffb347"
-                    border.color: root.themeIndex === index ? "white" : Qt.rgba(1, 1, 1, 0.18)
-                    border.width: root.themeIndex === index ? 3 : 1
-                    Behavior on width { NumberAnimation { duration: 90; easing.type: Easing.OutCubic } }
-                }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: root.applyTheme(index)
+    // ------------------------------------------------------------------ Theme
+    DashCard {
+        y: lightsCard.y + lightsCard.height + 10
+        width: parent.width; height: parent.height - y
+        title: "THEME"
+        accentColor: root.primary
+
+        Row {
+            x: 12; anchors.bottom: parent.bottom; anchors.bottomMargin: 10
+            spacing: 6
+            Repeater {
+                model: 3
+                Item {
+                    width: 32; height: 32
+                    Rectangle {
+                        anchors.centerIn: parent
+                        width: root.themeIndex === index ? 30 : 22
+                        height: width; radius: width / 2
+                        color: "transparent"
+                        border.width: 2
+                        border.color: root.themeIndex === index ? root.themeSwatches[index] : "transparent"
+                        Behavior on width { NumberAnimation { duration: 120; easing.type: Easing.OutCubic } }
+                    }
+                    Rectangle {
+                        anchors.centerIn: parent
+                        width: 20; height: 20; radius: 10
+                        color: root.themeSwatches[index]
+                        opacity: root.themeIndex === index ? 1.0 : 0.55
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: root.applyTheme(index)
+                    }
                 }
             }
         }
         Text {
-            anchors.verticalCenter: parent.verticalCenter
+            anchors.right: parent.right; anchors.rightMargin: 16
+            anchors.bottom: parent.bottom; anchors.bottomMargin: 18
             text: root.themeName
-            color: Qt.rgba(1, 1, 1, 0.38)
-            font.pixelSize: 14; font.family: "Courier New"; font.bold: true; font.letterSpacing: 2
-            Behavior on color { ColorAnimation { duration: 120 } }
+            color: root.primary
+            font.family: root.fontFamily; font.pixelSize: 13; font.bold: true; font.letterSpacing: 2
             MouseArea {
                 anchors.fill: parent
                 anchors.margins: -10
                 onClicked: root.nextTheme()
             }
-        }
-    }
-
-    Row {
-        x: 14; y: 338; spacing: 10
-        Canvas {
-            id: tempBarsLeft
-            width: 28; height: 40
-            onPaint: {
-                var ctx = getContext("2d"); ctx.clearRect(0, 0, width, height)
-                var pct = Math.min(Math.max((root.temperature - 20) / 60, 0), 1)
-                var bars = Math.ceil(pct * 4)
-                for (var i = 0; i < 4; i++) {
-                    var bh = 6 + i * 6; var bx = i * 7
-                    ctx.fillStyle = i < bars ? root.displayTempColor : "rgba(255,255,255,0.1)"
-                    ctx.fillRect(bx, 34 - bh, 5, bh)
-                }
-            }
-            property real tmp: root.temperature
-            onTmpChanged: requestPaint()
-        }
-        Column {
-            spacing: 2
-            Text { text: root.temperature.toFixed(1) + "°C"; color: root.displayTempColor; font.pixelSize: 22; font.bold: true; font.family: "Courier New" }
-            Text { text: "Engine Temp"; color: Qt.rgba(1, 1, 1, 0.3); font.pixelSize: 10; font.family: "Courier New" }
         }
     }
 }
