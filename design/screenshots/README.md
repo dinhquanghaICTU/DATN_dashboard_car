@@ -11,13 +11,16 @@
 Ảnh được render từ chính các file QML (Qt 6, software backend) với dữ liệu giả lập
 cho `vehicle` / `ledCtrl`, xi-nhan trái đang bật và BLE đang kết nối.
 
-## Thay đổi chính
-- **Bố cục rõ ràng hơn**: trái = pin + điều khiển đèn + theme, giữa = đồng hồ tốc độ, phải = nhiệt độ / motor / BLE.
-  Bỏ phần hiển thị trùng lặp (trước đây tốc độ, RPM, nhiệt độ, pin xuất hiện 2–3 lần).
-- **Đồng hồ tốc độ mới**: cung 270°, vạch chia 0–120 km/h không còn bị cắt chữ, vùng đỏ ≥ 80 km/h,
-  số tốc độ lớn ở giữa, RPM dạng "pill" bên dưới, đèn xi-nhan ở 2 góc trên.
-- **Thanh trạng thái dưới đồng hồ**: "ALL SYSTEMS NORMAL" / "OVER SPEED" / "ENGINE OVERHEAT · HAZARD ON".
-- **Nút điều khiển đèn** dạng ô bấm có icon + nhãn, sáng theo trạng thái, hiện "LOCKED" khi quá nhiệt.
-- **Top bar** gọn hơn (nền tối thay cho dải cyan đặc), thêm chip trạng thái **BLE**.
-- **Font**: đổi `Courier New` (không có trên Raspberry Pi OS nên bị thay font ngẫu nhiên) sang `DejaVu Sans` (có sẵn).
-- Thêm component dùng chung `ui/components/DashCard.qml`.
+## Bố cục (theo phác thảo)
+- **Cột trái**: pin dạng cục pin điện thoại (phần trăm nằm trong pin, đổi màu xanh / vàng / đỏ theo mức pin,
+  nhấp nháy khi < 10 %), ngay dưới là **nhiệt độ động cơ** kèm thanh 20–80 °C (vạch đỏ ở 50 °C). Dưới cùng là chọn theme.
+- **Cột giữa**: đồng hồ tốc độ 0–120 km/h (vùng đỏ ≥ 80), RPM, m/s, mũi tên xi-nhan, banner trạng thái;
+  bên dưới là khung **LIGHTS** (LEFT / HAZARD / RIGHT / LAMP), khóa khi quá nhiệt.
+- **Cột phải**: **bản đồ giả lập** (đường phố, sông, công viên, lộ trình). Xe chạy dọc lộ trình theo tốc độ đo được
+  (tăng tốc ×4 cho dễ thấy), hiển thị tốc độ, quãng đường còn lại và ETA; đến đích thì chạy lại từ đầu.
+
+## Thay đổi kỹ thuật
+- Component mới: `DashCard.qml` (khung thẻ dùng chung), `LightsPanel.qml`, `MapPanel.qml`.
+- Bỏ `RightStatsPanel.qml` (các chỉ số đã chuyển sang cột trái / giữa).
+- Top bar nền tối, thêm chip trạng thái **BLE**.
+- Font `Courier New` → `DejaVu Sans` (có sẵn trên Raspberry Pi OS).

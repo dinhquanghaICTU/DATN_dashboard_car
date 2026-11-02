@@ -1,5 +1,6 @@
 import QtQuick 2.15
 
+// Left column: phone-style battery + engine temperature, theme picker.
 Item {
     id: root
     width: 220
@@ -7,223 +8,179 @@ Item {
 
     property int themeIndex: 0
     property string themeName: "AQUA"
+    property color bgColor: "#060a10"
     property color primary: "#00e5cc"
     property color accent: "#00ff88"
     property color warningColor: "#ffcc00"
     property color dangerColor: "#ff4444"
+    property color displayTempColor: "#ffaa00"
     property real batteryLevel: 100.0
     property bool batteryCriticalVisible: true
-    property bool leftSignal: false
-    property bool rightSignal: false
-    property bool headLight: false
-    property int signalTick: 0
+    property real temperature: 0
     property bool temperatureHazardLocked: false
 
-    signal toggleLeftSignal()
-    signal toggleRightSignal()
-    signal toggleHazard()
-    signal toggleHeadLight()
     signal applyTheme(int index)
     signal nextTheme()
 
     readonly property string fontFamily: "DejaVu Sans"
-    readonly property bool hazardOn: leftSignal && rightSignal
+    readonly property real batteryPct: Math.max(0, Math.min(batteryLevel / 100.0, 1))
     readonly property color batteryColor: batteryLevel > 50 ? accent : batteryLevel > 20 ? warningColor : dangerColor
     readonly property var themeSwatches: ["#00e5cc", "#58d68d", "#ffb347"]
+    readonly property real tempMin: 20
+    readonly property real tempMax: 80
+    readonly property real tempLimit: 50
+    function tempPct(t) { return Math.min(Math.max((t - tempMin) / (tempMax - tempMin), 0), 1) }
 
-    onThemeIndexChanged: batteryArc.requestPaint()
-    onBatteryColorChanged: batteryArc.requestPaint()
-    onPrimaryChanged: batteryArc.requestPaint()
-
-    // ---------------------------------------------------------------- Battery
+    // ------------------------------------------------------- Battery + temp
     DashCard {
-        id: batteryCard
-        y: 0; width: parent.width; height: 192
+        id: mainCard
+        y: 0; width: parent.width; height: 326
         title: "BATTERY"
-        accentColor: root.batteryColor
-        alert: root.batteryLevel < 10.0
+        accentColor: root.temperatureHazardLocked ? root.dangerColor : root.batteryColor
+        alert: root.batteryLevel < 10.0 || root.temperatureHazardLocked
 
-        Canvas {
-            id: batteryArc
-            width: 148; height: 148
+        // Phone-style battery
+        Item {
+            id: battery
+            width: 160; height: 72
             anchors.horizontalCenter: parent.horizontalCenter
-            y: 30
+            y: 40
             opacity: root.batteryCriticalVisible ? 1.0 : 0.25
-            property real batt: root.batteryLevel
-            onBattChanged: requestPaint()
-            onPaint: {
-                var ctx = getContext("2d")
-                ctx.clearRect(0, 0, width, height)
-                var cx = 74, cy = 74, r = 62
-                var start = Math.PI * 0.75, sweep = Math.PI * 1.5
-                ctx.lineCap = "round"
-                ctx.beginPath(); ctx.arc(cx, cy, r, start, start + sweep)
-                ctx.strokeStyle = "rgba(255,255,255,0.07)"; ctx.lineWidth = 10; ctx.stroke()
-                var pct = Math.max(0, Math.min(root.batteryLevel / 100.0, 1))
-                if (pct > 0.005) {
-                    var grad = ctx.createLinearGradient(0, height, width, 0)
-                    grad.addColorStop(0, root.batteryLevel > 50 ? root.primary : root.batteryColor)
-                    grad.addColorStop(1, root.batteryColor)
-                    ctx.shadowColor = root.batteryColor; ctx.shadowBlur = 8
-                    ctx.beginPath(); ctx.arc(cx, cy, r, start, start + pct * sweep)
-                    ctx.strokeStyle = grad; ctx.lineWidth = 10; ctx.stroke()
-                    ctx.shadowBlur = 0
+
+            // fake glow
+            Rectangle {
+                x: -4; y: -4; width: body.width + 8; height: body.height + 8; radius: 18
+                color: "transparent"
+                border.width: 4
+                border.color: Qt.rgba(root.batteryColor.r, root.batteryColor.g, root.batteryColor.b, 0.18)
+            }
+            Rectangle {
+                id: body
+                width: 148; height: 72; radius: 14
+                color: Qt.rgba(root.batteryColor.r, root.batteryColor.g, root.batteryColor.b, 0.06)
+                border.width: 3
+                border.color: root.batteryColor
+
+                Rectangle {
+                    x: 7; y: 7; height: parent.height - 14; radius: 8
+                    width: Math.max(0, (parent.width - 14) * root.batteryPct)
+                    gradient: Gradient {
+                        orientation: Gradient.Horizontal
+                        GradientStop { position: 0.0; color: Qt.rgba(root.batteryColor.r, root.batteryColor.g, root.batteryColor.b, 0.55) }
+                        GradientStop { position: 1.0; color: root.batteryColor }
+                    }
+                    Behavior on width { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }
+                }
+                Text {
+                    anchors.centerIn: parent
+                    text: root.batteryLevel.toFixed(0) + "%"
+                    color: root.batteryPct >= 0.6 ? root.bgColor : "white"
+                    font.family: root.fontFamily; font.pixelSize: 28; font.bold: true
                 }
             }
-        }
-
-        Row {
-            anchors.horizontalCenter: batteryArc.horizontalCenter
-            y: batteryArc.y + 46
-            opacity: root.batteryCriticalVisible ? 1.0 : 0.25
-            Text {
-                id: battValue
-                text: root.batteryLevel.toFixed(0)
-                color: "white"
-                font.family: root.fontFamily; font.pixelSize: 38; font.bold: true
-            }
-            Text {
-                anchors.baseline: battValue.baseline
-                text: "%"
+            Rectangle {
+                x: body.width + 3; width: 8; height: 26; radius: 3
+                anchors.verticalCenter: body.verticalCenter
                 color: root.batteryColor
-                font.family: root.fontFamily; font.pixelSize: 16; font.bold: true
             }
         }
         Text {
-            anchors.horizontalCenter: batteryArc.horizontalCenter
-            y: batteryArc.y + 96
+            anchors.horizontalCenter: parent.horizontalCenter
+            y: battery.y + battery.height + 14
             text: root.batteryLevel > 50 ? "GOOD" : root.batteryLevel > 20 ? "MEDIUM" : root.batteryLevel >= 10 ? "LOW" : "CRITICAL"
             color: root.batteryColor
             opacity: root.batteryCriticalVisible ? 0.9 : 0.25
             font.family: root.fontFamily; font.pixelSize: 10; font.bold: true; font.letterSpacing: 2
         }
-    }
 
-    // ----------------------------------------------------------------- Lights
-    DashCard {
-        id: lightsCard
-        y: batteryCard.y + batteryCard.height + 10
-        width: parent.width; height: 122
-        title: "LIGHTS"
-        accentColor: root.temperatureHazardLocked ? root.dangerColor : root.primary
-        alert: root.temperatureHazardLocked
+        Rectangle { x: 14; y: 160; width: parent.width - 28; height: 1; color: Qt.rgba(1, 1, 1, 0.08) }
 
-        Text {
-            visible: root.temperatureHazardLocked
-            anchors.right: parent.right; anchors.rightMargin: 14; y: 12
-            text: "LOCKED"
-            color: root.dangerColor
-            font.family: root.fontFamily; font.pixelSize: 9; font.bold: true; font.letterSpacing: 1.4
-        }
-
+        // Engine temperature
         Row {
-            x: 10; y: 36; spacing: 8
-            opacity: root.temperatureHazardLocked ? 0.75 : 1.0
-
-            Repeater {
-                // kind: 0 = left, 1 = hazard, 2 = right, 3 = lamp
-                model: [
-                    { kind: 0, label: "LEFT" },
-                    { kind: 1, label: "HAZARD" },
-                    { kind: 2, label: "RIGHT" },
-                    { kind: 3, label: "LAMP" }
-                ]
-
-                Column {
-                    id: tile
-                    spacing: 6
-                    property int kind: modelData.kind
-                    property bool active: kind === 0 ? root.leftSignal
-                                        : kind === 1 ? root.hazardOn
-                                        : kind === 2 ? root.rightSignal
-                                        : root.headLight
-                    property bool blinking: kind !== 3
-                    property bool lit: active && (!blinking || root.signalTick === 0)
-                    property color tone: kind === 1 ? root.warningColor : kind === 3 ? root.primary : root.accent
-
-                    Rectangle {
-                        width: 44; height: 48; radius: 12
-                        color: tile.active ? Qt.rgba(tile.tone.r, tile.tone.g, tile.tone.b, 0.16) : Qt.rgba(1, 1, 1, 0.04)
-                        border.width: 1
-                        border.color: tile.active ? Qt.rgba(tile.tone.r, tile.tone.g, tile.tone.b, 0.65) : Qt.rgba(1, 1, 1, 0.08)
-                        scale: tileMouse.pressed ? 0.92 : 1.0
-                        Behavior on scale { NumberAnimation { duration: 80 } }
-
-                        Canvas {
-                            id: icon
-                            width: 24; height: 24
-                            anchors.centerIn: parent
-                            property bool lit: tile.lit
-                            property bool active: tile.active
-                            property color tone: tile.tone
-                            onLitChanged: requestPaint()
-                            onActiveChanged: requestPaint()
-                            onToneChanged: requestPaint()
-                            onPaint: {
-                                var ctx = getContext("2d"); ctx.clearRect(0, 0, width, height)
-                                var c = lit ? tone : active ? Qt.rgba(tone.r, tone.g, tone.b, 0.35) : "rgba(255,255,255,0.32)"
-                                ctx.fillStyle = c; ctx.strokeStyle = c
-                                ctx.lineJoin = "round"; ctx.lineCap = "round"
-                                if (tile.kind === 0 || tile.kind === 2) {
-                                    ctx.save()
-                                    if (tile.kind === 2) { ctx.translate(24, 0); ctx.scale(-1, 1) }
-                                    ctx.beginPath()
-                                    ctx.moveTo(2, 12); ctx.lineTo(11, 3.5); ctx.lineTo(11, 8.5); ctx.lineTo(22, 8.5)
-                                    ctx.lineTo(22, 15.5); ctx.lineTo(11, 15.5); ctx.lineTo(11, 20.5); ctx.closePath()
-                                    ctx.fill()
-                                    ctx.restore()
-                                } else if (tile.kind === 1) {
-                                    ctx.lineWidth = 2.4
-                                    ctx.beginPath(); ctx.moveTo(12, 2.5); ctx.lineTo(22, 20.5); ctx.lineTo(2, 20.5); ctx.closePath(); ctx.stroke()
-                                    ctx.lineWidth = 1.8
-                                    ctx.beginPath(); ctx.moveTo(12, 9.5); ctx.lineTo(16.5, 17); ctx.lineTo(7.5, 17); ctx.closePath(); ctx.stroke()
-                                } else {
-                                    ctx.lineWidth = 2.2
-                                    ctx.beginPath(); ctx.moveTo(11, 4.5)
-                                    ctx.bezierCurveTo(1.5, 4.5, 1.5, 19.5, 11, 19.5)
-                                    ctx.closePath(); ctx.stroke()
-                                    if (active) { ctx.fill() }
-                                    for (var i = 0; i < 4; ++i) {
-                                        var yy = 6 + i * 4
-                                        ctx.beginPath(); ctx.moveTo(15, yy); ctx.lineTo(22, yy); ctx.stroke()
-                                    }
-                                }
-                            }
-                        }
-
-                        MouseArea {
-                            id: tileMouse
-                            anchors.fill: parent
-                            enabled: !root.temperatureHazardLocked
-                            onClicked: {
-                                if (tile.kind === 0) root.toggleLeftSignal()
-                                else if (tile.kind === 1) root.toggleHazard()
-                                else if (tile.kind === 2) root.toggleRightSignal()
-                                else root.toggleHeadLight()
-                            }
-                        }
-                    }
-                    Text {
-                        width: 44
-                        horizontalAlignment: Text.AlignHCenter
-                        text: modelData.label
-                        color: tile.active ? tile.tone : Qt.rgba(1, 1, 1, 0.4)
-                        font.family: root.fontFamily; font.pixelSize: 8; font.bold: true; font.letterSpacing: 0.6
-                    }
+            x: 14; y: 176; spacing: 7
+            Canvas {
+                id: thermo
+                width: 12; height: 16
+                anchors.verticalCenter: parent.verticalCenter
+                property color tone: root.displayTempColor
+                onToneChanged: requestPaint()
+                onPaint: {
+                    var ctx = getContext("2d"); ctx.clearRect(0, 0, width, height)
+                    ctx.strokeStyle = tone; ctx.fillStyle = tone; ctx.lineWidth = 1.6
+                    ctx.beginPath(); ctx.roundedRect(3.5, 1, 5, 10, 2.5, 2.5); ctx.stroke()
+                    ctx.beginPath(); ctx.arc(6, 12, 3.5, 0, Math.PI * 2); ctx.fill()
                 }
             }
+            Text {
+                anchors.verticalCenter: parent.verticalCenter
+                text: "ENGINE TEMP"
+                color: Qt.rgba(1, 1, 1, 0.55)
+                font.family: root.fontFamily; font.pixelSize: 10; font.bold: true; font.letterSpacing: 1.6
+            }
+        }
+        Row {
+            x: 14; y: 198
+            Text {
+                id: tempValue
+                text: root.temperature.toFixed(1)
+                color: root.displayTempColor
+                font.family: root.fontFamily; font.pixelSize: 32; font.bold: true
+            }
+            Text {
+                anchors.baseline: tempValue.baseline
+                text: " °C"
+                color: Qt.rgba(1, 1, 1, 0.5)
+                font.family: root.fontFamily; font.pixelSize: 14; font.bold: true
+            }
+        }
+
+        Item {
+            id: tempBar
+            x: 14; y: 252; width: parent.width - 28; height: 8
+            Rectangle { anchors.fill: parent; radius: 4; color: Qt.rgba(1, 1, 1, 0.07) }
+            Rectangle {
+                width: Math.max(height, root.tempPct(root.temperature) * parent.width); height: parent.height; radius: 4
+                gradient: Gradient {
+                    orientation: Gradient.Horizontal
+                    GradientStop { position: 0.0; color: Qt.rgba(root.displayTempColor.r, root.displayTempColor.g, root.displayTempColor.b, 0.45) }
+                    GradientStop { position: 1.0; color: root.displayTempColor }
+                }
+                Behavior on width { NumberAnimation { duration: 200 } }
+            }
+            Rectangle {
+                x: root.tempPct(root.tempLimit) * parent.width - 1; y: -3
+                width: 2; height: parent.height + 6; radius: 1
+                color: Qt.rgba(root.dangerColor.r, root.dangerColor.g, root.dangerColor.b, 0.8)
+            }
+        }
+        Item {
+            x: tempBar.x; y: tempBar.y + 14; width: tempBar.width; height: 12
+            Repeater {
+                model: [root.tempMin, root.tempLimit, root.tempMax]
+                Text {
+                    x: root.tempPct(modelData) * parent.width - (index === 0 ? 0 : index === 2 ? width : width / 2)
+                    text: modelData + "°"
+                    color: index === 1 ? Qt.rgba(root.dangerColor.r, root.dangerColor.g, root.dangerColor.b, 0.8) : Qt.rgba(1, 1, 1, 0.35)
+                    font.family: root.fontFamily; font.pixelSize: 9; font.bold: true
+                }
+            }
+        }
+        Text {
+            x: 14; y: 296
+            text: root.temperatureHazardLocked ? "OVERHEAT · HAZARD ON" : "NORMAL"
+            color: root.temperatureHazardLocked ? root.dangerColor : Qt.rgba(1, 1, 1, 0.45)
+            font.family: root.fontFamily; font.pixelSize: 9; font.bold: true; font.letterSpacing: 1.4
         }
     }
 
     // ------------------------------------------------------------------ Theme
     DashCard {
-        y: lightsCard.y + lightsCard.height + 10
+        y: mainCard.y + mainCard.height + 10
         width: parent.width; height: parent.height - y
-        title: "THEME"
         accentColor: root.primary
 
         Row {
-            x: 12; anchors.bottom: parent.bottom; anchors.bottomMargin: 10
+            x: 12; anchors.verticalCenter: parent.verticalCenter
             spacing: 6
             Repeater {
                 model: 3
@@ -253,7 +210,7 @@ Item {
         }
         Text {
             anchors.right: parent.right; anchors.rightMargin: 16
-            anchors.bottom: parent.bottom; anchors.bottomMargin: 18
+            anchors.verticalCenter: parent.verticalCenter
             text: root.themeName
             color: root.primary
             font.family: root.fontFamily; font.pixelSize: 13; font.bold: true; font.letterSpacing: 2

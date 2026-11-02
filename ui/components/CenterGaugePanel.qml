@@ -3,7 +3,7 @@ import QtQuick 2.15
 Item {
     id: root
     width: 312
-    height: 418
+    height: 290
 
     property bool introActive: false
     property int themeIndex: 0
@@ -27,8 +27,8 @@ Item {
     readonly property bool overSpeed: displaySpeedKmh >= dangerSpeed
     // Gauge geometry (shared by both canvases)
     readonly property real gcx: 156
-    readonly property real gcy: 160
-    readonly property real gr: 104
+    readonly property real gcy: 148
+    readonly property real gr: 98
 
     onThemeIndexChanged: repaint()
     onPrimaryChanged: repaint()
@@ -39,7 +39,6 @@ Item {
     function repaint() {
         gaugeStatic.requestPaint()
         gaugeCanvas.requestPaint()
-        movingCarIcon.requestPaint()
     }
 
     function angleFor(v) {
@@ -49,7 +48,7 @@ Item {
     // --------------------------------------------------------- Gauge (static)
     Canvas {
         id: gaugeStatic
-        width: parent.width; height: 300
+        width: parent.width; height: 262
         onPaint: {
             var ctx = getContext("2d")
             ctx.clearRect(0, 0, width, height)
@@ -109,7 +108,7 @@ Item {
     // -------------------------------------------------------- Gauge (dynamic)
     Canvas {
         id: gaugeCanvas
-        width: parent.width; height: 300
+        width: parent.width; height: 262
         onPaint: {
             var ctx = getContext("2d")
             ctx.clearRect(0, 0, width, height)
@@ -151,7 +150,7 @@ Item {
                 id: speedInt
                 text: Math.floor(root.displaySpeedKmh).toString()
                 color: root.overSpeed ? root.dangerColor : "white"
-                font.family: root.fontFamily; font.pixelSize: 62; font.bold: true
+                font.family: root.fontFamily; font.pixelSize: 58; font.bold: true
             }
             Text {
                 anchors.baseline: speedInt.baseline
@@ -170,7 +169,7 @@ Item {
 
         Rectangle {
             anchors.horizontalCenter: parent.horizontalCenter
-            y: 50
+            y: 46
             width: rpmRow.width + 28; height: 30; radius: 15
             color: Qt.rgba(root.rpmColor.r, root.rpmColor.g, root.rpmColor.b, 0.12)
             border.width: 1
@@ -191,6 +190,14 @@ Item {
                     font.family: root.fontFamily; font.pixelSize: 10; font.bold: true; font.letterSpacing: 1.5
                 }
             }
+        }
+
+        Text {
+            anchors.horizontalCenter: parent.horizontalCenter
+            y: 86
+            text: root.displaySpeed.toFixed(3) + " m/s"
+            color: Qt.rgba(1, 1, 1, 0.4)
+            font.family: root.fontFamily; font.pixelSize: 11; font.bold: true
         }
     }
 
@@ -222,90 +229,14 @@ Item {
         }
     }
 
-    // ----------------------------------------------------------- Moving car
-    Canvas {
-        id: movingCarIcon
-        anchors.horizontalCenter: parent.horizontalCenter
-        y: 300
-        width: 200; height: 46
-        property int animTick: 0
-        property int theme: root.themeIndex
-        property real speedValue: root.displaySpeedKmh
-        onThemeChanged: requestPaint()
-        onSpeedValueChanged: requestPaint()
-        onPaint: {
-            var ctx = getContext("2d")
-            ctx.clearRect(0, 0, width, height)
-
-            // road
-            var road = ctx.createLinearGradient(0, 0, width, 0)
-            road.addColorStop(0, "rgba(255,255,255,0)")
-            road.addColorStop(0.5, "rgba(255,255,255,0.18)")
-            road.addColorStop(1, "rgba(255,255,255,0)")
-            ctx.strokeStyle = road; ctx.lineWidth = 2
-            ctx.beginPath(); ctx.moveTo(0, 41); ctx.lineTo(width, 41); ctx.stroke()
-
-            // speed streaks
-            ctx.strokeStyle = root.primary
-            ctx.lineWidth = 2
-            ctx.globalAlpha = 0.3
-            for (var i = 0; i < 4; ++i) {
-                var x = 10 + ((animTick * 6 + i * 46) % 180)
-                ctx.beginPath(); ctx.moveTo(x, 34); ctx.lineTo(x - 20, 34); ctx.stroke()
-            }
-            ctx.globalAlpha = 1
-
-            var carX = 52 + Math.sin(animTick * 0.22) * 4
-            ctx.fillStyle = Qt.rgba(root.primary.r, root.primary.g, root.primary.b, 0.10)
-            ctx.strokeStyle = root.primary
-            ctx.lineWidth = 2.2
-            ctx.lineJoin = "round"
-            ctx.beginPath()
-            ctx.moveTo(carX + 8, 28)
-            ctx.lineTo(carX + 24, 15)
-            ctx.lineTo(carX + 58, 15)
-            ctx.lineTo(carX + 76, 27)
-            ctx.lineTo(carX + 90, 29)
-            ctx.quadraticCurveTo(carX + 96, 30, carX + 96, 35)
-            ctx.lineTo(carX + 2, 35)
-            ctx.quadraticCurveTo(carX + 2, 28, carX + 8, 28)
-            ctx.closePath()
-            ctx.fill()
-            ctx.stroke()
-
-            ctx.fillStyle = "rgba(255,255,255,0.22)"
-            ctx.beginPath(); ctx.moveTo(carX + 29, 18); ctx.lineTo(carX + 40, 18); ctx.lineTo(carX + 40, 27); ctx.lineTo(carX + 20, 27); ctx.closePath(); ctx.fill()
-            ctx.beginPath(); ctx.moveTo(carX + 44, 18); ctx.lineTo(carX + 56, 18); ctx.lineTo(carX + 68, 27); ctx.lineTo(carX + 44, 27); ctx.closePath(); ctx.fill()
-
-            ctx.fillStyle = root.accent
-            ctx.beginPath(); ctx.arc(carX + 24, 36, 6, 0, Math.PI * 2); ctx.fill()
-            ctx.beginPath(); ctx.arc(carX + 74, 36, 6, 0, Math.PI * 2); ctx.fill()
-            ctx.fillStyle = root.bgColor
-            ctx.beginPath(); ctx.arc(carX + 24, 36, 3, 0, Math.PI * 2); ctx.fill()
-            ctx.beginPath(); ctx.arc(carX + 74, 36, 3, 0, Math.PI * 2); ctx.fill()
-
-            ctx.fillStyle = root.overSpeed ? root.dangerColor : root.warningColor
-            ctx.beginPath(); ctx.moveTo(carX + 96, 30); ctx.lineTo(carX + 104, 32); ctx.lineTo(carX + 96, 34); ctx.closePath(); ctx.fill()
-        }
-        Timer {
-            interval: 90
-            running: !root.introActive
-            repeat: true
-            onTriggered: {
-                movingCarIcon.animTick = (movingCarIcon.animTick + 1) % 1000
-                movingCarIcon.requestPaint()
-            }
-        }
-    }
-
     // --------------------------------------------------------- Status banner
     Rectangle {
         id: banner
         readonly property int level: root.temperatureHazardLocked ? 2 : root.overSpeed ? 1 : 0
         readonly property color tone: level === 2 ? root.dangerColor : level === 1 ? root.warningColor : root.primary
         anchors.horizontalCenter: parent.horizontalCenter
-        y: 362
-        width: 252; height: 32; radius: 16
+        y: 258
+        width: 252; height: 30; radius: 15
         color: level > 0 ? Qt.rgba(tone.r, tone.g, tone.b, 0.14) : Qt.rgba(1, 1, 1, 0.03)
         border.width: 1
         border.color: level > 0 ? Qt.rgba(tone.r, tone.g, tone.b, 0.6) : Qt.rgba(1, 1, 1, 0.08)

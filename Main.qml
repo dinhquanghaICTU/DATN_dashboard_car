@@ -171,21 +171,16 @@ Window {
             x: 16; y: 58
             themeIndex: root.themeIndex
             themeName: root.themeName
+            bgColor: root.bgColor
             primary: root.primary
             accent: root.accent
             warningColor: root.warningColor
             dangerColor: root.dangerColor
+            displayTempColor: root.displayTempColor
             batteryLevel: root.batteryLevel
             batteryCriticalVisible: root.batteryCriticalVisible
-            leftSignal: root.leftSignal
-            rightSignal: root.rightSignal
-            headLight: root.headLight
-            signalTick: root.signalTick
+            temperature: vehicle.temperature
             temperatureHazardLocked: root.temperatureHazardLocked
-            onToggleLeftSignal: ledCtrl.toggleLeftSignal()
-            onToggleRightSignal: ledCtrl.toggleRightSignal()
-            onToggleHazard: ledCtrl.toggleHazard()
-            onToggleHeadLight: ledCtrl.toggleHeadLight()
             onApplyTheme: function(index) { root.applyTheme(index) }
             onNextTheme: root.nextTheme()
         }
@@ -193,7 +188,6 @@ Window {
         CenterGaugePanel {
             x: 244; y: 54
             width: parent.width - 488
-            height: 418
             introActive: root.introActive
             themeIndex: root.themeIndex
             primary: root.primary
@@ -211,20 +205,34 @@ Window {
             temperatureHazardLocked: root.temperatureHazardLocked
         }
 
-        RightStatsPanel {
-            x: parent.width - 236; y: 58
-            introActive: root.introActive
+        LightsPanel {
+            x: 244; y: 354
+            width: parent.width - 488
+            height: 108
             primary: root.primary
             accent: root.accent
-            rpmColor: root.rpmColor
-            dangerColor: root.dangerColor
             warningColor: root.warningColor
-            displayTempColor: root.displayTempColor
-            displaySpeed: root.displaySpeed
-            displayRpm: root.displayRpm
-            temperature: vehicle.temperature
+            dangerColor: root.dangerColor
+            leftSignal: root.leftSignal
+            rightSignal: root.rightSignal
+            headLight: root.headLight
+            signalTick: root.signalTick
             temperatureHazardLocked: root.temperatureHazardLocked
-            bleConnected: vehicle.bleConnected
+            onToggleLeftSignal: ledCtrl.toggleLeftSignal()
+            onToggleRightSignal: ledCtrl.toggleRightSignal()
+            onToggleHazard: ledCtrl.toggleHazard()
+            onToggleHeadLight: ledCtrl.toggleHeadLight()
+        }
+
+        MapPanel {
+            x: parent.width - 236; y: 58
+            introActive: root.introActive
+            themeIndex: root.themeIndex
+            bgColor: root.bgColor
+            primary: root.primary
+            accent: root.accent
+            dangerColor: root.dangerColor
+            displaySpeedKmh: root.displaySpeedKmh
         }
     }
 
