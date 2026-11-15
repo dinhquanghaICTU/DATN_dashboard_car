@@ -7,6 +7,7 @@
 #include <QThread>
 #include <QStringList>
 #include <QUrl>
+#include <QFile>
 #include <csignal>
 #include "hardware/PigpioCompat.h"
 #include "hardware/MotorController.h"
@@ -18,6 +19,26 @@
 
 int main(int argc, char *argv[])
 {
+    // When running remotely via SSH or Qt Creator, DISPLAY and XAUTHORITY are not set in the environment.
+    // Auto-detect active X11 display to avoid falling back to eglfs/DRM when Xorg is running.
+    if (qEnvironmentVariableIsEmpty("DISPLAY")) {
+        if (QFile::exists("/tmp/.X11-unix/X0")) {
+            qputenv("DISPLAY", ":0");
+        }
+    }
+
+    if (qEnvironmentVariableIsEmpty("XAUTHORITY")) {
+        if (QFile::exists("/home/pi/.Xauthority")) {
+            qputenv("XAUTHORITY", "/home/pi/.Xauthority");
+        } else if (QFile::exists("/home/admin/.Xauthority")) {
+            qputenv("XAUTHORITY", "/home/admin/.Xauthority");
+        }
+    }
+
+    if (!qEnvironmentVariableIsEmpty("DISPLAY") && qEnvironmentVariableIsEmpty("QT_QPA_PLATFORM")) {
+        qputenv("QT_QPA_PLATFORM", "xcb");
+    }
+
 #ifndef DATN_RPI_HARDWARE
     // The locally built host Qt has an XCB platform plugin but no Wayland
     // plugin. Select XCB before QGuiApplication tries to load a platform.

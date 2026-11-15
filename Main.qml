@@ -6,9 +6,11 @@ Window {
     id: root
     visible: true
     x: 0
-    y: 38
+    y: 0
     width: 800
     height: 480
+    flags: Qt.FramelessWindowHint | Qt.Window
+    visibility: Window.FullScreen
     color: bgColor
     title: "DATN Dashboard"
 
