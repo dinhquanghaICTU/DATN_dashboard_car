@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
     }
 
     pid_t myPid = getpid();
-    QProcess::execute("sh", {"-c", QString("pgrep -f appDATN_dashboa | grep -v %1 | xargs -r kill -9 2>/dev/null || true").arg(myPid)});
+    QProcess::execute("sh", {"-c", QString("for pid in $(pgrep -x appDATN_dashboa); do if [ \"$pid\" != \"%1\" ]; then kill -9 $pid 2>/dev/null || true; fi; done").arg(myPid)});
 
     QProcess::execute("sh", {"-c", "sudo hciconfig hci0 reset 2>/dev/null; sudo hciconfig hci0 up 2>/dev/null || true"});
 #else
