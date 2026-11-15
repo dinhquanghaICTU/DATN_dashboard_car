@@ -99,12 +99,12 @@ void MotorController::setLeft(Direction dir, int speed) {
 
     switch (dir) {
     case Forward:
-        in1 = 0;
-        in2 = 1;
-        break;
-    case Backward:
         in1 = 1;
         in2 = 0;
+        break;
+    case Backward:
+        in1 = 0;
+        in2 = 1;
         break;
     case Stop:
         in1 = 0;
@@ -128,12 +128,12 @@ void MotorController::setRight(Direction dir, int speed) {
 
     switch (dir) {
     case Forward:
-        in3 = 1;
-        in4 = 0;
-        break;
-    case Backward:
         in3 = 0;
         in4 = 1;
+        break;
+    case Backward:
+        in3 = 1;
+        in4 = 0;
         break;
     case Stop:
         in3 = 0;

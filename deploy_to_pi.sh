@@ -15,7 +15,7 @@ fi
 
 echo "Stopping running instance on Pi..."
 sshpass -p "$PI_PASS" ssh -o StrictHostKeyChecking=no "$PI_USER@$PI_IP" \
-    "echo $PI_PASS | sudo -S pkill -9 -f appDATN_dashboard_car 2>/dev/null || true"
+    "killall -9 appDATN_dashboard_car 2>/dev/null || pkill -9 appDATN_dashboa 2>/dev/null || true"
 
 echo "Copying binary to Pi..."
 sshpass -p "$PI_PASS" scp -o StrictHostKeyChecking=no "$LOCAL_BIN" "$PI_USER@$PI_IP:/home/pi/appDATN_dashboard_car"
@@ -26,7 +26,7 @@ sshpass -p "$PI_PASS" ssh -o StrictHostKeyChecking=no "$PI_USER@$PI_IP" \
 
 echo "Starting application on display :0..."
 sshpass -p "$PI_PASS" ssh -o StrictHostKeyChecking=no "$PI_USER@$PI_IP" \
-    "nohup env DISPLAY=:0 XAUTHORITY=/home/pi/.Xauthority $REMOTE_BIN > /tmp/app.log 2>&1 </dev/null &"
+    "bash -c 'nohup $REMOTE_BIN > /tmp/app.log 2>&1 &'"
 
 sleep 2
 echo "Checking app log on Pi..."
