@@ -9,6 +9,8 @@ Item {
     property string themeName: "AQUA"
     property color primary: "#00e5cc"
     property color accent: "#00ff88"
+    property color cardBg: "#0a101d"
+    property color cardBorder: Qt.rgba(1, 1, 1, 0.08)
     property color warningColor: "#ffcc00"
     property color dangerColor: "#ff4444"
     property color tempColor: "#ffaa00"
@@ -29,8 +31,8 @@ Item {
             width: parent.width
             height: 156
             radius: 16
-            color: "#0a101d"
-            border.color: Qt.rgba(1, 1, 1, 0.08)
+            color: root.cardBg
+            border.color: root.cardBorder
             border.width: 1
 
             Column {
@@ -132,8 +134,8 @@ Item {
             width: parent.width
             height: 172
             radius: 16
-            color: "#0a101d"
-            border.color: Qt.rgba(1, 1, 1, 0.08)
+            color: root.cardBg
+            border.color: root.cardBorder
             border.width: 1
 
             Column {
@@ -275,29 +277,31 @@ Item {
             width: parent.width
             height: 52
             radius: 16
-            color: "#0a101d"
-            border.color: Qt.rgba(1, 1, 1, 0.08)
+            color: root.cardBg
+            border.color: root.cardBorder
             border.width: 1
 
             MouseArea {
                 anchors.fill: parent
+                cursorShape: Qt.PointingHandCursor
                 onClicked: root.nextTheme()
             }
 
             Row {
                 anchors.centerIn: parent
-                spacing: 12
+                spacing: 8
+                z: 10
 
                 // Dot 1: Cyan (AQUA)
                 Item {
-                    width: 22; height: 22
+                    width: 32; height: 32
                     anchors.verticalCenter: parent.verticalCenter
                     Rectangle {
-                        anchors.fill: parent
-                        radius: 11
+                        anchors.centerIn: parent
+                        width: 22; height: 22; radius: 11
                         color: "transparent"
                         border.color: root.themeIndex === 0 ? "#00e5cc" : "transparent"
-                        border.width: 1.5
+                        border.width: 2
                     }
                     Rectangle {
                         anchors.centerIn: parent
@@ -306,20 +310,21 @@ Item {
                     }
                     MouseArea {
                         anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
                         onClicked: root.applyTheme(0)
                     }
                 }
 
                 // Dot 2: Green (FOREST)
                 Item {
-                    width: 22; height: 22
+                    width: 32; height: 32
                     anchors.verticalCenter: parent.verticalCenter
                     Rectangle {
-                        anchors.fill: parent
-                        radius: 11
+                        anchors.centerIn: parent
+                        width: 22; height: 22; radius: 11
                         color: "transparent"
                         border.color: root.themeIndex === 1 ? "#58d68d" : "transparent"
-                        border.width: 1.5
+                        border.width: 2
                     }
                     Rectangle {
                         anchors.centerIn: parent
@@ -328,20 +333,21 @@ Item {
                     }
                     MouseArea {
                         anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
                         onClicked: root.applyTheme(1)
                     }
                 }
 
                 // Dot 3: Amber (AMBER)
                 Item {
-                    width: 22; height: 22
+                    width: 32; height: 32
                     anchors.verticalCenter: parent.verticalCenter
                     Rectangle {
-                        anchors.fill: parent
-                        radius: 11
+                        anchors.centerIn: parent
+                        width: 22; height: 22; radius: 11
                         color: "transparent"
                         border.color: root.themeIndex === 2 ? "#ffb347" : "transparent"
-                        border.width: 1.5
+                        border.width: 2
                     }
                     Rectangle {
                         anchors.centerIn: parent
@@ -350,18 +356,28 @@ Item {
                     }
                     MouseArea {
                         anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
                         onClicked: root.applyTheme(2)
                     }
                 }
 
-                Text {
+                Item {
+                    width: 60; height: 32
                     anchors.verticalCenter: parent.verticalCenter
-                    text: root.themeName
-                    color: root.primary
-                    font.pixelSize: 13
-                    font.bold: true
-                    font.family: "Courier New"
-                    font.letterSpacing: 2
+                    Text {
+                        anchors.centerIn: parent
+                        text: root.themeName
+                        color: root.primary
+                        font.pixelSize: 13
+                        font.bold: true
+                        font.family: "Courier New"
+                        font.letterSpacing: 2
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: root.nextTheme()
+                    }
                 }
             }
         }

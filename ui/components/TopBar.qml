@@ -15,6 +15,9 @@ Item {
     property color weatherIconColor: "#ff4fd8"
     property string weatherMode: "rain"
 
+    onPrimaryChanged: calIcon.requestPaint()
+    onWeatherIconColorChanged: weatherIcon.requestPaint()
+
     // Background bar
     Rectangle {
         anchors.fill: parent

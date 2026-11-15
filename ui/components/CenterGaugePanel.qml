@@ -9,6 +9,8 @@ Item {
     property int themeIndex: 0
     property color primary: "#00e5cc"
     property color accent: "#00ff88"
+    property color cardBg: "#0a101d"
+    property color cardBorder: Qt.rgba(0, 229, 204, 0.25)
     property color warningColor: "#ffcc00"
     property color dangerColor: "#ff4444"
     property color bgColor: "#080c12"
@@ -304,8 +306,8 @@ Item {
                 width: 200
                 height: 26
                 radius: 13
-                color: "#0a1320"
-                border.color: Qt.rgba(0, 229, 204, 0.25)
+                color: root.cardBg
+                border.color: Qt.rgba(root.primary.r, root.primary.g, root.primary.b, 0.35)
                 border.width: 1
 
                 Row {
@@ -313,12 +315,12 @@ Item {
                     spacing: 6
                     Rectangle {
                         width: 6; height: 6; radius: 3
-                        color: "#00e5cc"
+                        color: root.primary
                         anchors.verticalCenter: parent.verticalCenter
                     }
                     Text {
                         text: "ALL SYSTEMS NORMAL"
-                        color: "#00e5cc"
+                        color: root.primary
                         font.pixelSize: 10
                         font.bold: true
                         font.family: "Courier New"
@@ -334,8 +336,8 @@ Item {
             width: parent.width
             height: 94
             radius: 16
-            color: "#0a101d"
-            border.color: Qt.rgba(1, 1, 1, 0.08)
+            color: root.cardBg
+            border.color: root.cardBorder
             border.width: 1
 
             Column {
@@ -348,7 +350,7 @@ Item {
                     spacing: 6
                     Rectangle {
                         width: 6; height: 6; radius: 3
-                        color: "#00e676"
+                        color: root.primary
                         anchors.verticalCenter: parent.verticalCenter
                     }
                     Text {
@@ -369,8 +371,8 @@ Item {
                     // 1. LEFT SIGNAL
                     Rectangle {
                         width: 58; height: 50; radius: 10
-                        color: (root.leftSignal && !root.hazardActive && root.signalTick === 0) ? Qt.rgba(0, 0.9, 0.8, 0.25) : "#131b26"
-                        border.color: (root.leftSignal && !root.hazardActive) ? "#00e5cc" : Qt.rgba(1, 1, 1, 0.1)
+                        color: (root.leftSignal && !root.hazardActive && root.signalTick === 0) ? Qt.rgba(root.primary.r, root.primary.g, root.primary.b, 0.25) : "#131b26"
+                        border.color: (root.leftSignal && !root.hazardActive) ? root.primary : Qt.rgba(1, 1, 1, 0.1)
                         border.width: 1.5
 
                         Column {
@@ -378,13 +380,13 @@ Item {
                             spacing: 2
                             Text {
                                 text: "⬅"
-                                color: (root.leftSignal && !root.hazardActive && root.signalTick === 0) ? "#00e5cc" : "#64748b"
+                                color: (root.leftSignal && !root.hazardActive && root.signalTick === 0) ? root.primary : "#64748b"
                                 font.pixelSize: 18
                                 anchors.horizontalCenter: parent.horizontalCenter
                             }
                             Text {
                                 text: "LEFT"
-                                color: (root.leftSignal && !root.hazardActive && root.signalTick === 0) ? "#00e5cc" : "#64748b"
+                                color: (root.leftSignal && !root.hazardActive && root.signalTick === 0) ? root.primary : "#64748b"
                                 font.pixelSize: 8
                                 font.bold: true
                                 font.family: "Courier New"
@@ -430,8 +432,8 @@ Item {
                     // 3. RIGHT SIGNAL
                     Rectangle {
                         width: 58; height: 50; radius: 10
-                        color: (root.rightSignal && !root.hazardActive && root.signalTick === 0) ? Qt.rgba(0, 0.9, 0.8, 0.25) : "#131b26"
-                        border.color: (root.rightSignal && !root.hazardActive) ? "#00e5cc" : Qt.rgba(1, 1, 1, 0.1)
+                        color: (root.rightSignal && !root.hazardActive && root.signalTick === 0) ? Qt.rgba(root.primary.r, root.primary.g, root.primary.b, 0.25) : "#131b26"
+                        border.color: (root.rightSignal && !root.hazardActive) ? root.primary : Qt.rgba(1, 1, 1, 0.1)
                         border.width: 1.5
 
                         Column {
@@ -439,13 +441,13 @@ Item {
                             spacing: 2
                             Text {
                                 text: "➡"
-                                color: (root.rightSignal && !root.hazardActive && root.signalTick === 0) ? "#00e5cc" : "#64748b"
+                                color: (root.rightSignal && !root.hazardActive && root.signalTick === 0) ? root.primary : "#64748b"
                                 font.pixelSize: 18
                                 anchors.horizontalCenter: parent.horizontalCenter
                             }
                             Text {
                                 text: "RIGHT"
-                                color: (root.rightSignal && !root.hazardActive && root.signalTick === 0) ? "#00e5cc" : "#64748b"
+                                color: (root.rightSignal && !root.hazardActive && root.signalTick === 0) ? root.primary : "#64748b"
                                 font.pixelSize: 8
                                 font.bold: true
                                 font.family: "Courier New"
@@ -461,8 +463,8 @@ Item {
                     // 4. LAMP (HEADLIGHT)
                     Rectangle {
                         width: 58; height: 50; radius: 10
-                        color: root.headLight ? Qt.rgba(0, 0.9, 0.8, 0.25) : "#131b26"
-                        border.color: root.headLight ? "#00e5cc" : Qt.rgba(1, 1, 1, 0.1)
+                        color: root.headLight ? Qt.rgba(root.primary.r, root.primary.g, root.primary.b, 0.25) : "#131b26"
+                        border.color: root.headLight ? root.primary : Qt.rgba(1, 1, 1, 0.1)
                         border.width: 1.5
 
                         Column {
@@ -475,7 +477,7 @@ Item {
                             }
                             Text {
                                 text: "LAMP"
-                                color: root.headLight ? "#00e5cc" : "#64748b"
+                                color: root.headLight ? root.primary : "#64748b"
                                 font.pixelSize: 8
                                 font.bold: true
                                 font.family: "Courier New"

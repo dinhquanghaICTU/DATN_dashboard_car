@@ -18,6 +18,8 @@ Window {
     property int themeIndex: 0
     property string themeName: themeIndex === 0 ? "AQUA" : themeIndex === 1 ? "FOREST" : "AMBER"
     property color bgColor: themeIndex === 0 ? "#080c12" : themeIndex === 1 ? "#07100c" : "#100d08"
+    property color cardBg: themeIndex === 0 ? "#0a101d" : themeIndex === 1 ? "#081510" : "#15110a"
+    property color cardBorder: themeIndex === 0 ? Qt.rgba(0, 0.9, 0.8, 0.22) : themeIndex === 1 ? Qt.rgba(0.35, 0.84, 0.55, 0.22) : Qt.rgba(1.0, 0.7, 0.28, 0.22)
     property color primaryLine: themeIndex === 0 ? Qt.rgba(0, 0.9, 0.8, 0.12) : themeIndex === 1 ? Qt.rgba(0.35, 0.84, 0.55, 0.12) : Qt.rgba(1.0, 0.7, 0.28, 0.12)
     property color primaryBorder: themeIndex === 0 ? Qt.rgba(0, 0.9, 0.8, 0.15) : themeIndex === 1 ? Qt.rgba(0.35, 0.84, 0.55, 0.15) : Qt.rgba(1.0, 0.7, 0.28, 0.15)
     property color rpmBorder: themeIndex === 0 ? Qt.rgba(0.6, 0.4, 1, 0.2) : themeIndex === 1 ? Qt.rgba(0.49, 0.78, 1, 0.2) : Qt.rgba(1, 0.56, 0.44, 0.2)
@@ -25,7 +27,7 @@ Window {
     property color accentBorder: themeIndex === 0 ? Qt.rgba(0, 1, 0.5, 0.2) : themeIndex === 1 ? Qt.rgba(0.72, 0.95, 0.78, 0.2) : Qt.rgba(1, 0.88, 0.48, 0.2)
     property color warningBorder: themeIndex === 0 ? Qt.rgba(1, 0.8, 0, 0.2) : themeIndex === 1 ? Qt.rgba(0.96, 0.82, 0.37, 0.2) : Qt.rgba(1, 0.8, 0.4, 0.2)
     property color primary: themeIndex === 0 ? "#00e5cc" : themeIndex === 1 ? "#58d68d" : "#ffb347"
-    property color accent: themeIndex === 0 ? "#00ff88" : themeIndex === 1 ? "#b8f2c8" : "#ffe17a"
+    property color accent: themeIndex === 0 ? "#00ff88" : themeIndex === 1 ? "#00ffaa" : "#ffe17a"
     property color speedColor: themeIndex === 0 ? "#00d4ff" : themeIndex === 1 ? "#7ee8a7" : "#ffc857"
     property color rpmColor: themeIndex === 0 ? "#9966ff" : themeIndex === 1 ? "#7cc7ff" : "#ff8f70"
     property color tempColor: themeIndex === 0 ? "#ffaa00" : themeIndex === 1 ? "#ffd166" : "#ff9f1c"
@@ -34,12 +36,10 @@ Window {
     property color displayTempColor: vehicle.temperature > 50.0 ? dangerColor : tempColor
     property color topPanelColor: themeIndex === 0 ? Qt.rgba(0, 0.55, 0.48, 0.35) : themeIndex === 1 ? Qt.rgba(0.18, 0.62, 0.32, 0.35) : Qt.rgba(0.85, 0.34, 0.05, 0.35)
     property color weatherPanelColor: themeIndex === 0 ? "#101827" : themeIndex === 1 ? "#10160f" : "#1f1208"
-    property color rainColor: themeIndex === 0 ? "#ff4fd8" : themeIndex === 1 ? "#b36bff" : "#1f6fff"
+    property color rainColor: themeIndex === 0 ? "#ff4fd8" : themeIndex === 1 ? "#b36bff" : "#ff8533"
     property color weatherIconColor: weatherMode === "sun" ? (themeIndex === 2 ? dangerColor : "#ffd21f") : weatherMode === "rain" ? rainColor : "#d8eef6"
     property string weatherMode: "rain"
 
-    property bool themeReloading: false
-    property int pendingThemeIndex: -1
     property bool leftSignal: ledCtrl.leftSignal
     property bool rightSignal: ledCtrl.rightSignal
     property bool headLight: ledCtrl.headLight
@@ -66,14 +66,11 @@ Window {
     }
 
     function applyTheme(index) {
-        if (index === themeIndex && !themeReloading) return
-        pendingThemeIndex = index
-        themeReloading = true
-        themeApplyTimer.restart()
+        root.themeIndex = index
     }
 
     function nextTheme() {
-        applyTheme((themeIndex + 1) % 3)
+        root.themeIndex = (root.themeIndex + 1) % 3
     }
 
     function finishIntro() {
@@ -101,26 +98,6 @@ Window {
         repeat: true
         onTriggered: batteryBlinkOn = !batteryBlinkOn
         onRunningChanged: if (!running) batteryBlinkOn = true
-    }
-
-    Timer {
-        id: themeApplyTimer
-        interval: 35
-        repeat: false
-        onTriggered: {
-            if (pendingThemeIndex >= 0) {
-                themeIndex = pendingThemeIndex
-                pendingThemeIndex = -1
-            }
-            themeRevealTimer.restart()
-        }
-    }
-
-    Timer {
-        id: themeRevealTimer
-        interval: 90
-        repeat: false
-        onTriggered: themeReloading = false
     }
 
     Item {
@@ -158,6 +135,8 @@ Window {
             themeName: root.themeName
             primary: root.primary
             accent: root.accent
+            cardBg: root.cardBg
+            cardBorder: root.cardBorder
             warningColor: root.warningColor
             dangerColor: root.dangerColor
             tempColor: root.tempColor
@@ -165,7 +144,7 @@ Window {
             batteryLevel: root.batteryLevel
             batteryCriticalVisible: root.batteryCriticalVisible
             temperature: vehicle.temperature
-            onApplyTheme: function(index) { root.applyTheme(index) }
+            onApplyTheme: (index) => root.applyTheme(index)
             onNextTheme: root.nextTheme()
         }
 
@@ -176,6 +155,8 @@ Window {
             themeIndex: root.themeIndex
             primary: root.primary
             accent: root.accent
+            cardBg: root.cardBg
+            cardBorder: root.cardBorder
             warningColor: root.warningColor
             dangerColor: root.dangerColor
             bgColor: root.bgColor
@@ -200,18 +181,13 @@ Window {
             themeIndex: root.themeIndex
             primary: root.primary
             accent: root.accent
+            cardBg: root.cardBg
+            cardBorder: root.cardBorder
             dangerColor: root.dangerColor
             warningColor: root.warningColor
             displaySpeedKmh: root.displaySpeedKmh
             tripDistanceKm: 1.5
         }
-    }
-
-    Rectangle {
-        anchors.fill: parent
-        z: 500
-        visible: themeReloading && !introActive
-        color: "black"
     }
 
     Loader {

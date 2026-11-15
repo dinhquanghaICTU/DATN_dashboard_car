@@ -8,10 +8,16 @@ Item {
     property int themeIndex: 0
     property color primary: "#00e5cc"
     property color accent: "#00ff88"
+    property color cardBg: "#080d16"
+    property color cardBorder: Qt.rgba(0, 229, 204, 0.28)
     property color dangerColor: "#ff4444"
     property color warningColor: "#ffcc00"
     property real displaySpeedKmh: 45.0
     property real tripDistanceKm: 1.5
+
+    onThemeIndexChanged: map3dCanvas.requestPaint()
+    onPrimaryChanged: map3dCanvas.requestPaint()
+    onAccentChanged: map3dCanvas.requestPaint()
 
     // ================= DYNAMIC 3D CAMERA & CAR PROPERTIES =================
     // Camera zoom: phóng to khi đi thẳng (1.45), thu nhỏ khi rẽ (1.05)
@@ -35,8 +41,8 @@ Item {
     Rectangle {
         anchors.fill: parent
         radius: 18
-        color: "#080d16"
-        border.color: Qt.rgba(0, 229, 204, 0.28)
+        color: root.cardBg
+        border.color: root.cardBorder
         border.width: 1.5
         clip: true
 
@@ -56,8 +62,8 @@ Item {
                 width: Math.floor((parent.width - 8) * 0.55)
                 height: 38
                 radius: 8
-                color: "#111928"
-                border.color: Qt.rgba(0, 229, 204, 0.3)
+                color: root.cardBg
+                border.color: root.cardBorder
                 border.width: 1
 
                 Row {
@@ -65,7 +71,7 @@ Item {
                     spacing: 4
                     Text {
                         text: "↗"
-                        color: "#00e5cc"
+                        color: root.primary
                         font.pixelSize: 14
                         font.bold: true
                         anchors.verticalCenter: parent.verticalCenter
@@ -77,14 +83,14 @@ Item {
                             spacing: 2
                             Text {
                                 text: root.displaySpeedKmh.toFixed(1)
-                                color: "#00e5cc"
+                                color: root.primary
                                 font.pixelSize: 13
                                 font.bold: true
                                 font.family: "Courier New"
                             }
                             Text {
                                 text: "km/h"
-                                color: Qt.rgba(0, 229, 204, 0.8)
+                                color: Qt.rgba(root.primary.r, root.primary.g, root.primary.b, 0.8)
                                 font.pixelSize: 8
                                 font.family: "Courier New"
                                 anchors.bottom: parent.bottom
@@ -108,8 +114,8 @@ Item {
                 width: Math.floor((parent.width - 8) * 0.45)
                 height: 38
                 radius: 8
-                color: "#111928"
-                border.color: Qt.rgba(255, 255, 255, 0.1)
+                color: root.cardBg
+                border.color: Qt.rgba(1, 1, 1, 0.1)
                 border.width: 1
 
                 Row {
@@ -161,7 +167,7 @@ Item {
                 // A. 3D Cyber Horizon Atmosphere Glow
                 var horizGrad = ctx.createLinearGradient(0, horizon_y - 25, 0, horizon_y + 15)
                 horizGrad.addColorStop(0.0, "rgba(8, 13, 22, 0.0)")
-                horizGrad.addColorStop(0.5, "rgba(0, 80, 110, 0.35)")
+                horizGrad.addColorStop(0.5, "rgba(" + Math.round(root.primary.r * 255 * 0.2) + "," + Math.round(root.primary.g * 255 * 0.5) + "," + Math.round(root.primary.b * 255 * 0.6) + ", 0.35)")
                 horizGrad.addColorStop(1.0, "rgba(8, 13, 22, 0.0)")
                 ctx.fillStyle = horizGrad
                 ctx.fillRect(0, horizon_y - 25, width, 40)
@@ -265,7 +271,7 @@ Item {
                     ctx.closePath(); ctx.fill()
 
                     // Viền nóc phát sáng neon mờ
-                    ctx.strokeStyle = "rgba(0, 229, 204, 0.25)"
+                    ctx.strokeStyle = Qt.rgba(root.primary.r, root.primary.g, root.primary.b, 0.25)
                     ctx.lineWidth = 1
                     ctx.beginPath()
                     ctx.moveTo(br1.x, br1.y); ctx.lineTo(br2.x, br2.y)
@@ -299,7 +305,7 @@ Item {
                 ]
 
                 // Lớp phát quang mờ bên ngoài
-                ctx.strokeStyle = "rgba(0, 229, 204, 0.35)"
+                ctx.strokeStyle = Qt.rgba(root.primary.r, root.primary.g, root.primary.b, 0.35)
                 ctx.lineWidth = 9 * root.camZoom
                 ctx.lineCap = "round"
                 ctx.lineJoin = "round"
@@ -308,8 +314,8 @@ Item {
                 for (var r = 1; r < routePts.length; r++) ctx.lineTo(routePts[r].x, routePts[r].y)
                 ctx.stroke()
 
-                // Lõi sáng rực rỡ bên trong (Bright White-Teal core)
-                ctx.strokeStyle = "#00ffff"
+                // Lõi sáng rực rỡ bên trong (Bright Accent core)
+                ctx.strokeStyle = root.accent
                 ctx.lineWidth = 3.5 * root.camZoom
                 ctx.beginPath()
                 ctx.moveTo(routePts[0].x, routePts[0].y)
@@ -318,12 +324,12 @@ Item {
 
                 // Điểm xuất phát (Start ring)
                 var pStart = routePts[0]
-                ctx.strokeStyle = "#00e5cc"
+                ctx.strokeStyle = root.primary
                 ctx.lineWidth = 2.5
                 ctx.beginPath()
                 ctx.arc(pStart.x, pStart.y, 7 * pStart.scale, 0, Math.PI * 2)
                 ctx.stroke()
-                ctx.fillStyle = "#090e18"
+                ctx.fillStyle = root.cardBg
                 ctx.fill()
 
                 // G. Đích đến 3D (Destination Holographic Beacon & Pin)
@@ -368,8 +374,8 @@ Item {
 
                 // 1. Chùm sáng đèn pha rọi chiếu xuống mặt đường 3D về phía trước
                 var headGrad = ctx.createLinearGradient(0, -6 * carScale, 0, -42 * carScale)
-                headGrad.addColorStop(0.0, "rgba(0, 255, 255, 0.55)")
-                headGrad.addColorStop(1.0, "rgba(0, 255, 255, 0.0)")
+                headGrad.addColorStop(0.0, "rgba(" + Math.round(root.accent.r * 255) + "," + Math.round(root.accent.g * 255) + "," + Math.round(root.accent.b * 255) + ", 0.55)")
+                headGrad.addColorStop(1.0, "rgba(" + Math.round(root.accent.r * 255) + "," + Math.round(root.accent.g * 255) + "," + Math.round(root.accent.b * 255) + ", 0.0)")
                 ctx.fillStyle = headGrad
                 ctx.beginPath()
                 ctx.moveTo(-5 * carScale, -8 * carScale)
@@ -386,7 +392,7 @@ Item {
                 var halfL = cl / 2
 
                 ctx.fillStyle = "#e2f9fc"
-                ctx.strokeStyle = "#00e5cc"
+                ctx.strokeStyle = root.primary
                 ctx.lineWidth = 1.5
                 ctx.beginPath()
                 ctx.rect(-halfW, -halfL, cw, cl)
@@ -400,8 +406,8 @@ Item {
                 // Kính sau (Rear Window)
                 ctx.fillRect(-halfW + 3 * carScale, halfL - 7 * carScale, cw - 6 * carScale, 3.5 * carScale)
 
-                // Đèn pha trước (Cyan neon LEDs)
-                ctx.fillStyle = "#00ffff"
+                // Đèn pha trước (Neon LEDs)
+                ctx.fillStyle = root.accent
                 ctx.fillRect(-halfW + 1 * carScale, -halfL, 3 * carScale, 2 * carScale)
                 ctx.fillRect(halfW - 4 * carScale, -halfL, 3 * carScale, 2 * carScale)
 
@@ -582,8 +588,8 @@ Item {
             width: 50
             height: 60
             radius: 8
-            color: "#101928"
-            border.color: Qt.rgba(0, 229, 204, 0.45)
+            color: root.cardBg
+            border.color: root.cardBorder
             border.width: 1
             z: 25
 
@@ -740,8 +746,8 @@ Item {
             width: parent.width - 24
             height: 28
             radius: 14
-            color: "#0f1624"
-            border.color: Qt.rgba(0, 229, 204, 0.2)
+            color: root.cardBg
+            border.color: root.cardBorder
             border.width: 1
             z: 20
 
@@ -765,7 +771,7 @@ Item {
 
                 Text {
                     text: "SIMULATED"
-                    color: "#00e5cc"
+                    color: root.primary
                     font.pixelSize: 9
                     font.bold: true
                     font.family: "Courier New"
