@@ -2,8 +2,8 @@ import QtQuick 2.15
 
 Item {
     id: root
-    width: 246
-    height: 400
+    width: 220
+    height: 416
 
     property int themeIndex: 0
     property string themeName: "AQUA"
@@ -13,227 +13,357 @@ Item {
     property color dangerColor: "#ff4444"
     property color tempColor: "#ffaa00"
     property color displayTempColor: tempColor
-    property real batteryLevel: 10.0
+    property real batteryLevel: 100.0
     property bool batteryCriticalVisible: true
-    property bool leftSignal: false
-    property bool rightSignal: false
-    property bool headLight: false
-    property int signalTick: 0
-    property real temperature: 0
-    property bool temperatureHazardLocked: false
+    property real temperature: 38.5
 
-    signal toggleLeftSignal()
-    signal toggleRightSignal()
-    signal toggleHazard()
-    signal toggleHeadLight()
     signal applyTheme(int index)
     signal nextTheme()
 
-    onThemeIndexChanged: repaint()
-    onPrimaryChanged: repaint()
-    onAccentChanged: repaint()
-    onWarningColorChanged: repaint()
-    onDangerColorChanged: repaint()
-    onDisplayTempColorChanged: repaint()
+    Column {
+        anchors.fill: parent
+        spacing: 12
 
-    function repaint() {
-        batteryArc.requestPaint()
-        leftSignalIcon.requestPaint()
-        hazardIcon.requestPaint()
-        rightSignalIcon.requestPaint()
-        lampIcon.requestPaint()
-        tempIconSmall.requestPaint()
-        tempBarsLeft.requestPaint()
-    }
+        // ================= CARD 1: BATTERY =================
+        Rectangle {
+            width: parent.width
+            height: 156
+            radius: 16
+            color: "#0a101d"
+            border.color: Qt.rgba(1, 1, 1, 0.08)
+            border.width: 1
 
-    Canvas {
-        id: batteryArc
-        x: 23; y: 8; width: 200; height: 200
-        opacity: root.batteryCriticalVisible ? 1.0 : 0.2
-        onPaint: {
-            var ctx = getContext("2d")
-            ctx.clearRect(0, 0, width, height)
-            var cx = 100, cy = 100, r = 80
-            ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI * 0.8, Math.PI * 0.8)
-            ctx.strokeStyle = "rgba(255,255,255,0.07)"; ctx.lineWidth = 12; ctx.lineCap = "round"; ctx.stroke()
-            var pct = root.batteryLevel / 100.0
-            var grad = ctx.createLinearGradient(0, 0, 200, 0)
-            if (root.batteryLevel > 50) { grad.addColorStop(0, root.primary); grad.addColorStop(1, root.accent) }
-            else if (root.batteryLevel > 20) { grad.addColorStop(0, root.warningColor); grad.addColorStop(1, root.tempColor) }
-            else { grad.addColorStop(0, root.dangerColor); grad.addColorStop(1, "#ff0000") }
-            ctx.beginPath(); ctx.arc(cx, cy, r, -Math.PI * 0.8, -Math.PI * 0.8 + pct * Math.PI * 1.6)
-            ctx.strokeStyle = grad; ctx.lineWidth = 12; ctx.lineCap = "round"; ctx.stroke()
-        }
-        property real batt: root.batteryLevel
-        onBattChanged: requestPaint()
-    }
-    Text {
-        x: 23; y: 80; width: 200
-        text: root.batteryLevel.toFixed(0) + "%"
-        color: root.batteryLevel > 50 ? root.primary : root.batteryLevel > 20 ? root.warningColor : root.dangerColor
-        opacity: root.batteryCriticalVisible ? 1.0 : 0.2
-        font.pixelSize: 34; font.bold: true; font.family: "Courier New"
-        horizontalAlignment: Text.AlignHCenter
-    }
-    Text {
-        x: 23; y: 122; width: 200
-        text: "Battery"
-        color: Qt.rgba(1, 1, 1, 0.35); font.pixelSize: 12; font.family: "Courier New"
-        opacity: root.batteryCriticalVisible ? 1.0 : 0.2
-        font.letterSpacing: 2; horizontalAlignment: Text.AlignHCenter
-    }
+            Column {
+                anchors.fill: parent
+                anchors.margins: 14
+                spacing: 10
 
-    Rectangle { x: 20; y: 216; width: 206; height: 1; color: Qt.rgba(1, 1, 1, 0.07) }
-
-    Row {
-        x: 16; y: 228; spacing: 10
-
-        Canvas {
-            id: leftSignalIcon
-            width: 36; height: 36
-            onPaint: {
-                var ctx = getContext("2d"); ctx.clearRect(0, 0, width, height)
-                ctx.fillStyle = (root.leftSignal && root.signalTick === 0) ? root.accent : "rgba(255,255,255,0.1)"
-                ctx.beginPath(); ctx.moveTo(36, 6); ctx.lineTo(16, 18); ctx.lineTo(36, 30); ctx.closePath(); ctx.fill()
-                ctx.beginPath(); ctx.moveTo(20, 6); ctx.lineTo(0, 18); ctx.lineTo(20, 30); ctx.closePath(); ctx.fill()
-            }
-            property bool ls: root.leftSignal; property int st: root.signalTick
-            onLsChanged: requestPaint()
-            onStChanged: requestPaint()
-            MouseArea { anchors.fill: parent; enabled: !root.temperatureHazardLocked; onClicked: root.toggleLeftSignal() }
-        }
-        Canvas {
-            id: hazardIcon
-            width: 36; height: 36
-            onPaint: {
-                var ctx = getContext("2d"); ctx.clearRect(0, 0, width, height)
-                ctx.fillStyle = (root.leftSignal && root.rightSignal) ? root.warningColor : "rgba(255,255,255,0.1)"
-                ctx.beginPath(); ctx.moveTo(18, 2); ctx.lineTo(34, 32); ctx.lineTo(2, 32); ctx.closePath(); ctx.fill()
-            }
-            property bool ls: root.leftSignal; property bool rs: root.rightSignal
-            onLsChanged: requestPaint()
-            onRsChanged: requestPaint()
-            MouseArea { anchors.fill: parent; enabled: !root.temperatureHazardLocked; onClicked: root.toggleHazard() }
-        }
-        Canvas {
-            id: rightSignalIcon
-            width: 36; height: 36
-            onPaint: {
-                var ctx = getContext("2d"); ctx.clearRect(0, 0, width, height)
-                ctx.fillStyle = (root.rightSignal && root.signalTick === 0) ? root.accent : "rgba(255,255,255,0.1)"
-                ctx.beginPath(); ctx.moveTo(0, 6); ctx.lineTo(20, 18); ctx.lineTo(0, 30); ctx.closePath(); ctx.fill()
-                ctx.beginPath(); ctx.moveTo(14, 6); ctx.lineTo(34, 18); ctx.lineTo(14, 30); ctx.closePath(); ctx.fill()
-            }
-            property bool rs: root.rightSignal; property int st: root.signalTick
-            onRsChanged: requestPaint()
-            onStChanged: requestPaint()
-            MouseArea { anchors.fill: parent; enabled: !root.temperatureHazardLocked; onClicked: root.toggleRightSignal() }
-        }
-        Canvas {
-            id: lampIcon
-            width: 36; height: 36
-            onPaint: {
-                var ctx = getContext("2d"); ctx.clearRect(0, 0, width, height)
-                ctx.strokeStyle = root.headLight ? root.accent : "rgba(255,255,255,0.15)"
-                ctx.lineWidth = 2
-                ctx.beginPath(); ctx.arc(18, 18, 9, 0, Math.PI * 2); ctx.stroke()
-                for (var i = 0; i < 6; i++) {
-                    var a = (i / 6) * Math.PI * 2
-                    ctx.beginPath(); ctx.moveTo(18 + Math.cos(a) * 11, 18 + Math.sin(a) * 11)
-                    ctx.lineTo(18 + Math.cos(a) * 16, 18 + Math.sin(a) * 16); ctx.stroke()
+                // Header
+                Row {
+                    spacing: 6
+                    Rectangle {
+                        width: 8; height: 8; radius: 4
+                        color: root.batteryLevel > 20 ? "#00e676" : root.dangerColor
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                    Text {
+                        text: "BATTERY"
+                        color: Qt.rgba(1, 1, 1, 0.6)
+                        font.pixelSize: 11
+                        font.bold: true
+                        font.family: "Courier New"
+                        font.letterSpacing: 1
+                    }
                 }
-            }
-            property bool hl: root.headLight
-            onHlChanged: requestPaint()
-            MouseArea { anchors.fill: parent; enabled: !root.temperatureHazardLocked; onClicked: root.toggleHeadLight() }
-        }
-        Canvas {
-            id: tempIconSmall
-            width: 36; height: 36
-            onPaint: {
-                var ctx = getContext("2d"); ctx.clearRect(0, 0, width, height)
-                ctx.strokeStyle = root.displayTempColor; ctx.lineWidth = 2
-                ctx.beginPath(); ctx.moveTo(14, 4); ctx.lineTo(14, 26); ctx.stroke()
-                ctx.beginPath(); ctx.moveTo(22, 4); ctx.lineTo(22, 26); ctx.stroke()
-                ctx.beginPath(); ctx.moveTo(14, 4); ctx.arc(18, 4, 4, -Math.PI, 0); ctx.stroke()
-                ctx.beginPath(); ctx.arc(18, 30, 6, 0, Math.PI * 2)
-                ctx.fillStyle = root.displayTempColor; ctx.fill()
-                var pct = Math.min(Math.max((root.temperature - 20) / 60, 0), 1)
-                ctx.fillStyle = root.displayTempColor
-                ctx.fillRect(15, 26 - pct * 20, 6, pct * 20)
-            }
-            property real tmp: root.temperature
-            onTmpChanged: requestPaint()
-        }
-    }
 
-    Row {
-        x: 16; y: 270; spacing: 10
-        Text { width: 36; text: "L"; color: Qt.rgba(1, 1, 1, 0.2); font.pixelSize: 9; font.family: "Courier New"; horizontalAlignment: Text.AlignHCenter }
-        Text { width: 36; text: "HAZ"; color: Qt.rgba(1, 1, 1, 0.2); font.pixelSize: 9; font.family: "Courier New"; horizontalAlignment: Text.AlignHCenter }
-        Text { width: 36; text: "R"; color: Qt.rgba(1, 1, 1, 0.2); font.pixelSize: 9; font.family: "Courier New"; horizontalAlignment: Text.AlignHCenter }
-        Text { width: 36; text: "LAMP"; color: Qt.rgba(1, 1, 1, 0.2); font.pixelSize: 9; font.family: "Courier New"; horizontalAlignment: Text.AlignHCenter }
-        Text { width: 36; text: "TEMP"; color: Qt.rgba(1, 1, 1, 0.2); font.pixelSize: 9; font.family: "Courier New"; horizontalAlignment: Text.AlignHCenter }
-    }
+                // Battery Graphic Body
+                Item {
+                    width: parent.width
+                    height: 72
 
-    Row {
-        x: 14; y: 284; spacing: 8
-        Repeater {
-            model: 3
-            Item {
-                width: 36; height: 36
-                Rectangle {
-                    anchors.centerIn: parent
-                    width: root.themeIndex === index ? 32 : 28
-                    height: width
-                    radius: width / 2
-                    color: index === 0 ? "#00e5cc" : index === 1 ? "#58d68d" : "#ffb347"
-                    border.color: root.themeIndex === index ? "white" : Qt.rgba(1, 1, 1, 0.18)
-                    border.width: root.themeIndex === index ? 3 : 1
-                    Behavior on width { NumberAnimation { duration: 90; easing.type: Easing.OutCubic } }
+                    // Battery Terminal Nub (Right side)
+                    Rectangle {
+                        anchors.right: parent.right
+                        anchors.rightMargin: 12
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: 6
+                        height: 22
+                        radius: 2
+                        color: root.batteryLevel > 20 ? "#00e676" : root.dangerColor
+                    }
+
+                    // Main Battery Frame
+                    Rectangle {
+                        id: batteryFrame
+                        anchors.left: parent.left
+                        anchors.leftMargin: 6
+                        anchors.right: parent.right
+                        anchors.rightMargin: 18
+                        anchors.verticalCenter: parent.verticalCenter
+                        height: 60
+                        radius: 10
+                        color: "#0d1825"
+                        border.color: root.batteryLevel > 20 ? "#00e676" : root.dangerColor
+                        border.width: 2.5
+
+                        // Inner Battery Level Fill
+                        Rectangle {
+                            anchors.left: parent.left
+                            anchors.top: parent.top
+                            anchors.bottom: parent.bottom
+                            anchors.margins: 4
+                            width: (parent.width - 8) * Math.min(Math.max(root.batteryLevel / 100.0, 0.05), 1.0)
+                            radius: 6
+                            gradient: Gradient {
+                                orientation: Gradient.Horizontal
+                                GradientStop { position: 0.0; color: root.batteryLevel > 50 ? "#00c853" : root.batteryLevel > 20 ? root.warningColor : root.dangerColor }
+                                GradientStop { position: 1.0; color: root.batteryLevel > 50 ? "#69f0ae" : root.batteryLevel > 20 ? "#ffd54f" : "#ff5252" }
+                            }
+                            Behavior on width { NumberAnimation { duration: 250 } }
+                        }
+
+                        // Percentage Text inside battery
+                        Text {
+                            anchors.centerIn: parent
+                            text: root.batteryLevel.toFixed(0) + "%"
+                            color: "#08101a"
+                            font.pixelSize: 26
+                            font.bold: true
+                            font.family: "Courier New"
+                        }
+                    }
                 }
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: root.applyTheme(index)
+
+                // Subtitle Status
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: root.batteryLevel > 50 ? "GOOD" : root.batteryLevel > 20 ? "MODERATE" : "LOW BATTERY"
+                    color: root.batteryLevel > 50 ? "#00e676" : root.batteryLevel > 20 ? root.warningColor : root.dangerColor
+                    font.pixelSize: 11
+                    font.bold: true
+                    font.family: "Courier New"
+                    font.letterSpacing: 2
                 }
             }
         }
-        Text {
-            anchors.verticalCenter: parent.verticalCenter
-            text: root.themeName
-            color: Qt.rgba(1, 1, 1, 0.38)
-            font.pixelSize: 14; font.family: "Courier New"; font.bold: true; font.letterSpacing: 2
-            Behavior on color { ColorAnimation { duration: 120 } }
+
+        // ================= CARD 2: ENGINE TEMP =================
+        Rectangle {
+            width: parent.width
+            height: 172
+            radius: 16
+            color: "#0a101d"
+            border.color: Qt.rgba(1, 1, 1, 0.08)
+            border.width: 1
+
+            Column {
+                anchors.fill: parent
+                anchors.margins: 14
+                spacing: 10
+
+                // Header
+                Row {
+                    spacing: 6
+                    Text {
+                        text: "🌡️"
+                        font.pixelSize: 12
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                    Text {
+                        text: "ENGINE TEMP"
+                        color: Qt.rgba(1, 1, 1, 0.6)
+                        font.pixelSize: 11
+                        font.bold: true
+                        font.family: "Courier New"
+                        font.letterSpacing: 1
+                    }
+                }
+
+                // Temperature Value Display
+                Row {
+                    spacing: 4
+                    anchors.left: parent.left
+                    anchors.leftMargin: 4
+                    Text {
+                        text: root.temperature.toFixed(1)
+                        color: root.temperature > 50 ? root.dangerColor : root.tempColor
+                        font.pixelSize: 34
+                        font.bold: true
+                        font.family: "Courier New"
+                    }
+                    Text {
+                        anchors.bottom: parent.bottom
+                        anchors.bottomMargin: 5
+                        text: "°C"
+                        color: root.temperature > 50 ? root.dangerColor : root.tempColor
+                        font.pixelSize: 16
+                        font.bold: true
+                        font.family: "Courier New"
+                    }
+                }
+
+                // Horizontal Gauge Bar
+                Item {
+                    width: parent.width - 8
+                    height: 24
+                    anchors.horizontalCenter: parent.horizontalCenter
+
+                    // Track background
+                    Rectangle {
+                        anchors.top: parent.top
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        height: 8
+                        radius: 4
+                        color: "#182232"
+
+                        // Active Progress Fill
+                        Rectangle {
+                            anchors.left: parent.left
+                            anchors.top: parent.top
+                            anchors.bottom: parent.bottom
+                            width: parent.width * Math.min(Math.max((root.temperature - 20) / 60.0, 0.05), 1.0)
+                            radius: 4
+                            gradient: Gradient {
+                                orientation: Gradient.Horizontal
+                                GradientStop { position: 0.0; color: "#ff9100" }
+                                GradientStop { position: 0.7; color: "#ff6d00" }
+                                GradientStop { position: 1.0; color: root.temperature > 50 ? root.dangerColor : "#ff9100" }
+                            }
+                            Behavior on width { NumberAnimation { duration: 250 } }
+                        }
+
+                        // 50 degree red warning tick line
+                        Rectangle {
+                            x: parent.width * 0.5 - 1
+                            y: -2
+                            width: 2
+                            height: 12
+                            color: root.dangerColor
+                        }
+                    }
+
+                    // Gauge scale labels
+                    Item {
+                        anchors.top: parent.top
+                        anchors.topMargin: 12
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        height: 12
+
+                        Text {
+                            anchors.left: parent.left
+                            text: "20°"
+                            color: Qt.rgba(1, 1, 1, 0.3)
+                            font.pixelSize: 9
+                            font.family: "Courier New"
+                        }
+                        Text {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            text: "50°"
+                            color: root.dangerColor
+                            font.pixelSize: 9
+                            font.bold: true
+                            font.family: "Courier New"
+                        }
+                        Text {
+                            anchors.right: parent.right
+                            text: "80°"
+                            color: Qt.rgba(1, 1, 1, 0.3)
+                            font.pixelSize: 9
+                            font.family: "Courier New"
+                        }
+                    }
+                }
+
+                // Subtitle Status
+                Text {
+                    anchors.left: parent.left
+                    anchors.leftMargin: 4
+                    text: root.temperature > 50.0 ? "OVERHEAT" : "NORMAL"
+                    color: root.temperature > 50.0 ? root.dangerColor : Qt.rgba(1, 1, 1, 0.5)
+                    font.pixelSize: 11
+                    font.bold: true
+                    font.family: "Courier New"
+                    font.letterSpacing: 2
+                }
+            }
+        }
+
+        // ================= BOTTOM: THEME SELECTOR =================
+        Rectangle {
+            width: parent.width
+            height: 52
+            radius: 16
+            color: "#0a101d"
+            border.color: Qt.rgba(1, 1, 1, 0.08)
+            border.width: 1
+
             MouseArea {
                 anchors.fill: parent
-                anchors.margins: -10
                 onClicked: root.nextTheme()
             }
-        }
-    }
 
-    Row {
-        x: 14; y: 338; spacing: 10
-        Canvas {
-            id: tempBarsLeft
-            width: 28; height: 40
-            onPaint: {
-                var ctx = getContext("2d"); ctx.clearRect(0, 0, width, height)
-                var pct = Math.min(Math.max((root.temperature - 20) / 60, 0), 1)
-                var bars = Math.ceil(pct * 4)
-                for (var i = 0; i < 4; i++) {
-                    var bh = 6 + i * 6; var bx = i * 7
-                    ctx.fillStyle = i < bars ? root.displayTempColor : "rgba(255,255,255,0.1)"
-                    ctx.fillRect(bx, 34 - bh, 5, bh)
+            Row {
+                anchors.centerIn: parent
+                spacing: 12
+
+                // Dot 1: Cyan (AQUA)
+                Item {
+                    width: 22; height: 22
+                    anchors.verticalCenter: parent.verticalCenter
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: 11
+                        color: "transparent"
+                        border.color: root.themeIndex === 0 ? "#00e5cc" : "transparent"
+                        border.width: 1.5
+                    }
+                    Rectangle {
+                        anchors.centerIn: parent
+                        width: 14; height: 14; radius: 7
+                        color: "#00e5cc"
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: root.applyTheme(0)
+                    }
+                }
+
+                // Dot 2: Green (FOREST)
+                Item {
+                    width: 22; height: 22
+                    anchors.verticalCenter: parent.verticalCenter
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: 11
+                        color: "transparent"
+                        border.color: root.themeIndex === 1 ? "#58d68d" : "transparent"
+                        border.width: 1.5
+                    }
+                    Rectangle {
+                        anchors.centerIn: parent
+                        width: 14; height: 14; radius: 7
+                        color: "#58d68d"
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: root.applyTheme(1)
+                    }
+                }
+
+                // Dot 3: Amber (AMBER)
+                Item {
+                    width: 22; height: 22
+                    anchors.verticalCenter: parent.verticalCenter
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: 11
+                        color: "transparent"
+                        border.color: root.themeIndex === 2 ? "#ffb347" : "transparent"
+                        border.width: 1.5
+                    }
+                    Rectangle {
+                        anchors.centerIn: parent
+                        width: 14; height: 14; radius: 7
+                        color: "#ffb347"
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: root.applyTheme(2)
+                    }
+                }
+
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: root.themeName
+                    color: root.primary
+                    font.pixelSize: 13
+                    font.bold: true
+                    font.family: "Courier New"
+                    font.letterSpacing: 2
                 }
             }
-            property real tmp: root.temperature
-            onTmpChanged: requestPaint()
-        }
-        Column {
-            spacing: 2
-            Text { text: root.temperature.toFixed(1) + "°C"; color: root.displayTempColor; font.pixelSize: 22; font.bold: true; font.family: "Courier New" }
-            Text { text: "Engine Temp"; color: Qt.rgba(1, 1, 1, 0.3); font.pixelSize: 10; font.family: "Courier New" }
         }
     }
 }

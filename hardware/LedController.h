@@ -9,6 +9,7 @@ class LedController : public QObject {
     Q_OBJECT
     Q_PROPERTY(bool leftSignal READ leftSignal NOTIFY stateChanged)
     Q_PROPERTY(bool rightSignal READ rightSignal NOTIFY stateChanged)
+    Q_PROPERTY(bool hazardActive READ hazardActive NOTIFY stateChanged)
     Q_PROPERTY(bool headLight READ headLight NOTIFY stateChanged)
 
 public:
@@ -17,6 +18,7 @@ public:
 
     bool leftSignal() const { return m_leftSignal; }
     bool rightSignal() const { return m_rightSignal; }
+    bool hazardActive() const { return m_leftSignal && m_rightSignal; }
     bool headLight() const { return m_headLight; }
 
 public slots:

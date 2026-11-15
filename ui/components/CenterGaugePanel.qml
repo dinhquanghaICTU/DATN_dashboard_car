@@ -2,8 +2,8 @@ import QtQuick 2.15
 
 Item {
     id: root
-    width: 308
-    height: 432
+    width: 300
+    height: 416
 
     property bool introActive: false
     property int themeIndex: 0
@@ -17,6 +17,17 @@ Item {
     property real displaySpeedKmh: 0
     property real displayRpm: 0
 
+    property bool leftSignal: false
+    property bool rightSignal: false
+    property bool hazardActive: false
+    property bool headLight: false
+    property int signalTick: 0
+
+    signal toggleLeftSignal()
+    signal toggleRightSignal()
+    signal toggleHazard()
+    signal toggleHeadLight()
+
     onThemeIndexChanged: repaint()
     onPrimaryChanged: repaint()
     onAccentChanged: repaint()
@@ -27,165 +38,456 @@ Item {
     function repaint() {
         speedGaugeStaticCanvas.requestPaint()
         speedGaugeCanvas.requestPaint()
-        movingCarIcon.requestPaint()
     }
 
-    Canvas {
-        id: speedGaugeStaticCanvas
-        x: 10; y: 4; width: parent.width - 20; height: 280
-        onPaint: {
-            var ctx = getContext("2d")
-            ctx.clearRect(0, 0, width, height)
-            var cx = width / 2, cy = 172, r = 112
-            var startA = Math.PI * 0.72
-            ctx.beginPath(); ctx.arc(cx, cy, r, Math.PI * 0.72, Math.PI * 2.28)
-            ctx.strokeStyle = "rgba(255,255,255,0.06)"; ctx.lineWidth = 18; ctx.lineCap = "round"; ctx.stroke()
-            for (var i = 0; i <= 12; i++) {
-                var a = startA + (i / 12) * Math.PI * 1.56
-                ctx.strokeStyle = i % 4 === 0 ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.2)"
-                ctx.lineWidth = i % 4 === 0 ? 2.5 : 1.2
-                var r1 = r + 12, r2 = i % 4 === 0 ? r + 30 : r + 22
-                ctx.beginPath()
-                ctx.moveTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1)
-                ctx.lineTo(cx + Math.cos(a) * r2, cy + Math.sin(a) * r2)
-                ctx.stroke()
+    Column {
+        anchors.fill: parent
+        spacing: 8
+
+        // ================= TOP GAUGE & ARROWS CONTAINER =================
+        Item {
+            width: parent.width
+            height: 310
+
+            // Turn Signal Arrow - LEFT
+            Canvas {
+                id: leftArrow
+                anchors.left: parent.left
+                anchors.leftMargin: 8
+                anchors.top: parent.top
+                anchors.topMargin: 12
+                width: 32
+                height: 24
+                property bool active: (root.leftSignal || root.hazardActive) && (root.signalTick === 0)
+                onActiveChanged: requestPaint()
+                onPaint: {
+                    var ctx = getContext("2d")
+                    ctx.clearRect(0, 0, width, height)
+                    ctx.fillStyle = active ? "#00e676" : "rgba(255,255,255,0.12)"
+                    ctx.beginPath()
+                    ctx.moveTo(8, 12)
+                    ctx.lineTo(20, 2)
+                    ctx.lineTo(20, 7)
+                    ctx.lineTo(30, 7)
+                    ctx.lineTo(30, 17)
+                    ctx.lineTo(20, 17)
+                    ctx.lineTo(20, 22)
+                    ctx.closePath()
+                    ctx.fill()
+                }
             }
-            ctx.fillStyle = "rgba(255,255,255,0.4)"; ctx.font = "12px Courier New"
-            ctx.textAlign = "center"
-            var labels = ["0", "", "", "", "40", "", "", "", "80", "", "", "", "120"]
-            for (var j = 0; j <= 12; j++) {
-                var la = startA + (j / 12) * Math.PI * 1.56
-                var lx = cx + Math.cos(la) * (r + 42), ly = cy + Math.sin(la) * (r + 42)
-                ctx.fillText(labels[j], lx, ly + 4)
+
+            // Top Scale Mark 60
+            Column {
+                anchors.top: parent.top
+                anchors.topMargin: 6
+                anchors.horizontalCenter: parent.horizontalCenter
+                spacing: 2
+                Text {
+                    text: "60"
+                    color: Qt.rgba(1, 1, 1, 0.7)
+                    font.pixelSize: 11
+                    font.bold: true
+                    font.family: "Courier New"
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
+                Rectangle {
+                    width: 2
+                    height: 8
+                    color: Qt.rgba(1, 1, 1, 0.5)
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
+            }
+
+            // Turn Signal Arrow - RIGHT
+            Canvas {
+                id: rightArrow
+                anchors.right: parent.right
+                anchors.rightMargin: 8
+                anchors.top: parent.top
+                anchors.topMargin: 12
+                width: 32
+                height: 24
+                property bool active: (root.rightSignal || root.hazardActive) && (root.signalTick === 0)
+                onActiveChanged: requestPaint()
+                onPaint: {
+                    var ctx = getContext("2d")
+                    ctx.clearRect(0, 0, width, height)
+                    ctx.fillStyle = active ? "#00e676" : "rgba(255,255,255,0.12)"
+                    ctx.beginPath()
+                    ctx.moveTo(24, 12)
+                    ctx.lineTo(12, 2)
+                    ctx.lineTo(12, 7)
+                    ctx.lineTo(2, 7)
+                    ctx.lineTo(2, 17)
+                    ctx.lineTo(12, 17)
+                    ctx.lineTo(12, 22)
+                    ctx.closePath()
+                    ctx.fill()
+                }
+            }
+
+            // Static Arc & Scale Canvas
+            Canvas {
+                id: speedGaugeStaticCanvas
+                anchors.fill: parent
+                onPaint: {
+                    var ctx = getContext("2d")
+                    ctx.clearRect(0, 0, width, height)
+                    var cx = width / 2
+                    var cy = 135
+                    var r = 95
+                    var startAngle = Math.PI * 0.75
+                    var endAngle = Math.PI * 2.25
+
+                    // Background Track Arc
+                    ctx.beginPath()
+                    ctx.arc(cx, cy, r, startAngle, endAngle)
+                    ctx.strokeStyle = "rgba(255,255,255,0.08)"
+                    ctx.lineWidth = 14
+                    ctx.lineCap = "round"
+                    ctx.stroke()
+
+                    // Red Danger Zone Arc (100 - 120 km/h)
+                    var redStart = startAngle + (100.0 / 120.0) * (endAngle - startAngle)
+                    ctx.beginPath()
+                    ctx.arc(cx, cy, r, redStart, endAngle)
+                    ctx.strokeStyle = "rgba(255, 50, 70, 0.45)"
+                    ctx.lineWidth = 14
+                    ctx.lineCap = "round"
+                    ctx.stroke()
+
+                    // Tick Marks & Scale Numbers (0, 20, 40, 60, 80, 100, 120)
+                    var ticks = [
+                        { val: 0, text: "0" },
+                        { val: 20, text: "20" },
+                        { val: 40, text: "40" },
+                        { val: 60, text: "" },
+                        { val: 80, text: "80" },
+                        { val: 100, text: "100" },
+                        { val: 120, text: "120" }
+                    ]
+
+                    for (var i = 0; i <= 24; i++) {
+                        var angle = startAngle + (i / 24.0) * (endAngle - startAngle)
+                        var isMajor = (i % 4 === 0)
+                        var tickR1 = r + 10
+                        var tickR2 = isMajor ? r + 18 : r + 14
+                        ctx.beginPath()
+                        ctx.moveTo(cx + Math.cos(angle) * tickR1, cy + Math.sin(angle) * tickR1)
+                        ctx.lineTo(cx + Math.cos(angle) * tickR2, cy + Math.sin(angle) * tickR2)
+                        ctx.strokeStyle = i >= 20 ? "#ff3344" : (isMajor ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.2)")
+                        ctx.lineWidth = isMajor ? 2.0 : 1.0
+                        ctx.stroke()
+                    }
+
+                    // Number Labels
+                    ctx.font = "bold 11px 'Courier New'"
+                    ctx.textAlign = "center"
+                    ctx.textBaseline = "middle"
+                    for (var j = 0; j < ticks.length; j++) {
+                        if (ticks[j].text === "") continue
+                        var numAngle = startAngle + (ticks[j].val / 120.0) * (endAngle - startAngle)
+                        var textR = r + 28
+                        var tx = cx + Math.cos(numAngle) * textR
+                        var ty = cy + Math.sin(numAngle) * textR
+                        ctx.fillStyle = ticks[j].val >= 100 ? "#ff3344" : "rgba(255,255,255,0.75)"
+                        ctx.fillText(ticks[j].text, tx, ty)
+                    }
+                }
+            }
+
+            // Dynamic Speed Arc Canvas
+            Canvas {
+                id: speedGaugeCanvas
+                anchors.fill: parent
+                onPaint: {
+                    var ctx = getContext("2d")
+                    ctx.clearRect(0, 0, width, height)
+                    var cx = width / 2
+                    var cy = 135
+                    var r = 95
+                    var startAngle = Math.PI * 0.75
+                    var totalAngle = Math.PI * 1.50
+                    var pct = Math.min(Math.max(root.displaySpeedKmh / 120.0, 0.0), 1.0)
+                    if (pct <= 0.001) return
+
+                    var endAngle = startAngle + pct * totalAngle
+
+                    // Glowing Active Cyan Arc
+                    var grad = ctx.createLinearGradient(0, 0, width, height)
+                    grad.addColorStop(0.0, root.primary)
+                    grad.addColorStop(0.8, root.accent)
+                    grad.addColorStop(1.0, root.displaySpeedKmh >= 100 ? root.dangerColor : root.primary)
+
+                    ctx.beginPath()
+                    ctx.arc(cx, cy, r, startAngle, endAngle)
+                    ctx.strokeStyle = grad
+                    ctx.lineWidth = 14
+                    ctx.lineCap = "round"
+                    ctx.stroke()
+
+                    // Circular Indicator Tip
+                    var tipX = cx + Math.cos(endAngle) * r
+                    var tipY = cy + Math.sin(endAngle) * r
+                    ctx.beginPath()
+                    ctx.arc(tipX, tipY, 7, 0, Math.PI * 2)
+                    ctx.fillStyle = "#ffffff"
+                    ctx.fill()
+                    ctx.lineWidth = 2
+                    ctx.strokeStyle = root.primary
+                    ctx.stroke()
+                }
+            }
+
+            // Digital Speed Readout (Center)
+            Column {
+                anchors.horizontalCenter: parent.horizontalCenter
+                y: 84
+                spacing: 0
+
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: root.displaySpeedKmh.toFixed(1)
+                    color: "#ffffff"
+                    font.pixelSize: 42
+                    font.bold: true
+                    font.family: "Courier New"
+                }
+
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: "KM/H"
+                    color: root.primary
+                    font.pixelSize: 11
+                    font.bold: true
+                    font.family: "Courier New"
+                    font.letterSpacing: 3
+                }
+            }
+
+            // RPM Badge Pill (Purple)
+            Rectangle {
+                anchors.horizontalCenter: parent.horizontalCenter
+                y: 160
+                width: 120
+                height: 26
+                radius: 13
+                color: "#261947"
+                border.color: "#6536c9"
+                border.width: 1
+
+                Text {
+                    anchors.centerIn: parent
+                    text: root.displayRpm.toFixed(0) + " RPM"
+                    color: "#e2d9fc"
+                    font.pixelSize: 12
+                    font.bold: true
+                    font.family: "Courier New"
+                }
+            }
+
+            // Linear speed in m/s
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter
+                y: 194
+                text: root.displaySpeed.toFixed(3) + " m/s"
+                color: Qt.rgba(1, 1, 1, 0.45)
+                font.pixelSize: 11
+                font.family: "Courier New"
+            }
+
+            // Status Pill ("● ALL SYSTEMS NORMAL")
+            Rectangle {
+                anchors.horizontalCenter: parent.horizontalCenter
+                y: 228
+                width: 200
+                height: 26
+                radius: 13
+                color: "#0a1320"
+                border.color: Qt.rgba(0, 229, 204, 0.25)
+                border.width: 1
+
+                Row {
+                    anchors.centerIn: parent
+                    spacing: 6
+                    Rectangle {
+                        width: 6; height: 6; radius: 3
+                        color: "#00e5cc"
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                    Text {
+                        text: "ALL SYSTEMS NORMAL"
+                        color: "#00e5cc"
+                        font.pixelSize: 10
+                        font.bold: true
+                        font.family: "Courier New"
+                        font.letterSpacing: 1
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                }
             }
         }
-    }
 
-    Canvas {
-        id: speedGaugeCanvas
-        x: 10; y: 4; width: parent.width - 20; height: 280
-        onPaint: {
-            var ctx = getContext("2d")
-            ctx.clearRect(0, 0, width, height)
-            var cx = width / 2, cy = 172, r = 112
-            var pct = Math.min(root.displaySpeedKmh / 120.0, 1.0)
-            if (pct <= 0.001) return
-            var startA = Math.PI * 0.72
-            var endA = startA + pct * Math.PI * 1.56
-            var grad = ctx.createLinearGradient(0, 0, width, 0)
-            grad.addColorStop(0, root.primary); grad.addColorStop(0.5, root.accent); grad.addColorStop(1.0, root.warningColor)
-            ctx.beginPath(); ctx.arc(cx, cy, r, startA, endA)
-            ctx.strokeStyle = root.displaySpeedKmh >= 80.0 ? root.dangerColor : grad; ctx.lineWidth = 18; ctx.lineCap = "round"; ctx.stroke()
-            var na = endA
-            ctx.shadowColor = root.displaySpeedKmh >= 80.0 ? root.dangerColor : "#ffffff"; ctx.shadowBlur = 8
-            ctx.beginPath(); ctx.arc(cx + Math.cos(na) * r, cy + Math.sin(na) * r, 7, 0, Math.PI * 2)
-            ctx.fillStyle = root.displaySpeedKmh >= 80.0 ? root.dangerColor : "#ffffff"; ctx.fill(); ctx.shadowBlur = 0
-        }
-    }
+        // ================= BOTTOM: LIGHTS CARD =================
+        Rectangle {
+            width: parent.width
+            height: 94
+            radius: 16
+            color: "#0a101d"
+            border.color: Qt.rgba(1, 1, 1, 0.08)
+            border.width: 1
 
-    Text {
-        anchors.horizontalCenter: parent.horizontalCenter; y: 100
-        text: root.displaySpeedKmh.toFixed(1)
-        color: "white"; font.pixelSize: 45; font.bold: true; font.family: "Courier New"
-    }
-    Text {
-        anchors.horizontalCenter: parent.horizontalCenter; y: 162
-        text: "km/h"; color: root.primary; font.pixelSize: 17; font.family: "Courier New"; font.letterSpacing: 6
-    }
+            Column {
+                anchors.fill: parent
+                anchors.margins: 8
+                spacing: 6
 
-    Text {
-        anchors.horizontalCenter: parent.horizontalCenter; y: 210
-        text: root.displayRpm.toFixed(0)
-        color: root.rpmColor; font.pixelSize: 50; font.bold: true; font.family: "Courier New"
-    }
-    Text {
-        anchors.horizontalCenter: parent.horizontalCenter; y: 284
-        text: "RPM"; color: root.rpmColor; font.pixelSize: 17; font.family: "Courier New"; font.letterSpacing: 6; opacity: 0.7
-    }
+                // Header
+                Row {
+                    spacing: 6
+                    Rectangle {
+                        width: 6; height: 6; radius: 3
+                        color: "#00e676"
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+                    Text {
+                        text: "LIGHTS"
+                        color: Qt.rgba(1, 1, 1, 0.6)
+                        font.pixelSize: 10
+                        font.bold: true
+                        font.family: "Courier New"
+                        font.letterSpacing: 1
+                    }
+                }
 
-    Text {
-        anchors.horizontalCenter: parent.horizontalCenter; y: 312
-        text: root.displaySpeed.toFixed(3) + " m/s"
-        color: Qt.rgba(1, 1, 1, 0.2); font.pixelSize: 14; font.family: "Courier New"
-    }
+                // 4 Light Buttons
+                Row {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 10
 
-    Canvas {
-        id: movingCarIcon
-        anchors.horizontalCenter: parent.horizontalCenter
-        y: 344
-        width: 180; height: 48
-        property int animTick: 0
-        onPaint: {
-            var ctx = getContext("2d")
-            ctx.clearRect(0, 0, width, height)
+                    // 1. LEFT SIGNAL
+                    Rectangle {
+                        width: 58; height: 50; radius: 10
+                        color: (root.leftSignal && !root.hazardActive && root.signalTick === 0) ? Qt.rgba(0, 0.9, 0.8, 0.25) : "#131b26"
+                        border.color: (root.leftSignal && !root.hazardActive) ? "#00e5cc" : Qt.rgba(1, 1, 1, 0.1)
+                        border.width: 1.5
 
-            ctx.strokeStyle = Qt.rgba(1, 1, 1, 0.10)
-            ctx.lineWidth = 2
-            ctx.beginPath(); ctx.moveTo(18, 38); ctx.lineTo(162, 38); ctx.stroke()
+                        Column {
+                            anchors.centerIn: parent
+                            spacing: 2
+                            Text {
+                                text: "⬅"
+                                color: (root.leftSignal && !root.hazardActive && root.signalTick === 0) ? "#00e5cc" : "#64748b"
+                                font.pixelSize: 18
+                                anchors.horizontalCenter: parent.horizontalCenter
+                            }
+                            Text {
+                                text: "LEFT"
+                                color: (root.leftSignal && !root.hazardActive && root.signalTick === 0) ? "#00e5cc" : "#64748b"
+                                font.pixelSize: 8
+                                font.bold: true
+                                font.family: "Courier New"
+                                anchors.horizontalCenter: parent.horizontalCenter
+                            }
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: root.toggleLeftSignal()
+                        }
+                    }
 
-            ctx.strokeStyle = root.primary
-            ctx.lineWidth = 2
-            ctx.globalAlpha = 0.28
-            for (var i = 0; i < 4; ++i) {
-                var x = 18 + ((animTick * 6 + i * 42) % 132)
-                ctx.beginPath(); ctx.moveTo(x, 33); ctx.lineTo(x - 22, 33); ctx.stroke()
-            }
-            ctx.globalAlpha = 1
+                    // 2. HAZARD
+                    Rectangle {
+                        width: 58; height: 50; radius: 10
+                        color: (root.hazardActive && root.signalTick === 0) ? Qt.rgba(1, 0.1, 0.2, 0.25) : "#131b26"
+                        border.color: root.hazardActive ? root.dangerColor : Qt.rgba(1, 1, 1, 0.1)
+                        border.width: 1.5
 
-            var carX = 58 + Math.sin(animTick * 0.22) * 4
-            ctx.fillStyle = Qt.rgba(1, 1, 1, 0.05)
-            ctx.strokeStyle = root.primary
-            ctx.lineWidth = 2.5
-            ctx.beginPath()
-            ctx.moveTo(carX + 8, 28)
-            ctx.lineTo(carX + 22, 16)
-            ctx.lineTo(carX + 58, 16)
-            ctx.lineTo(carX + 74, 28)
-            ctx.lineTo(carX + 88, 28)
-            ctx.quadraticCurveTo(carX + 94, 28, carX + 94, 33)
-            ctx.lineTo(carX + 2, 33)
-            ctx.quadraticCurveTo(carX + 2, 28, carX + 8, 28)
-            ctx.closePath()
-            ctx.fill()
-            ctx.stroke()
+                        Column {
+                            anchors.centerIn: parent
+                            spacing: 2
+                            Text {
+                                text: "⚠️"
+                                font.pixelSize: 16
+                                anchors.horizontalCenter: parent.horizontalCenter
+                            }
+                            Text {
+                                text: "HAZARD"
+                                color: (root.hazardActive && root.signalTick === 0) ? root.dangerColor : "#64748b"
+                                font.pixelSize: 8
+                                font.bold: true
+                                font.family: "Courier New"
+                                anchors.horizontalCenter: parent.horizontalCenter
+                            }
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: root.toggleHazard()
+                        }
+                    }
 
-            ctx.fillStyle = Qt.rgba(1, 1, 1, 0.18)
-            ctx.beginPath()
-            ctx.moveTo(carX + 28, 18)
-            ctx.lineTo(carX + 39, 18)
-            ctx.lineTo(carX + 39, 27)
-            ctx.lineTo(carX + 19, 27)
-            ctx.closePath()
-            ctx.fill()
-            ctx.beginPath()
-            ctx.moveTo(carX + 43, 18)
-            ctx.lineTo(carX + 56, 18)
-            ctx.lineTo(carX + 67, 27)
-            ctx.lineTo(carX + 43, 27)
-            ctx.closePath()
-            ctx.fill()
+                    // 3. RIGHT SIGNAL
+                    Rectangle {
+                        width: 58; height: 50; radius: 10
+                        color: (root.rightSignal && !root.hazardActive && root.signalTick === 0) ? Qt.rgba(0, 0.9, 0.8, 0.25) : "#131b26"
+                        border.color: (root.rightSignal && !root.hazardActive) ? "#00e5cc" : Qt.rgba(1, 1, 1, 0.1)
+                        border.width: 1.5
 
-            ctx.fillStyle = root.accent
-            ctx.beginPath(); ctx.arc(carX + 24, 34, 6, 0, Math.PI * 2); ctx.fill()
-            ctx.beginPath(); ctx.arc(carX + 72, 34, 6, 0, Math.PI * 2); ctx.fill()
-            ctx.fillStyle = root.bgColor
-            ctx.beginPath(); ctx.arc(carX + 24, 34, 3, 0, Math.PI * 2); ctx.fill()
-            ctx.beginPath(); ctx.arc(carX + 72, 34, 3, 0, Math.PI * 2); ctx.fill()
+                        Column {
+                            anchors.centerIn: parent
+                            spacing: 2
+                            Text {
+                                text: "➡"
+                                color: (root.rightSignal && !root.hazardActive && root.signalTick === 0) ? "#00e5cc" : "#64748b"
+                                font.pixelSize: 18
+                                anchors.horizontalCenter: parent.horizontalCenter
+                            }
+                            Text {
+                                text: "RIGHT"
+                                color: (root.rightSignal && !root.hazardActive && root.signalTick === 0) ? "#00e5cc" : "#64748b"
+                                font.pixelSize: 8
+                                font.bold: true
+                                font.family: "Courier New"
+                                anchors.horizontalCenter: parent.horizontalCenter
+                            }
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: root.toggleRightSignal()
+                        }
+                    }
 
-            ctx.fillStyle = root.displaySpeedKmh >= 80.0 ? root.dangerColor : root.warningColor
-            ctx.beginPath(); ctx.moveTo(carX + 94, 29); ctx.lineTo(carX + 102, 31); ctx.lineTo(carX + 94, 33); ctx.closePath(); ctx.fill()
-        }
-        property int theme: root.themeIndex
-        property real speedValue: root.displaySpeedKmh
-        onThemeChanged: requestPaint()
-        onSpeedValueChanged: requestPaint()
-        Timer {
-            interval: 90
-            running: !root.introActive
-            repeat: true
-            onTriggered: {
-                movingCarIcon.animTick = (movingCarIcon.animTick + 1) % 1000
-                movingCarIcon.requestPaint()
+                    // 4. LAMP (HEADLIGHT)
+                    Rectangle {
+                        width: 58; height: 50; radius: 10
+                        color: root.headLight ? Qt.rgba(0, 0.9, 0.8, 0.25) : "#131b26"
+                        border.color: root.headLight ? "#00e5cc" : Qt.rgba(1, 1, 1, 0.1)
+                        border.width: 1.5
+
+                        Column {
+                            anchors.centerIn: parent
+                            spacing: 2
+                            Text {
+                                text: "💡"
+                                font.pixelSize: 16
+                                anchors.horizontalCenter: parent.horizontalCenter
+                            }
+                            Text {
+                                text: "LAMP"
+                                color: root.headLight ? "#00e5cc" : "#64748b"
+                                font.pixelSize: 8
+                                font.bold: true
+                                font.family: "Courier New"
+                                anchors.horizontalCenter: parent.horizontalCenter
+                            }
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: root.toggleHeadLight()
+                        }
+                    }
+                }
             }
         }
     }

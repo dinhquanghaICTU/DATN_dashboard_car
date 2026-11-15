@@ -5,19 +5,16 @@ import "ui/components"
 Window {
     id: root
     visible: true
-    visibility: Window.FullScreen
+    x: 0
+    y: 38
     width: 800
     height: 480
-    minimumWidth: 800
-    maximumWidth: 800
-    minimumHeight: 480
-    maximumHeight: 480
     color: bgColor
     title: "DATN Dashboard"
 
-    // Desktop Qt was built without a multimedia backend. Only load the video
-    // intro on the Raspberry Pi; the Desktop dashboard appears immediately.
-    property bool introActive: rpiHardware
+    // Desktop Qt and RPi Qt were built without QtMultimedia QML backend.
+    // Dashboard appears immediately.
+    property bool introActive: false
     property int themeIndex: 0
     property string themeName: themeIndex === 0 ? "AQUA" : themeIndex === 1 ? "FOREST" : "AMBER"
     property color bgColor: themeIndex === 0 ? "#080c12" : themeIndex === 1 ? "#07100c" : "#100d08"
@@ -143,9 +140,8 @@ Window {
         }
 
         TopBar {
-            anchors.top: parent.top
-            anchors.left: parent.left
-            anchors.right: parent.right
+            x: 0; y: 4
+            width: 800; height: 44
             introActive: root.introActive
             bgColor: root.bgColor
             primary: root.primary
@@ -155,11 +151,9 @@ Window {
             weatherIconColor: root.weatherIconColor
         }
 
-        Rectangle { x: 246; y: 52; width: 1; height: 390; color: primaryLine }
-        Rectangle { x: parent.width - 247; y: 52; width: 1; height: 390; color: primaryLine }
-
         LeftDashboardPanel {
-            x: 10; y: 52
+            x: 14; y: 50
+            width: 220; height: 416
             themeIndex: root.themeIndex
             themeName: root.themeName
             primary: root.primary
@@ -170,24 +164,14 @@ Window {
             displayTempColor: root.displayTempColor
             batteryLevel: root.batteryLevel
             batteryCriticalVisible: root.batteryCriticalVisible
-            leftSignal: root.leftSignal
-            rightSignal: root.rightSignal
-            headLight: root.headLight
-            signalTick: root.signalTick
             temperature: vehicle.temperature
-            temperatureHazardLocked: root.temperatureHazardLocked
-            onToggleLeftSignal: ledCtrl.toggleLeftSignal()
-            onToggleRightSignal: ledCtrl.toggleRightSignal()
-            onToggleHazard: ledCtrl.toggleHazard()
-            onToggleHeadLight: ledCtrl.toggleHeadLight()
             onApplyTheme: function(index) { root.applyTheme(index) }
             onNextTheme: root.nextTheme()
         }
 
         CenterGaugePanel {
-            x: 246; y: 48
-            width: parent.width - 492
-            height: 432
+            x: 248; y: 50
+            width: 300; height: 416
             introActive: root.introActive
             themeIndex: root.themeIndex
             primary: root.primary
@@ -199,29 +183,27 @@ Window {
             displaySpeed: root.displaySpeed
             displaySpeedKmh: root.displaySpeedKmh
             displayRpm: root.displayRpm
+            leftSignal: root.leftSignal
+            rightSignal: root.rightSignal
+            hazardActive: ledCtrl.hazardActive
+            headLight: root.headLight
+            signalTick: root.signalTick
+            onToggleLeftSignal: ledCtrl.toggleLeftSignal()
+            onToggleRightSignal: ledCtrl.toggleRightSignal()
+            onToggleHazard: ledCtrl.toggleHazard()
+            onToggleHeadLight: ledCtrl.toggleHeadLight()
         }
 
         RightStatsPanel {
-            x: parent.width - 256; y: 52
+            x: 562; y: 50
+            width: 224; height: 416
             themeIndex: root.themeIndex
             primary: root.primary
             accent: root.accent
-            speedColor: root.speedColor
-            rpmColor: root.rpmColor
-            tempColor: root.tempColor
             dangerColor: root.dangerColor
             warningColor: root.warningColor
-            displayTempColor: root.displayTempColor
-            primaryBorder: root.primaryBorder
-            rpmBorder: root.rpmBorder
-            tempBorder: root.tempBorder
-            accentBorder: root.accentBorder
-            warningBorder: root.warningBorder
             displaySpeedKmh: root.displaySpeedKmh
-            displayRpm: root.displayRpm
-            temperature: vehicle.temperature
-            batteryLevel: root.batteryLevel
-            batteryCriticalVisible: root.batteryCriticalVisible
+            tripDistanceKm: 1.5
         }
     }
 
@@ -235,12 +217,17 @@ Window {
     Loader {
         id: introLoader
         anchors.fill: parent
-        active: rpiHardware
+        active: introActive
         source: active ? "ui/components/IntroOverlay.qml" : ""
 
         onLoaded: {
             item.introActive = Qt.binding(function() { return root.introActive })
             item.finished.connect(root.finishIntro)
+        }
+        onStatusChanged: {
+            if (status === Loader.Error) {
+                root.finishIntro()
+            }
         }
     }
 }

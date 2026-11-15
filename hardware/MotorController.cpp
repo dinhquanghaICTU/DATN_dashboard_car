@@ -50,29 +50,28 @@ void MotorController::backward(int speed) {
 }
 
 void MotorController::turnLeft(int speed) {
-    qDebug() << "[Motor] TURN LEFT speed:" << speed;
-    setLeft(Stop, 0);
-    setRight(Forward, speed);
+    qDebug() << "[Motor] TURN LEFT (Quay Trái) speed:" << speed;
+    rotateLeft(speed);
     m_speed = speed;
     emit speedChanged(m_speed);
 }
 
 void MotorController::turnRight(int speed) {
-    qDebug() << "[Motor] TURN RIGHT speed:" << speed;
-    setLeft(Forward, speed);
-    setRight(Stop, 0);
+    qDebug() << "[Motor] TURN RIGHT (Quay Phải) speed:" << speed;
+    rotateRight(speed);
     m_speed = speed;
     emit speedChanged(m_speed);
 }
 
 void MotorController::rotateLeft(int speed) {
-    // Quay tại chỗ: 2 bên ngược chiều nhau
+    // Quay tại chỗ sang TRÁI: Bánh trái lùi, Bánh phải tiến
     qDebug() << "[Motor] ROTATE LEFT speed:" << speed;
     setLeft(Backward, speed);
     setRight(Forward, speed);
 }
 
 void MotorController::rotateRight(int speed) {
+    // Quay tại chỗ sang PHẢI: Bánh trái tiến, Bánh phải lùi
     qDebug() << "[Motor] ROTATE RIGHT speed:" << speed;
     setLeft(Forward, speed);
     setRight(Backward, speed);
@@ -98,11 +97,6 @@ void MotorController::setLeft(Direction dir, int speed) {
     int in1 = 0;
     int in2 = 0;
 
-    if (MOTOR_LEFT_INVERTED) {
-        if (dir == Forward) dir = Backward;
-        else if (dir == Backward) dir = Forward;
-    }
-
     switch (dir) {
     case Forward:
         in1 = 0;
@@ -121,10 +115,9 @@ void MotorController::setLeft(Direction dir, int speed) {
     gpio_write(pi, PIN_MOTOR_IN2, in2);
 
     const int trimmedSpeed = applyTrim(speed, MOTOR_LEFT_TRIM_PERCENT);
-    // qDebug() << "[Motor] LEFT pins"
-    //          << PIN_MOTOR_IN1 << "=" << in1
-    //          << PIN_MOTOR_IN2 << "=" << in2
-    //          << "pwm" << trimmedSpeed;
+    qDebug() << "[Motor] LEFT: pin" << PIN_MOTOR_IN1 << "=" << in1
+             << "pin" << PIN_MOTOR_IN2 << "=" << in2
+             << "ENA(pin" << PIN_MOTOR_ENA << ")=" << trimmedSpeed << "%";
     hardware_PWM(pi, PIN_MOTOR_ENA, MOTOR_PWM_FREQ,
                  calcDuty(trimmedSpeed));
 }
@@ -132,11 +125,6 @@ void MotorController::setLeft(Direction dir, int speed) {
 void MotorController::setRight(Direction dir, int speed) {
     int in3 = 0;
     int in4 = 0;
-
-    if (MOTOR_RIGHT_INVERTED) {
-        if (dir == Forward) dir = Backward;
-        else if (dir == Backward) dir = Forward;
-    }
 
     switch (dir) {
     case Forward:
@@ -156,10 +144,9 @@ void MotorController::setRight(Direction dir, int speed) {
     gpio_write(pi, PIN_MOTOR_IN4, in4);
 
     const int trimmedSpeed = applyTrim(speed, MOTOR_RIGHT_TRIM_PERCENT);
-    // qDebug() << "[Motor] RIGHT pins"
-    //          << PIN_MOTOR_IN3 << "=" << in3
-    //          << PIN_MOTOR_IN4 << "=" << in4
-    //          << "pwm" << trimmedSpeed;
+    qDebug() << "[Motor] RIGHT: pin" << PIN_MOTOR_IN3 << "=" << in3
+             << "pin" << PIN_MOTOR_IN4 << "=" << in4
+             << "ENB(pin" << PIN_MOTOR_ENB << ")=" << trimmedSpeed << "%";
     hardware_PWM(pi, PIN_MOTOR_ENB, MOTOR_PWM_FREQ,
                  calcDuty(trimmedSpeed));
 }

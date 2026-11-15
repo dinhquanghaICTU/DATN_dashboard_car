@@ -2,172 +2,567 @@ import QtQuick 2.15
 
 Item {
     id: root
-    width: 246
-    height: 400
+    width: 224
+    height: 416
 
     property int themeIndex: 0
     property color primary: "#00e5cc"
     property color accent: "#00ff88"
-    property color speedColor: "#00d4ff"
-    property color rpmColor: "#9966ff"
-    property color tempColor: "#ffaa00"
     property color dangerColor: "#ff4444"
     property color warningColor: "#ffcc00"
-    property color displayTempColor: tempColor
-    property color primaryBorder: Qt.rgba(0, 0.9, 0.8, 0.15)
-    property color rpmBorder: Qt.rgba(0.6, 0.4, 1, 0.2)
-    property color tempBorder: Qt.rgba(1, 0.67, 0, 0.2)
-    property color accentBorder: Qt.rgba(0, 1, 0.5, 0.2)
-    property color warningBorder: Qt.rgba(1, 0.8, 0, 0.2)
-    property real displaySpeedKmh: 0
-    property real displayRpm: 0
-    property real temperature: 0
-    property real batteryLevel: 10.0
-    property bool batteryCriticalVisible: true
+    property real displaySpeedKmh: 45.0
+    property real tripDistanceKm: 1.5
 
-    onThemeIndexChanged: repaint()
-    onSpeedColorChanged: repaint()
-    onRpmColorChanged: repaint()
-    onDisplayTempColorChanged: repaint()
-    onBatteryLevelChanged: repaint()
+    // ================= MAIN CONTAINER =================
+    Rectangle {
+        anchors.fill: parent
+        radius: 18
+        color: "#090e18"
+        border.color: Qt.rgba(0, 229, 204, 0.25)
+        border.width: 1.5
+        clip: true
 
-    function repaint() {
-        speedCardIcon.requestPaint()
-        rpmCardIcon.requestPaint()
-        tempCardIcon.requestPaint()
-        batteryCardIcon.requestPaint()
-    }
+        // 1. TOP HEADER STATS ROW
+        Row {
+            anchors.top: parent.top
+            anchors.topMargin: 10
+            anchors.left: parent.left
+            anchors.leftMargin: 10
+            anchors.right: parent.right
+            anchors.rightMargin: 10
+            spacing: 8
+            z: 20
 
-    Column {
-        x: 14; y: 8; spacing: 14
+            // Speed Badge (Left)
+            Rectangle {
+                width: Math.floor((parent.width - 8) * 0.55)
+                height: 38
+                radius: 8
+                color: "#111928"
+                border.color: Qt.rgba(0, 229, 204, 0.3)
+                border.width: 1
 
-        Rectangle {
-            width: 218; height: 72; radius: 12
-            color: Qt.rgba(1, 1, 1, 0.04); border.color: root.primaryBorder; border.width: 1
-            Row {
-                x: 16; anchors.verticalCenter: parent.verticalCenter; spacing: 14
-                Canvas {
-                    id: speedCardIcon
-                    width: 32; height: 32; anchors.verticalCenter: parent.verticalCenter
-                    onPaint: {
-                        var ctx = getContext("2d"); ctx.clearRect(0, 0, width, height)
-                        ctx.strokeStyle = root.speedColor; ctx.lineWidth = 2
-                        ctx.beginPath(); ctx.arc(16, 20, 12, Math.PI * 0.8, Math.PI * 0.2); ctx.stroke()
-                        ctx.beginPath(); ctx.moveTo(16, 20); ctx.lineTo(23, 12); ctx.stroke()
-                        ctx.beginPath(); ctx.arc(16, 20, 2, 0, Math.PI * 2)
-                        ctx.fillStyle = root.speedColor; ctx.fill()
+                Row {
+                    anchors.centerIn: parent
+                    spacing: 4
+                    Text {
+                        text: "↗"
+                        color: "#00e5cc"
+                        font.pixelSize: 14
+                        font.bold: true
+                        anchors.verticalCenter: parent.verticalCenter
                     }
-                }
-                Column {
-                    spacing: 2; anchors.verticalCenter: parent.verticalCenter
-                    Text { text: root.displaySpeedKmh.toFixed(2); color: root.speedColor; font.pixelSize: 26; font.bold: true; font.family: "Courier New" }
-                    Text { text: "km/h  Speed"; color: Qt.rgba(1, 1, 1, 0.3); font.pixelSize: 10; font.family: "Courier New" }
-                }
-            }
-        }
-
-        Rectangle {
-            width: 218; height: 72; radius: 12
-            color: Qt.rgba(1, 1, 1, 0.04); border.color: root.rpmBorder; border.width: 1
-            Row {
-                x: 16; anchors.verticalCenter: parent.verticalCenter; spacing: 14
-                Canvas {
-                    id: rpmCardIcon
-                    width: 32; height: 32; anchors.verticalCenter: parent.verticalCenter
-                    onPaint: {
-                        var ctx = getContext("2d"); ctx.clearRect(0, 0, width, height)
-                        ctx.strokeStyle = root.rpmColor; ctx.lineWidth = 2; ctx.lineCap = "round"
-                        ctx.beginPath(); ctx.arc(16, 16, 12, Math.PI * 0.75, Math.PI * 2.25); ctx.stroke()
-                        ctx.beginPath(); ctx.moveTo(16, 16); ctx.lineTo(24, 10)
-                        ctx.strokeStyle = root.rpmColor; ctx.lineWidth = 2; ctx.stroke()
-                    }
-                }
-                Column {
-                    spacing: 2; anchors.verticalCenter: parent.verticalCenter
-                    Text { text: root.displayRpm.toFixed(0); color: root.rpmColor; font.pixelSize: 26; font.bold: true; font.family: "Courier New" }
-                    Text { text: "RPM"; color: Qt.rgba(1, 1, 1, 0.3); font.pixelSize: 10; font.family: "Courier New" }
-                }
-            }
-        }
-
-        Rectangle {
-            width: 218; height: 72; radius: 12
-            color: Qt.rgba(1, 1, 1, 0.04); border.color: root.tempBorder; border.width: 1
-            Row {
-                x: 16; anchors.verticalCenter: parent.verticalCenter; spacing: 14
-                Canvas {
-                    id: tempCardIcon
-                    width: 32; height: 40; anchors.verticalCenter: parent.verticalCenter
-                    onPaint: {
-                        var ctx = getContext("2d"); ctx.clearRect(0, 0, width, height)
-                        var pct = Math.min(Math.max((root.temperature - 20) / 60, 0), 1)
-                        var bars = Math.ceil(pct * 4)
-                        for (var i = 0; i < 4; i++) {
-                            var bh = 8 + i * 7; var bx = i * 8 + 2
-                            ctx.fillStyle = i < bars ? root.displayTempColor : "rgba(255,255,255,0.1)"
-                            ctx.fillRect(bx, 36 - bh, 6, bh)
+                    Column {
+                        anchors.verticalCenter: parent.verticalCenter
+                        spacing: 0
+                        Row {
+                            spacing: 2
+                            Text {
+                                text: root.displaySpeedKmh.toFixed(1)
+                                color: "#00e5cc"
+                                font.pixelSize: 13
+                                font.bold: true
+                                font.family: "Courier New"
+                            }
+                            Text {
+                                text: "km/h"
+                                color: Qt.rgba(0, 229, 204, 0.8)
+                                font.pixelSize: 8
+                                font.family: "Courier New"
+                                anchors.bottom: parent.bottom
+                                anchors.bottomMargin: 1
+                            }
+                        }
+                        Text {
+                            text: "SPEED"
+                            color: Qt.rgba(1, 1, 1, 0.4)
+                            font.pixelSize: 7
+                            font.bold: true
+                            font.family: "Courier New"
+                            font.letterSpacing: 1
                         }
                     }
-                    property real tmp: root.temperature
-                    onTmpChanged: requestPaint()
-                }
-                Column {
-                    spacing: 2; anchors.verticalCenter: parent.verticalCenter
-                    Text { text: root.temperature.toFixed(1) + "°C"; color: root.displayTempColor; font.pixelSize: 26; font.bold: true; font.family: "Courier New" }
-                    Text { text: "Engine Temp"; color: Qt.rgba(1, 1, 1, 0.3); font.pixelSize: 10; font.family: "Courier New" }
                 }
             }
-        }
 
-        Rectangle {
-            width: 218; height: 72; radius: 12
-            color: Qt.rgba(1, 1, 1, 0.04)
-            border.color: root.batteryLevel > 50 ? root.accentBorder : root.batteryLevel > 20 ? root.warningBorder : Qt.rgba(1, 0.2, 0.2, 0.3)
-            border.width: 1
-            Row {
-                x: 16; anchors.verticalCenter: parent.verticalCenter; spacing: 14
-                opacity: root.batteryCriticalVisible ? 1.0 : 0.2
-                Canvas {
-                    id: batteryCardIcon
-                    width: 42; height: 22; anchors.verticalCenter: parent.verticalCenter
-                    onPaint: {
-                        var ctx = getContext("2d"); ctx.clearRect(0, 0, width, height)
-                        var clr = root.batteryLevel > 50 ? root.accent : root.batteryLevel > 20 ? root.warningColor : root.dangerColor
-                        ctx.strokeStyle = clr; ctx.lineWidth = 2
-                        ctx.strokeRect(1, 1, 34, 20)
-                        ctx.strokeRect(35, 6, 4, 10)
-                        var fw = (root.batteryLevel / 100) * 30
-                        ctx.fillStyle = clr
-                        ctx.fillRect(3, 3, fw, 16)
-                    }
-                    property real batt: root.batteryLevel
-                    onBattChanged: requestPaint()
-                }
-                Column {
-                    spacing: 2; anchors.verticalCenter: parent.verticalCenter
+            // Distance Badge (Right)
+            Rectangle {
+                width: Math.floor((parent.width - 8) * 0.45)
+                height: 38
+                radius: 8
+                color: "#111928"
+                border.color: Qt.rgba(255, 255, 255, 0.1)
+                border.width: 1
+
+                Row {
+                    anchors.centerIn: parent
+                    spacing: 4
                     Text {
-                        text: root.batteryLevel.toFixed(0) + "%"
-                        color: root.batteryLevel > 50 ? root.accent : root.batteryLevel > 20 ? root.warningColor : root.dangerColor
-                        font.pixelSize: 26; font.bold: true; font.family: "Courier New"
+                        text: "📍"
+                        font.pixelSize: 12
+                        anchors.verticalCenter: parent.verticalCenter
                     }
-                    Text { text: "Battery"; color: Qt.rgba(1, 1, 1, 0.3); font.pixelSize: 10; font.family: "Courier New" }
+                    Text {
+                        text: root.tripDistanceKm.toFixed(1) + " km"
+                        color: "#ffffff"
+                        font.pixelSize: 12
+                        font.bold: true
+                        font.family: "Courier New"
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
                 }
             }
         }
 
-        Column {
-            x: 0; spacing: 8; width: 218
+        // 2. STYLIZED CITY GRID & ROUTE MAP (CANVAS)
+        Canvas {
+            id: mapCanvas
+            anchors.fill: parent
+            z: 5
+            onPaint: {
+                var ctx = getContext("2d")
+                ctx.clearRect(0, 0, width, height)
 
-            Row { spacing: 8
-                Text { width: 30; text: "TMP"; color: Qt.rgba(1, 1, 1, 0.25); font.pixelSize: 9; font.family: "Courier New"; anchors.verticalCenter: parent.verticalCenter }
-                Rectangle { width: 180; height: 3; radius: 2; color: Qt.rgba(1, 1, 1, 0.08); anchors.verticalCenter: parent.verticalCenter
-                    Rectangle { width: Math.min(Math.max((root.temperature - 20) / 60, 0), 1) * 180; height: 3; radius: 2; color: root.displayTempColor; Behavior on width { NumberAnimation { duration: 120 } } }
+                // A. Draw Dark City Blocks
+                ctx.fillStyle = "#0c1322"
+                var blockW = 32, blockH = 26, gap = 12
+                var startX = 14, startY = 56
+
+                for (var r = 0; r < 12; r++) {
+                    for (var c = 0; c < 5; c++) {
+                        var bx = startX + c * (blockW + gap)
+                        var by = startY + r * (blockH + gap)
+                        ctx.fillRect(bx, by, blockW, blockH)
+                    }
+                }
+
+                // B. Draw Main Road Avenues (Dark Blue-Grey)
+                ctx.strokeStyle = "#162236"
+                ctx.lineWidth = 14
+                ctx.beginPath()
+                // Vertical Avenue 1 (Left road)
+                ctx.moveTo(66, 50); ctx.lineTo(66, 380); ctx.stroke()
+                // Vertical Avenue 2 (Right road)
+                ctx.moveTo(165, 50); ctx.lineTo(165, 380); ctx.stroke()
+                // Horizontal Cross Streets
+                ctx.moveTo(10, 195); ctx.lineTo(226, 195); ctx.stroke()
+                ctx.moveTo(10, 310); ctx.lineTo(226, 310); ctx.stroke()
+                ctx.moveTo(10, 85); ctx.lineTo(226, 85); ctx.stroke()
+
+                // C. Draw Glowing Neon Cyan Route Line
+                // Route: (66, 320) -> Up to (66, 195) -> Right to (165, 195) -> Up to (165, 75)
+                ctx.strokeStyle = "rgba(0, 229, 204, 0.35)"
+                ctx.lineWidth = 8
+                ctx.lineCap = "round"
+                ctx.lineJoin = "round"
+                ctx.shadowColor = "#00e5cc"
+                ctx.shadowBlur = 12
+
+                ctx.beginPath()
+                ctx.moveTo(66, 320)
+                ctx.lineTo(66, 195)
+                ctx.lineTo(165, 195)
+                ctx.lineTo(165, 75)
+                ctx.stroke()
+
+                // Core Route Line (Bright White-Cyan)
+                ctx.strokeStyle = "#00ffff"
+                ctx.lineWidth = 3.5
+                ctx.shadowBlur = 0
+                ctx.beginPath()
+                ctx.moveTo(66, 320)
+                ctx.lineTo(66, 195)
+                ctx.lineTo(165, 195)
+                ctx.lineTo(165, 75)
+                ctx.stroke()
+
+                // Start Marker (Glowing Cyan Ring)
+                ctx.strokeStyle = "#00e5cc"
+                ctx.lineWidth = 3
+                ctx.beginPath()
+                ctx.arc(66, 320, 7, 0, Math.PI * 2)
+                ctx.stroke()
+                ctx.fillStyle = "#090e18"
+                ctx.fill()
+
+                // End Marker (Red Destination Pin)
+                ctx.fillStyle = "#ff1744"
+                ctx.shadowColor = "#ff1744"
+                ctx.shadowBlur = 10
+                ctx.beginPath()
+                ctx.arc(165, 75, 7, 0, Math.PI * 2)
+                ctx.fill()
+                ctx.shadowBlur = 0
+
+                ctx.fillStyle = "#ffffff"
+                ctx.beginPath()
+                ctx.arc(165, 75, 2.5, 0, Math.PI * 2)
+                ctx.fill()
+            }
+        }
+
+        // ================= 3. ANIMATED MOVING CAR ("xe di chuyển động") =================
+        Item {
+            id: movingCar
+            width: 18
+            height: 28
+            z: 15
+            x: 66 - width / 2
+            y: 320 - height / 2
+            rotation: 0
+
+            // Sleek Car Body
+            Rectangle {
+                anchors.fill: parent
+                radius: 6
+                color: "#e2f9fc"
+                border.color: "#00e5cc"
+                border.width: 1.5
+
+                // Front Windshield
+                Rectangle {
+                    anchors.top: parent.top
+                    anchors.topMargin: 5
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    width: 12
+                    height: 5
+                    radius: 2
+                    color: "#0a1826"
+                }
+
+                // Rear Window
+                Rectangle {
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: 5
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    width: 10
+                    height: 3
+                    radius: 1
+                    color: "#0a1826"
+                }
+
+                // Front Headlights (Glowing Cyan/White)
+                Rectangle {
+                    anchors.top: parent.top
+                    anchors.left: parent.left
+                    anchors.margins: 1
+                    width: 3; height: 2; radius: 1; color: "#00ffff"
+                }
+                Rectangle {
+                    anchors.top: parent.top
+                    anchors.right: parent.right
+                    anchors.margins: 1
+                    width: 3; height: 2; radius: 1; color: "#00ffff"
+                }
+
+                // Rear Taillights (Red)
+                Rectangle {
+                    anchors.bottom: parent.bottom
+                    anchors.left: parent.left
+                    anchors.margins: 1
+                    width: 3; height: 2; radius: 1; color: "#ff1744"
+                }
+                Rectangle {
+                    anchors.bottom: parent.bottom
+                    anchors.right: parent.right
+                    anchors.margins: 1
+                    width: 3; height: 2; radius: 1; color: "#ff1744"
                 }
             }
-            Row { spacing: 8
-                Text { width: 30; text: "BAT"; color: Qt.rgba(1, 1, 1, 0.25); font.pixelSize: 9; font.family: "Courier New"; anchors.verticalCenter: parent.verticalCenter }
-                Rectangle { width: 180; height: 3; radius: 2; color: Qt.rgba(1, 1, 1, 0.08); anchors.verticalCenter: parent.verticalCenter
-                    Rectangle { width: (root.batteryLevel / 100) * 180; height: 3; radius: 2; color: root.batteryLevel < 10.0 ? root.dangerColor : root.accent; opacity: root.batteryCriticalVisible ? 1.0 : 0.2; Behavior on width { NumberAnimation { duration: 120 } } }
+
+            // Headlight Beams (Glowing Cones forward)
+            Canvas {
+                anchors.bottom: parent.top
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: 24
+                height: 14
+                opacity: 0.6
+                onPaint: {
+                    var ctx = getContext("2d")
+                    ctx.clearRect(0, 0, width, height)
+                    var grad = ctx.createLinearGradient(0, height, 0, 0)
+                    grad.addColorStop(0.0, "rgba(0, 255, 255, 0.5)")
+                    grad.addColorStop(1.0, "rgba(0, 255, 255, 0.0)")
+                    ctx.fillStyle = grad
+                    ctx.beginPath()
+                    ctx.moveTo(6, height); ctx.lineTo(1, 0); ctx.lineTo(9, 0); ctx.lineTo(8, height); ctx.fill()
+                    ctx.beginPath()
+                    ctx.moveTo(16, height); ctx.lineTo(15, 0); ctx.lineTo(23, 0); ctx.lineTo(18, height); ctx.fill()
+                }
+            }
+        }
+
+        // Continuous Route Movement Animation for the Car
+        SequentialAnimation {
+            id: carNavAnimation
+            running: true
+            loops: Animation.Infinite
+
+            // Step 1: Start at (66, 320), move straight UP to Corner 1 (66, 195)
+            ScriptAction {
+                script: {
+                    movingCar.x = 66 - movingCar.width / 2
+                    movingCar.y = 320 - movingCar.height / 2
+                    movingCar.rotation = 0
+                }
+            }
+            NumberAnimation {
+                target: movingCar
+                property: "y"
+                from: 320 - movingCar.height / 2
+                to: 195 - movingCar.height / 2
+                duration: 3200
+                easing.type: Easing.Linear
+            }
+
+            // Step 2: Rotate 90 degrees to face RIGHT
+            RotationAnimation {
+                target: movingCar
+                property: "rotation"
+                from: 0
+                to: 90
+                duration: 350
+                direction: RotationAnimation.Clockwise
+            }
+
+            // Step 3: Move RIGHT along Avenue to Corner 2 (165, 195)
+            NumberAnimation {
+                target: movingCar
+                property: "x"
+                from: 66 - movingCar.width / 2
+                to: 165 - movingCar.width / 2
+                duration: 2600
+                easing.type: Easing.Linear
+            }
+
+            // Step 4: Rotate 90 degrees back to face UP
+            RotationAnimation {
+                target: movingCar
+                property: "rotation"
+                from: 90
+                to: 0
+                duration: 350
+                direction: RotationAnimation.Counterclockwise
+            }
+
+            // Step 5: Move UP to Destination Pin (165, 85)
+            NumberAnimation {
+                target: movingCar
+                property: "y"
+                from: 195 - movingCar.height / 2
+                to: 85 - movingCar.height / 2
+                duration: 2800
+                easing.type: Easing.Linear
+            }
+
+            // Pause at destination for 1 second, then loop
+            PauseAnimation { duration: 1200 }
+        }
+
+        // ================= 4. DYNAMIC TRAFFIC SIGN HUD ("đổi cả biển báo giao thông") =================
+        Rectangle {
+            id: trafficSignCard
+            anchors.right: parent.right
+            anchors.rightMargin: 12
+            anchors.top: parent.top
+            anchors.topMargin: 56
+            width: 52
+            height: 64
+            radius: 8
+            color: "#101928"
+            border.color: Qt.rgba(0, 229, 204, 0.4)
+            border.width: 1
+            z: 25
+
+            property int signIndex: 0
+            // Danh sách các biển báo giao thông thực tế:
+            // 0: Giới hạn tốc độ 50 km/h (Speed Limit 50)
+            // 1: Cảnh báo đường trơn / nguy hiểm (Slippery / Caution)
+            // 2: Dừng lại (STOP)
+            // 3: Giới hạn tốc độ 60 km/h (Speed Limit 60)
+            // 4: Hướng đi thẳng phải theo (Straight Only)
+
+            Column {
+                anchors.centerIn: parent
+                spacing: 4
+
+                // Vector Traffic Sign Icon (Canvas)
+                Canvas {
+                    id: signCanvas
+                    width: 36
+                    height: 36
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    onPaint: {
+                        var ctx = getContext("2d")
+                        ctx.clearRect(0, 0, width, height)
+                        var cx = 18, cy = 18, r = 16
+
+                        if (trafficSignCard.signIndex === 0 || trafficSignCard.signIndex === 3) {
+                            // Biển Tròn Giới hạn tốc độ (50 hoặc 60 km/h)
+                            ctx.fillStyle = "#ffffff"
+                            ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill()
+                            ctx.strokeStyle = "#e53935"
+                            ctx.lineWidth = 4
+                            ctx.stroke()
+
+                            ctx.fillStyle = "#111111"
+                            ctx.font = "bold 13px 'Courier New'"
+                            ctx.textAlign = "center"
+                            ctx.textBaseline = "middle"
+                            ctx.fillText(trafficSignCard.signIndex === 0 ? "50" : "60", cx, cy + 1)
+                        }
+                        else if (trafficSignCard.signIndex === 1) {
+                            // Biển Tam giác Cảnh báo nguy hiểm / Trơn trượt (⚠️)
+                            ctx.fillStyle = "#fdd835"
+                            ctx.strokeStyle = "#d32f2f"
+                            ctx.lineWidth = 3
+                            ctx.beginPath()
+                            ctx.moveTo(18, 3)
+                            ctx.lineTo(34, 32)
+                            ctx.lineTo(2, 32)
+                            ctx.closePath()
+                            ctx.fill()
+                            ctx.stroke()
+
+                            ctx.fillStyle = "#212121"
+                            ctx.font = "bold 14px 'Courier New'"
+                            ctx.textAlign = "center"
+                            ctx.textBaseline = "middle"
+                            ctx.fillText("!", cx, cy + 5)
+                        }
+                        else if (trafficSignCard.signIndex === 2) {
+                            // Biển Bát giác STOP
+                            ctx.fillStyle = "#d32f2f"
+                            ctx.beginPath()
+                            var sides = 8
+                            for (var i = 0; i < sides; i++) {
+                                var a = i * Math.PI / 4 + Math.PI / 8
+                                var sx = cx + Math.cos(a) * r
+                                var sy = cy + Math.sin(a) * r
+                                if (i === 0) ctx.moveTo(sx, sy)
+                                else ctx.lineTo(sx, sy)
+                            }
+                            ctx.closePath()
+                            ctx.fill()
+                            ctx.strokeStyle = "#ffffff"
+                            ctx.lineWidth = 1.5
+                            ctx.stroke()
+
+                            ctx.fillStyle = "#ffffff"
+                            ctx.font = "bold 9px 'Courier New'"
+                            ctx.textAlign = "center"
+                            ctx.textBaseline = "middle"
+                            ctx.fillText("STOP", cx, cy)
+                        }
+                        else {
+                            // Biển Hướng đi thẳng (Tròn Xanh mũi tên trắng)
+                            ctx.fillStyle = "#1976d2"
+                            ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill()
+                            ctx.strokeStyle = "#ffffff"
+                            ctx.lineWidth = 1.5
+                            ctx.stroke()
+
+                            ctx.strokeStyle = "#ffffff"
+                            ctx.fillStyle = "#ffffff"
+                            ctx.lineWidth = 3
+                            ctx.beginPath()
+                            ctx.moveTo(18, 26); ctx.lineTo(18, 12); ctx.stroke()
+                            ctx.beginPath()
+                            ctx.moveTo(18, 8); ctx.lineTo(13, 14); ctx.lineTo(23, 14); ctx.closePath(); ctx.fill()
+                        }
+                    }
+                }
+
+                // Mini Traffic Sign Label
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: {
+                        switch (trafficSignCard.signIndex) {
+                            case 0: return "LIMIT 50"
+                            case 1: return "CAUTION"
+                            case 2: return "STOP"
+                            case 3: return "LIMIT 60"
+                            case 4: return "AHEAD"
+                            default: return "SIGN"
+                        }
+                    }
+                    color: Qt.rgba(1, 1, 1, 0.7)
+                    font.pixelSize: 7
+                    font.bold: true
+                    font.family: "Courier New"
+                }
+            }
+
+            // Smooth scale/pop animation on sign change
+            scale: 1.0
+            Behavior on scale {
+                SequentialAnimation {
+                    NumberAnimation { to: 0.1; duration: 150; easing.type: Easing.InQuad }
+                    NumberAnimation { to: 1.0; duration: 250; easing.type: Easing.OutBack }
+                }
+            }
+
+            // Timer: Tự động đổi biển báo giao thông sau mỗi 7 giây!
+            Timer {
+                interval: 7000
+                running: true
+                repeat: true
+                onTriggered: {
+                    trafficSignCard.scale = 0.1
+                    signSwitchTimer.restart()
+                }
+            }
+
+            Timer {
+                id: signSwitchTimer
+                interval: 160
+                repeat: false
+                onTriggered: {
+                    trafficSignCard.signIndex = (trafficSignCard.signIndex + 1) % 5
+                    signCanvas.requestPaint()
+                    trafficSignCard.scale = 1.0
+                }
+            }
+        }
+
+        // ================= 5. BOTTOM ETA BADGE =================
+        Rectangle {
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 10
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: parent.width - 24
+            height: 28
+            radius: 14
+            color: "#0f1624"
+            border.color: Qt.rgba(0, 229, 204, 0.2)
+            border.width: 1
+            z: 20
+
+            Row {
+                anchors.centerIn: parent
+                spacing: 6
+
+                Text {
+                    text: "ETA 2 min"
+                    color: "#ffffff"
+                    font.pixelSize: 11
+                    font.bold: true
+                    font.family: "Courier New"
+                }
+
+                Text {
+                    text: "•"
+                    color: Qt.rgba(1, 1, 1, 0.3)
+                    font.pixelSize: 11
+                }
+
+                Text {
+                    text: "SIMULATED"
+                    color: "#00e5cc"
+                    font.pixelSize: 9
+                    font.bold: true
+                    font.family: "Courier New"
+                    font.letterSpacing: 1
                 }
             }
         }
