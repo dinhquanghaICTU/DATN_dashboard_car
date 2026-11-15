@@ -15,7 +15,7 @@ fi
 
 echo "Stopping running instance on Pi..."
 sshpass -p "$PI_PASS" ssh -o StrictHostKeyChecking=no "$PI_USER@$PI_IP" \
-    "echo $PI_PASS | sudo -S killall -9 appDATN_dashboard_car 2>/dev/null || true"
+    "echo $PI_PASS | sudo -S pkill -9 -f appDATN_dashboard_car 2>/dev/null || true"
 
 echo "Copying binary to Pi..."
 sshpass -p "$PI_PASS" scp -o StrictHostKeyChecking=no "$LOCAL_BIN" "$PI_USER@$PI_IP:/home/pi/appDATN_dashboard_car"
