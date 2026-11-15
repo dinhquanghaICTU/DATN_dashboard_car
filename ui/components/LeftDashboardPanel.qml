@@ -281,20 +281,30 @@ Item {
             border.color: root.cardBorder
             border.width: 1
 
+            TapHandler {
+                onTapped: {
+                    console.log("[Theme] Background tapped -> nextTheme")
+                    root.nextTheme()
+                }
+            }
+
             MouseArea {
                 anchors.fill: parent
                 cursorShape: Qt.PointingHandCursor
-                onClicked: root.nextTheme()
+                onClicked: {
+                    console.log("[Theme] Background clicked -> nextTheme")
+                    root.nextTheme()
+                }
             }
 
             Row {
                 anchors.centerIn: parent
-                spacing: 8
+                spacing: 6
                 z: 10
 
                 // Dot 1: Cyan (AQUA)
                 Item {
-                    width: 32; height: 32
+                    width: 36; height: 44
                     anchors.verticalCenter: parent.verticalCenter
                     Rectangle {
                         anchors.centerIn: parent
@@ -308,16 +318,25 @@ Item {
                         width: 14; height: 14; radius: 7
                         color: "#00e5cc"
                     }
+                    TapHandler {
+                        onTapped: {
+                            console.log("[Theme] Dot 0 (AQUA) tapped")
+                            root.applyTheme(0)
+                        }
+                    }
                     MouseArea {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: root.applyTheme(0)
+                        onClicked: {
+                            console.log("[Theme] Dot 0 (AQUA) clicked")
+                            root.applyTheme(0)
+                        }
                     }
                 }
 
                 // Dot 2: Green (FOREST)
                 Item {
-                    width: 32; height: 32
+                    width: 36; height: 44
                     anchors.verticalCenter: parent.verticalCenter
                     Rectangle {
                         anchors.centerIn: parent
@@ -331,16 +350,25 @@ Item {
                         width: 14; height: 14; radius: 7
                         color: "#58d68d"
                     }
+                    TapHandler {
+                        onTapped: {
+                            console.log("[Theme] Dot 1 (FOREST) tapped")
+                            root.applyTheme(1)
+                        }
+                    }
                     MouseArea {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: root.applyTheme(1)
+                        onClicked: {
+                            console.log("[Theme] Dot 1 (FOREST) clicked")
+                            root.applyTheme(1)
+                        }
                     }
                 }
 
                 // Dot 3: Amber (AMBER)
                 Item {
-                    width: 32; height: 32
+                    width: 36; height: 44
                     anchors.verticalCenter: parent.verticalCenter
                     Rectangle {
                         anchors.centerIn: parent
@@ -354,15 +382,25 @@ Item {
                         width: 14; height: 14; radius: 7
                         color: "#ffb347"
                     }
+                    TapHandler {
+                        onTapped: {
+                            console.log("[Theme] Dot 2 (AMBER) tapped")
+                            root.applyTheme(2)
+                        }
+                    }
                     MouseArea {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: root.applyTheme(2)
+                        onClicked: {
+                            console.log("[Theme] Dot 2 (AMBER) clicked")
+                            root.applyTheme(2)
+                        }
                     }
                 }
 
+                // Theme Name Badge
                 Item {
-                    width: 60; height: 32
+                    width: 64; height: 44
                     anchors.verticalCenter: parent.verticalCenter
                     Text {
                         anchors.centerIn: parent
@@ -373,10 +411,19 @@ Item {
                         font.family: "Courier New"
                         font.letterSpacing: 2
                     }
+                    TapHandler {
+                        onTapped: {
+                            console.log("[Theme] Text tapped -> nextTheme")
+                            root.nextTheme()
+                        }
+                    }
                     MouseArea {
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: root.nextTheme()
+                        onClicked: {
+                            console.log("[Theme] Text clicked -> nextTheme")
+                            root.nextTheme()
+                        }
                     }
                 }
             }

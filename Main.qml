@@ -14,6 +14,21 @@ Window {
     color: bgColor
     title: "DATN Dashboard"
 
+    // Keyboard shortcuts for quick testing (1: Aqua, 2: Forest, 3: Amber, Space/T: Next Theme)
+    Item {
+        focus: true
+        Keys.onDigit1Pressed: root.applyTheme(0)
+        Keys.onDigit2Pressed: root.applyTheme(1)
+        Keys.onDigit3Pressed: root.applyTheme(2)
+        Keys.onSpacePressed: root.nextTheme()
+        Keys.onPressed: function(event) {
+            if (event.key === Qt.Key_T) {
+                root.nextTheme()
+                event.accepted = true
+            }
+        }
+    }
+
     // Desktop Qt and RPi Qt were built without QtMultimedia QML backend.
     // Dashboard appears immediately.
     property bool introActive: false
@@ -85,6 +100,13 @@ Window {
         function onTempChanged() {
             updateTemperatureHazard()
         }
+        function onThemeChangeRequested(index) {
+            if (index < 0) {
+                root.nextTheme()
+            } else {
+                root.applyTheme(index % 3)
+            }
+        }
     }
 
     Timer {
@@ -116,6 +138,7 @@ Window {
             border.width: 3
             radius: 28
             z: 100
+            enabled: false
         }
 
         TopBar {
@@ -146,8 +169,14 @@ Window {
             batteryLevel: root.batteryLevel
             batteryCriticalVisible: root.batteryCriticalVisible
             temperature: vehicle.temperature
-            onApplyTheme: (index) => root.applyTheme(index)
-            onNextTheme: root.nextTheme()
+            onApplyTheme: function(index) {
+                console.log("[Main] applyTheme triggered with index:", index)
+                root.themeIndex = index
+            }
+            onNextTheme: function() {
+                console.log("[Main] nextTheme triggered, current was:", root.themeIndex)
+                root.themeIndex = (root.themeIndex + 1) % 3
+            }
         }
 
         CenterGaugePanel {
@@ -196,6 +225,8 @@ Window {
         id: introLoader
         anchors.fill: parent
         active: introActive
+        visible: introActive
+        enabled: introActive
         source: active ? "ui/components/IntroOverlay.qml" : ""
 
         onLoaded: {

@@ -1,6 +1,7 @@
 #include "BleServer.h"
 
 #include <QDebug>
+#include <QTimer>
 #include <QMap>
 #include <QVariantMap>
 #include <QtDBus/QDBusConnection>
@@ -185,6 +186,11 @@ public:
                     qCritical() << "[BLE] GATT registration failed:"
                                 << reply.error().name()
                                 << reply.error().message();
+                    if (reply.error().name() == QLatin1String("org.bluez.Error.AlreadyExists")) {
+                        qDebug() << "[BLE] Stale GATT application detected, unregistering and retrying in 300ms...";
+                        unregisterFromBlueZ();
+                        QTimer::singleShot(300, this, &BleGattApplication::registerWithBlueZ);
+                    }
                     return;
                 }
 
@@ -298,7 +304,7 @@ private:
 
         QObject::connect(
             watcher, &QDBusPendingCallWatcher::finished,
-            this, [](QDBusPendingCallWatcher* call) {
+            this, [this](QDBusPendingCallWatcher* call) {
                 const QDBusPendingReply<> reply = *call;
                 call->deleteLater();
 
@@ -306,6 +312,19 @@ private:
                     qCritical() << "[BLE] Advertisement registration failed:"
                                 << reply.error().name()
                                 << reply.error().message();
+                    if (reply.error().name() == QLatin1String("org.bluez.Error.AlreadyExists")) {
+                        qDebug() << "[BLE] Stale advertisement detected, unregistering and retrying in 300ms...";
+                        QDBusInterface advMgr(
+                            QLatin1String(BLUEZ_SERVICE),
+                            QLatin1String(ADAPTER_PATH),
+                            QLatin1String(LE_ADV_MANAGER_IFACE),
+                            QDBusConnection::systemBus());
+                        advMgr.call(
+                            QStringLiteral("UnregisterAdvertisement"),
+                            QVariant::fromValue(
+                                QDBusObjectPath(QLatin1String(ADVERTISEMENT_PATH))));
+                        QTimer::singleShot(300, this, &BleGattApplication::registerAdvertisement);
+                    }
                     return;
                 }
 

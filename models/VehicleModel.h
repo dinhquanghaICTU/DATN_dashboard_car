@@ -33,10 +33,15 @@ public slots:
         emit bleChanged();
     }
 
+    void requestTheme(int index) {
+        emit themeChangeRequested(index);
+    }
+
 signals:
     void dataChanged();
     void tempChanged();
     void bleChanged();
+    void themeChangeRequested(int index);
 
 private:
     float m_rpm          = 0.0f;
