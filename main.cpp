@@ -19,13 +19,18 @@
 
 int main(int argc, char *argv[])
 {
-    // When running remotely via SSH or Qt Creator, DISPLAY and XAUTHORITY are not set in the environment.
-    // Auto-detect active X11 display to avoid falling back to eglfs/DRM when Xorg is running.
-    if (qEnvironmentVariableIsEmpty("DISPLAY")) {
-        if (QFile::exists("/tmp/.X11-unix/X0")) {
-            qputenv("DISPLAY", ":0");
-        }
+#ifdef DATN_RPI_HARDWARE
+    // ALWAYS force X11 / xcb on Raspberry Pi when displaying on the physical DSI screen.
+    // If DISPLAY is unset or set to SSH forwarding (e.g. localhost:10.0), override to local :0
+    // so the window renders on the connected physical screen instead of tunneling or falling back.
+    QString disp = qEnvironmentVariable("DISPLAY");
+    if (disp.isEmpty() || disp.startsWith("localhost:") || disp.contains(":1")) {
+        qputenv("DISPLAY", ":0");
     }
+
+    // Force xcb platform plugin to avoid eglfs/DRM mode conflicts on screen DSI1
+    // (which causes DRM page flip permission denied -13 and triggers DSI panel test pattern).
+    qputenv("QT_QPA_PLATFORM", "xcb");
 
     if (qEnvironmentVariableIsEmpty("XAUTHORITY")) {
         if (QFile::exists("/home/pi/.Xauthority")) {
@@ -34,12 +39,7 @@ int main(int argc, char *argv[])
             qputenv("XAUTHORITY", "/home/admin/.Xauthority");
         }
     }
-
-    if (!qEnvironmentVariableIsEmpty("DISPLAY") && qEnvironmentVariableIsEmpty("QT_QPA_PLATFORM")) {
-        qputenv("QT_QPA_PLATFORM", "xcb");
-    }
-
-#ifndef DATN_RPI_HARDWARE
+#else
     // The locally built host Qt has an XCB platform plugin but no Wayland
     // plugin. Select XCB before QGuiApplication tries to load a platform.
     if (qEnvironmentVariableIsEmpty("QT_QPA_PLATFORM"))
