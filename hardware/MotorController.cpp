@@ -12,21 +12,18 @@ MotorController::~MotorController() {
 }
 
 void MotorController::init() {
-    
+
     set_mode(pi, PIN_MOTOR_IN1, PI_OUTPUT);
     set_mode(pi, PIN_MOTOR_IN2, PI_OUTPUT);
 
-    
     set_mode(pi, PIN_MOTOR_IN3, PI_OUTPUT);
     set_mode(pi, PIN_MOTOR_IN4, PI_OUTPUT);
 
-    
     gpio_write(pi, PIN_MOTOR_IN1, 0);
     gpio_write(pi, PIN_MOTOR_IN2, 0);
     gpio_write(pi, PIN_MOTOR_IN3, 0);
     gpio_write(pi, PIN_MOTOR_IN4, 0);
 
-    
     hardware_PWM(pi, PIN_MOTOR_ENA, MOTOR_PWM_FREQ, 0);
     hardware_PWM(pi, PIN_MOTOR_ENB, MOTOR_PWM_FREQ, 0);
 
@@ -64,14 +61,14 @@ void MotorController::turnRight(int speed) {
 }
 
 void MotorController::rotateLeft(int speed) {
-    // Quay tại chỗ sang TRÁI: Bánh trái lùi, Bánh phải tiến
+
     qDebug() << "[Motor] ROTATE LEFT speed:" << speed;
     setLeft(Backward, speed);
     setRight(Forward, speed);
 }
 
 void MotorController::rotateRight(int speed) {
-    // Quay tại chỗ sang PHẢI: Bánh trái tiến, Bánh phải lùi
+
     qDebug() << "[Motor] ROTATE RIGHT speed:" << speed;
     setLeft(Forward, speed);
     setRight(Backward, speed);
@@ -91,7 +88,6 @@ void MotorController::setSpeed(int speed) {
     hardware_PWM(pi, PIN_MOTOR_ENB, MOTOR_PWM_FREQ, calcDuty(m_speed));
     emit speedChanged(m_speed);
 }
-
 
 void MotorController::setLeft(Direction dir, int speed) {
     int in1 = 0;

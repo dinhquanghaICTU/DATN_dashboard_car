@@ -11,22 +11,19 @@ cat << 'BANNER'
                          QUANG HA ICTU
 BANNER
 
-#luu y file config.txt o cung cap thu muc voi file.sh
 CRED_FILE="config.txt"
 
-# check file config.txt
 if [ ! -r "$CRED_FILE" ]; then
   echo "Khong tim thay hoac khong the doc duoc file: $CRED_FILE" >&2
   exit 1
 fi
 
-#doc file, loai bo comment va dong trong thua
 lines=()
 while IFS= read -r rawline; do
-  #Lam sach khoang trang 2 dau
+
   line="$(printf '%s' "$rawline" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
-  #Loai bo dong trong va comment
-  if [ -z "$line" ] || [[ "$line" == \#* ]]; then
+
+  if [ -z "$line" ] || [[ "$line" == \
     continue
   fi
   lines+=("$line")
@@ -38,13 +35,10 @@ RASPI_USER="${lines[2]:-}"
 RASPI_PASS="${lines[3]:-}"
 RASPI_IP="${lines[4]:-}"
 
-#Dinh nghia ten cac folder neu muon thay doi
-#trong file nay dong 187, trong file cau hinh toolchain.cmake, co hardcode duong link, neu thay doi xin hay thay doi ca ben trong toolchain.cmake
-FOLDER_WORK="Qt6Cross" #Folder cha, chua tat ca cac file ben trong
+FOLDER_WORK="Qt6Cross"
 export FOLDER_WORK
 
-
-printf '%s\n' "$HOST_PASS" | sudo -S -p '' apt update 
+printf '%s\n' "$HOST_PASS" | sudo -S -p '' apt update
 printf '%s\n' "$HOST_PASS" | sudo -S -p '' apt full-upgrade -y
 printf '%s\n' "$HOST_PASS" | sudo -S -p '' apt install -y software-properties-common
 printf '%s\n' "$HOST_PASS" | sudo -S -p '' add-apt-repository -y universe
@@ -53,59 +47,38 @@ printf '%s\n' "$HOST_PASS" | sudo -S -p '' apt install -y cmake
 printf '%s\n' "$HOST_PASS" | sudo -S -p '' apt install -y $(tr -d '\r' < dep_list_host.txt)
 printf '%s\n' "$HOST_PASS" | sudo -S -p '' apt install -y unzip
 
-#=============================================SCRIPT SETUP BEN RASPI=============================================
 sshpass -p "$RASPI_PASS" ssh -o StrictHostKeyChecking=no "${RASPI_USER}@${RASPI_IP}" \
-    "printf '%s\n' '$RASPI_PASS' | sudo -S -p '' apt update && printf '%s\n' '$RASPI_PASS' | sudo -S -p '' apt full-upgrade -y" 
-    
+    "printf '%s\n' '$RASPI_PASS' | sudo -S -p '' apt update && printf '%s\n' '$RASPI_PASS' | sudo -S -p '' apt full-upgrade -y"
+
 PKGS="$(tr -d '\r' < dep_list_raspi.txt | tr '\n' ' ')"
 sshpass -p "$RASPI_PASS" ssh -t -o StrictHostKeyChecking=no "${RASPI_USER}@${RASPI_IP}" \
   "printf '%s\n' \"$RASPI_PASS\" | sudo -S -p '' apt install -y $PKGS"
 
-# Cho phep user chay app truy cap DRM/KMS, GPU render, input va GPIO ma khong
-# can chay toan bo ung dung bang root. Can tao phien dang nhap moi de co hieu luc.
 sshpass -p "$RASPI_PASS" ssh -o StrictHostKeyChecking=no "${RASPI_USER}@${RASPI_IP}" \
   "printf '%s\n' '$RASPI_PASS' | sudo -S -p '' usermod -aG video,render,input,gpio '${RASPI_USER}'"
-  
+
 sshpass -p "$RASPI_PASS" ssh -o StrictHostKeyChecking=no "${RASPI_USER}@${RASPI_IP}" \
   "printf '%s\n' '$RASPI_PASS' | sudo -S -p '' mkdir -p /usr/local/qt6 && \
   printf '%s\n' '$RASPI_PASS' | sudo -S -p '' chown -R '${RASPI_USER}:${RASPI_USER}' /usr/local/qt6"
 
-  
 sshpass -p "$RASPI_PASS" ssh -o StrictHostKeyChecking=no "${RASPI_USER}@${RASPI_IP}" \
   "grep -Fqx 'export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:/usr/local/qt6/lib/' ~/.bashrc || \
   echo 'export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:/usr/local/qt6/lib/' >> ~/.bashrc"
 
-# pigpiod_if2 la client cua daemon pigpiod (TCP 8888). Cai package chi tao
-# service, khong dam bao service da duoc bat/chay.
 sshpass -p "$RASPI_PASS" ssh -o StrictHostKeyChecking=no "${RASPI_USER}@${RASPI_IP}" \
   "printf '%s\n' '$RASPI_PASS' | sudo -S -p '' systemctl enable --now pigpiod && \
   systemctl is-active --quiet pigpiod"
 
-#================================================================================================================
-
-
-
-
-#=============================================SCRIPT SETUP BEN HOST==============================================
-
-# kiem tra nguoi chay script hien tai co cung sudo user trong config.txt khong
 CUR_USER="$(id -un)"
 if [ "$CUR_USER" != "$HOST_USER" ]; then
   echo "Script chi nen chay voi user duoc khai bao trong config.txt, nhung hien tai user dang chay script la '$CUR_USER'" >&2
   exit 1
 fi
 
-#tao folder lam viec rieng (folder chua tat ca)
 cd ~
 mkdir -p "$FOLDER_WORK"
 cd "$FOLDER_WORK"
 
-# CMake duoc cai tu repository cua Ubuntu o buoc dependency phia tren.
-
-
-#tai gcc lam cross compiler 
-
-#node quang ha loi ay 
 if [ -x /opt/cross-pi-gcc/bin/aarch64-linux-gnu-g++ ]; then
   echo "[SKIP] Cross-compiler da ton tai: /opt/cross-pi-gcc/bin/aarch64-linux-gnu-g++"
 else
@@ -128,18 +101,15 @@ rm -f ./*.tar.* linux.zip
 cd gcc-10.3.0
 contrib/download_prerequisites
 
-#folder chua binaries cross compiler
 printf '%s\n' "$HOST_PASS" | sudo -S -p '' mkdir -p /opt/cross-pi-gcc
 printf '%s\n' "$HOST_PASS" | sudo -S -p '' chown $USER /opt/cross-pi-gcc
 export PATH=/opt/cross-pi-gcc/bin:$PATH
 
-#Cai dat kernel header cua raspi
 cd ~/$FOLDER_WORK/gcc_all
 cd linux
 KERNEL=kernel7
 make ARCH=arm64 INSTALL_HDR_PATH=/opt/cross-pi-gcc/aarch64-linux-gnu headers_install
 
-#build và cài đặt binutils cho cross-compiler
 cd ~/$FOLDER_WORK/gcc_all
 mkdir -p build-binutils && cd build-binutils
 ../binutils-2.35.2/configure --prefix=/opt/cross-pi-gcc --target=aarch64-linux-gnu --with-arch=armv8 --disable-multilib
@@ -151,15 +121,12 @@ if ! grep -Fq '#define PATH_MAX 4096' "$ASAN_LINUX_FILE"; then
   sed -i '1i#ifndef PATH_MAX\n#define PATH_MAX 4096\n#endif' "$ASAN_LINUX_FILE"
 fi
 
-
-#build GCC cross-compiler chính
 cd ~/$FOLDER_WORK/gcc_all
 mkdir -p build-gcc && cd build-gcc
 ../gcc-10.3.0/configure --prefix=/opt/cross-pi-gcc --target=aarch64-linux-gnu --enable-languages=c,c++ --disable-multilib
 make -j8 all-gcc
 make install-gcc
 
-#build và cài đặt glibc cho cross-compiler
 cd ~/$FOLDER_WORK/gcc_all
 mkdir -p build-glibc && cd build-glibc
 ../glibc-2.31/configure --prefix=/opt/cross-pi-gcc/aarch64-linux-gnu --build=$MACHTYPE --host=aarch64-linux-gnu --target=aarch64-linux-gnu --with-headers=/opt/cross-pi-gcc/aarch64-linux-gnu/include --disable-multilib libc_cv_forced_unwind=yes
@@ -169,28 +136,19 @@ install csu/crt1.o csu/crti.o csu/crtn.o /opt/cross-pi-gcc/aarch64-linux-gnu/lib
 aarch64-linux-gnu-gcc -nostdlib -nostartfiles -shared -x c /dev/null -o /opt/cross-pi-gcc/aarch64-linux-gnu/lib/libc.so
 touch /opt/cross-pi-gcc/aarch64-linux-gnu/include/gnu/stubs.h
 
-#build thư viện runtime libgcc cho cross-compiler
 cd ~/$FOLDER_WORK/gcc_all/build-gcc
 make -j8 all-target-libgcc
 make install-target-libgcc
 
-#build glibc đầy đủ cho cross-compiler.
 cd ~/$FOLDER_WORK/gcc_all/build-glibc
 make -j8
 make install
 
-#build và cài đặt GCC hoàn chỉnh sau khi đã chuẩn bị glibc và libgcc
 cd ~/$FOLDER_WORK/gcc_all/build-gcc
 make -j8
 make install
 fi
-#====================================================================================================================
 
-
-
-#=============================================SCRIPT BUILD=======================================================
-
-#buld Qt6 cho host
 cd ~/$FOLDER_WORK
 mkdir -p qt6/host qt6/pi qt6/host-build qt6/pi-build qt6/src
 
@@ -209,29 +167,22 @@ else
   cmake --install .
 fi
 
-
-
-#Tao folder chua sysroot cua raspi
 cd ~/$FOLDER_WORK
 if [ -f "$HOME/$FOLDER_WORK/rpi-sysroot/.sysroot-ready" ]; then
   echo "[SKIP] Raspberry Pi sysroot da duoc dong bo."
 else
   mkdir -p rpi-sysroot/usr/lib
 
-  #Copy sysroot cua pi sang may host
   sshpass -p "$RASPI_PASS" rsync -avz --rsync-path="rsync" "${RASPI_USER}@${RASPI_IP}:/usr/include" rpi-sysroot/usr
   sshpass -p "$RASPI_PASS" rsync -avz --rsync-path="rsync" "${RASPI_USER}@${RASPI_IP}:/lib" rpi-sysroot
   sshpass -p "$RASPI_PASS" rsync -avz --exclude='/cups/backend/***' --rsync-path="rsync" "${RASPI_USER}@${RASPI_IP}:/usr/lib/" rpi-sysroot/usr/lib/
 
-  #Sua chua symbol link, tranh bi loi link lien ket khi copy sysroot tu pi sang host
   wget -nc https://raw.githubusercontent.com/riscv/riscv-poky/master/scripts/sysroot-relativelinks.py
   chmod +x sysroot-relativelinks.py
   python3 sysroot-relativelinks.py rpi-sysroot
   touch rpi-sysroot/.sysroot-ready
 fi
 
-# Tao/cap nhat toolchain ke ca khi QtBase da duoc build tu lan chay truoc.
-# qt.toolchain.cmake cua Qt se chain-load file nay khi build cac module bo sung.
 cd "$HOME/$FOLDER_WORK/qt6/pi-build"
 cat << 'EOF' > toolchain.cmake
 cmake_minimum_required(VERSION 3.18)
@@ -240,9 +191,6 @@ include_guard(GLOBAL)
 set(CMAKE_SYSTEM_NAME Linux)
 set(CMAKE_SYSTEM_PROCESSOR aarch64)
 
-# Tu vi tri <work>/qt6/pi-build/toolchain.cmake, quay lai <work> de tim
-# sysroot. Khong dung FOLDER_WORK tu environment vi Qt Creator khong ke thua
-# bien chi duoc export ben trong auto.sh.
 get_filename_component(TARGET_SYSROOT "${CMAKE_CURRENT_LIST_DIR}/../../rpi-sysroot" ABSOLUTE)
 get_filename_component(QT_TARGET_STAGING_DIR "${CMAKE_CURRENT_LIST_DIR}/../pi" ABSOLUTE)
 set(TARGET_ARCHITECTURE aarch64-linux-gnu)
@@ -256,10 +204,6 @@ set(ENV{PKG_CONFIG_SYSROOT_DIR} ${CMAKE_SYSROOT})
 set(CMAKE_C_COMPILER /opt/cross-pi-gcc/bin/${TARGET_ARCHITECTURE}-gcc)
 set(CMAKE_CXX_COMPILER /opt/cross-pi-gcc/bin/${TARGET_ARCHITECTURE}-g++)
 
-# GCC nay cung co mot glibc bootstrap trong /opt/cross-pi-gcc. Neu khong uu
-# tien startup objects cua Raspberry Pi, linker se tron crt1.o bootstrap voi
-# libc cua sysroot va bao thieu __libc_csu_init/__libc_csu_fini.
-# Khong them /usr/include cua host: --sysroot tu dong anh xa /usr/include dung.
 set(CMAKE_C_FLAGS_INIT "-B${TARGET_LIBRARY_DIR}/")
 set(CMAKE_CXX_FLAGS_INIT "-B${TARGET_LIBRARY_DIR}/")
 
@@ -279,14 +223,13 @@ include(CMakeInitializeConfigs)
 function(cmake_initialize_per_config_variable _PREFIX _DOCSTRING)
   if (_PREFIX MATCHES "CMAKE_(C|CXX|ASM)_FLAGS")
     set(CMAKE_${CMAKE_MATCH_1}_FLAGS_INIT "${QT_COMPILER_FLAGS}")
-        
+
     foreach (config DEBUG RELEASE MINSIZEREL RELWITHDEBINFO)
       if (DEFINED QT_COMPILER_FLAGS_${config})
         set(CMAKE_${CMAKE_MATCH_1}_FLAGS_${config}_INIT "${QT_COMPILER_FLAGS_${config}}")
       endif()
     endforeach()
   endif()
-
 
   if (_PREFIX MATCHES "CMAKE_(SHARED|MODULE|EXE)_LINKER_FLAGS")
     foreach (config SHARED MODULE EXE)
@@ -327,8 +270,6 @@ list(APPEND CMAKE_LIBRARY_PATH ${CMAKE_SYSROOT}/usr/lib/${TARGET_ARCHITECTURE})
 list(APPEND CMAKE_PREFIX_PATH "/usr/lib/${TARGET_ARCHITECTURE}/cmake")
 EOF
 
-# Kiem tra toolchain truoc mot lan de tranh doi den khi configure module moi
-# nhan duoc loi linker kho hieu.
 TOOLCHAIN_SMOKE_DIR="$(mktemp -d)"
 trap 'rm -rf "$TOOLCHAIN_SMOKE_DIR"' EXIT
 printf '%s\n' 'int main(void) { return 0; }' > "$TOOLCHAIN_SMOKE_DIR/main.c"
@@ -341,7 +282,6 @@ printf '%s\n' 'int main(void) { return 0; }' > "$TOOLCHAIN_SMOKE_DIR/main.c"
 rm -rf "$TOOLCHAIN_SMOKE_DIR"
 trap - EXIT
 
-#Tao folder chua bien dich cheo cua qt
 if [ -x "$HOME/$FOLDER_WORK/qt6/pi/bin/qt-configure-module" ]; then
   echo "[SKIP] QtBase target cho Raspberry Pi da duoc cai."
 else
@@ -357,9 +297,7 @@ fi
 
 sshpass -p "$RASPI_PASS" rsync -avz \
   "$HOME/$FOLDER_WORK/qt6/pi/" "${RASPI_USER}@${RASPI_IP}:/usr/local/qt6/"
-#================================================================================================================
 
-#=============================================CAI QT SHADER TOOLS===============================================
 QT_VERSION="6.5.1"
 QT_SRC_DIR="$HOME/$FOLDER_WORK/qt6/src"
 QT_HOST_DIR="$HOME/$FOLDER_WORK/qt6/host"
@@ -394,7 +332,7 @@ if [ -f "$QT_SHADERTOOLS_PI_BUILD/.install-complete" ]; then
   echo "[SKIP] Qt Shader Tools cho Raspberry Pi da duoc cai."
 else
   cd "$QT_SHADERTOOLS_PI_BUILD"
-  # Lan configure truoc co the da luu flags toolchain loi trong cache.
+
   rm -f CMakeCache.txt
   "$QT_PI_DIR/bin/qt-configure-module" "$QT_SHADERTOOLS_SOURCE" -- \
     -DQT_BUILD_EXAMPLES=OFF \
@@ -403,9 +341,7 @@ else
   cmake --install .
   touch "$QT_SHADERTOOLS_PI_BUILD/.install-complete"
 fi
-#================================================================================================================
 
-#=============================================CAI QT DECLARATIVE=================================================
 QT_DECLARATIVE_ARCHIVE="qtdeclarative-everywhere-src-${QT_VERSION}.tar.xz"
 QT_DECLARATIVE_SOURCE="$QT_SRC_DIR/qtdeclarative-everywhere-src-${QT_VERSION}"
 QT_DECLARATIVE_HOST_BUILD="$HOME/$FOLDER_WORK/qt6/host-build-qtdeclarative"
@@ -422,7 +358,6 @@ qt_declarative_is_installed() {
     "lib/cmake/Qt6Quick/Qt6QuickConfig.cmake"
   )
 
-  # Cac tool nay chi chay tren host; ban target dung tool tu QT_HOST_PATH.
   if [ "$installation_kind" = "host" ]; then
     required_files+=("libexec/qmlcachegen" "libexec/qmltyperegistrar")
   fi
@@ -444,7 +379,7 @@ mkdir -p "$QT_DECLARATIVE_HOST_BUILD"
 if [ -f "$QT_DECLARATIVE_HOST_BUILD/.install-complete" ] || \
    qt_declarative_is_installed "$QT_HOST_DIR" host; then
   echo "[SKIP] Qt Declarative cho host da duoc cai."
-  # Chuyen doi ban cai cu, truoc khi script su dung marker.
+
   touch "$QT_DECLARATIVE_HOST_BUILD/.install-complete"
 else
   cd "$QT_DECLARATIVE_HOST_BUILD"
@@ -471,9 +406,7 @@ else
   cmake --install .
   touch "$QT_DECLARATIVE_PI_BUILD/.install-complete"
 fi
-#================================================================================================================
 
-#=============================================CAI QT HTTP SERVER=================================================
 QT_HTTPSERVER_ARCHIVE="qthttpserver-everywhere-src-${QT_VERSION}.tar.xz"
 QT_HTTPSERVER_SOURCE="$QT_SRC_DIR/qthttpserver-everywhere-src-${QT_VERSION}"
 QT_HTTPSERVER_HOST_BUILD="$HOME/$FOLDER_WORK/qt6/host-build-qthttpserver"
@@ -537,9 +470,7 @@ else
   cmake --install .
   touch "$QT_HTTPSERVER_PI_BUILD/.install-complete"
 fi
-#================================================================================================================
 
-#=============================================CAI QT CHARTS======================================================
 QT_CHARTS_ARCHIVE="qtcharts-everywhere-src-${QT_VERSION}.tar.xz"
 QT_CHARTS_SOURCE="$QT_SRC_DIR/qtcharts-everywhere-src-${QT_VERSION}"
 QT_CHARTS_HOST_BUILD="$HOME/$FOLDER_WORK/qt6/host-build-qtcharts"
@@ -588,9 +519,7 @@ else
   cmake --install .
   touch "$QT_CHARTS_PI_BUILD/.install-complete"
 fi
-#================================================================================================================
 
-#=============================================CAI QT SERIAL PORT=================================================
 QT_SERIALPORT_ARCHIVE="qtserialport-everywhere-src-${QT_VERSION}.tar.xz"
 QT_SERIALPORT_SOURCE="$QT_SRC_DIR/qtserialport-everywhere-src-${QT_VERSION}"
 QT_SERIALPORT_HOST_BUILD="$HOME/$FOLDER_WORK/qt6/host-build-qtserialport"
@@ -628,8 +557,7 @@ else
   cmake --install .
   touch "$QT_SERIALPORT_PI_BUILD/.install-complete"
 fi
-#================================================================================================================
-#=============================================CAI QT qtvirtualkeyboard=================================================
+
 QT_SERIALPORT_ARCHIVE="qtvirtualkeyboard-everywhere-src-${QT_VERSION}.tar.xz"
 QT_SERIALPORT_SOURCE="$QT_SRC_DIR/qtvirtualkeyboard-everywhere-src-${QT_VERSION}"
 QT_SERIALPORT_HOST_BUILD="$HOME/$FOLDER_WORK/qt6/host-build-qtvirtualkeyboard"
@@ -667,16 +595,10 @@ else
   cmake --install .
   touch "$QT_SERIALPORT_PI_BUILD/.install-complete"
 fi
-#================================================================================================================
 
-
-
-
-# Dong bo toan bo Qt staging sang Raspberry Pi mot lan sau khi build xong cac module.
 sshpass -p "$RASPI_PASS" rsync -avz \
   "$QT_PI_DIR/" "${RASPI_USER}@${RASPI_IP}:/usr/local/qt6/"
-#================================================================================================================
-#=============================================CAI DAT QT CREATOR================================================
+
 QT_CREATOR_VERSION="10.0.1"
 QT_CREATOR_DEB="qtcreator-linux-x64-${QT_CREATOR_VERSION}.deb"
 QT_CREATOR_URL="https://github.com/qt-creator/qt-creator/releases/download/v${QT_CREATOR_VERSION}/${QT_CREATOR_DEB}"
@@ -700,11 +622,10 @@ cd "$QT_CREATOR_DIR"
 
 if qt_creator_is_installed; then
   echo "[SKIP] Qt Creator ${QT_CREATOR_VERSION} da duoc cai."
-  # Tao marker cho ban da duoc cai truoc khi script co co che danh dau.
+
   touch "$QT_CREATOR_MARKER"
 else
   wget -nc "$QT_CREATOR_URL"
   printf '%s\n' "$HOST_PASS" | sudo -S -p '' apt install -y "./$QT_CREATOR_DEB"
   touch "$QT_CREATOR_MARKER"
 fi
-#================================================================================================================

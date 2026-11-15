@@ -76,11 +76,9 @@ class BleManager(private val context: Context) {
                 currentList.add(item)
             }
 
-            // Đưa thiết bị DATN-Car lên đầu danh sách
             currentList.sortWith(compareByDescending<BleDeviceItem> { it.isTarget }.thenByDescending { it.rssi })
             _scannedDevices.value = currentList
 
-            // Tự động kết nối nếu tìm thấy xe DATN-Car khi chưa kết nối
             if (isTarget && _connectionState.value is BleConnectionState.Scanning) {
                 Log.d(TAG, "Tìm thấy DATN-Car tại $address! Tự động kết nối...")
                 stopScan()
@@ -178,7 +176,7 @@ class BleManager(private val context: Context) {
         )
 
         try {
-            // Quét với filter, nếu không thấy thì quét toàn bộ
+
             scanner.startScan(null, settings, scanCallback)
             handler.postDelayed({
                 if (isScanningInternal) {

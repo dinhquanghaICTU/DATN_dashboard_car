@@ -24,11 +24,10 @@ if [ ! -r "$CONFIG_FILE" ]; then
   exit 1
 fi
 
-# Doc cac dong khong rong va khong phai comment trong config.txt.
 config_values=()
 while IFS= read -r raw_line || [ -n "$raw_line" ]; do
   line="$(printf '%s' "$raw_line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
-  if [ -z "$line" ] || [[ "$line" == \#* ]]; then
+  if [ -z "$line" ] || [[ "$line" == \
     continue
   fi
   config_values+=("$line")
@@ -42,7 +41,6 @@ RASPI_IP="${config_values[4]:-}"
 RDP_USER="${config_values[5]:-}"
 RDP_PASS="${config_values[6]:-}"
 
-# HOST_USER va HOST_PASS danh cho auto.sh tren host, khong dung trong file nay.
 : "$HOST_USER" "$HOST_PASS"
 
 if [ -z "$RASPI_USER" ] || [ -z "$RASPI_PASS" ] || [ -z "$RASPI_IP" ] ||
@@ -67,7 +65,6 @@ echo "Raspberry Pi IP   : $RASPI_IP"
 echo "Remote Desktop user: $RDP_USER"
 echo
 
-# Tao user rieng de dang nhap Windows Remote Desktop, tranh dung session desktop hien tai.
 if id "$RDP_USER" >/dev/null 2>&1; then
   echo "User Remote Desktop '$RDP_USER' da ton tai, bo qua buoc tao user."
 else
@@ -119,18 +116,15 @@ QT_PACKAGES_2=(
 DEBIAN_FRONTEND=noninteractive apt-get install -y "${QT_PACKAGES_1[@]}"
 DEBIAN_FRONTEND=noninteractive apt-get install -y "${QT_PACKAGES_2[@]}"
 
-# gstreamer1.0-omx khong con co tren mot so ban Raspberry Pi OS moi.
 if apt-cache show gstreamer1.0-omx >/dev/null 2>&1; then
   DEBIAN_FRONTEND=noninteractive apt-get install -y gstreamer1.0-omx
 else
   echo "Bo qua gstreamer1.0-omx: package khong co trong repo hien tai."
 fi
 
-# Thu muc cai Qt tren Raspberry Pi.
 install -d -m 0755 /usr/local/qt6
 chown -R "$RASPI_USER:$RASPI_USER" /usr/local/qt6
 
-# Them duong dan thu vien cho user dung Remote Desktop, khong ghi vao .bashrc cua root.
 RDP_HOME="$(getent passwd "$RDP_USER" | cut -d: -f6)"
 LD_LIBRARY_LINE='export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/qt6/lib/'
 touch "$RDP_HOME/.bashrc"

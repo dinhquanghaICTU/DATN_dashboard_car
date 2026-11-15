@@ -21,8 +21,8 @@ public slots:
     void backward(int speed = MOTOR_DEFAULT_SPEED);
     void turnLeft(int speed = MOTOR_DEFAULT_SPEED);
     void turnRight(int speed = MOTOR_DEFAULT_SPEED);
-    void rotateLeft(int speed = MOTOR_DEFAULT_SPEED);   // quay tại chỗ
-    void rotateRight(int speed = MOTOR_DEFAULT_SPEED);  // quay tại chỗ
+    void rotateLeft(int speed = MOTOR_DEFAULT_SPEED);
+    void rotateRight(int speed = MOTOR_DEFAULT_SPEED);
     void stop();
     void setSpeed(int speed);
 

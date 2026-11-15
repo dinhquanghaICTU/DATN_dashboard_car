@@ -2,11 +2,6 @@ package com.example.app_mobile.data.ble
 
 import java.util.UUID
 
-/**
- * Các hằng số BLE đồng bộ 100% với BleServer trên Qt6 C++ (Raspberry Pi).
- * Service UUID: 12345678-1234-1234-1234-123456789abc
- * Characteristic UUID: 12345678-1234-1234-1234-123456789abd
- */
 object BleConstants {
     const val TARGET_DEVICE_NAME = "DATN-Car"
 

@@ -71,7 +71,7 @@ fun SpeedControlCard(
                 value = currentSpeed.toFloat(),
                 onValueChange = { onSpeedChange(it.toInt()) },
                 valueRange = 30f..100f,
-                steps = 13, // Bước nhảy 5%
+                steps = 13,
                 enabled = enabled,
                 colors = SliderDefaults.colors(
                     thumbColor = NeonCyan,
@@ -82,7 +82,6 @@ fun SpeedControlCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Các nút preset nhanh
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)

@@ -46,12 +46,10 @@ Item {
         anchors.fill: parent
         spacing: 8
 
-        // ================= TOP GAUGE & ARROWS CONTAINER =================
         Item {
             width: parent.width
             height: 310
 
-            // Turn Signal Arrow - LEFT
             Canvas {
                 id: leftArrow
                 anchors.left: parent.left
@@ -79,7 +77,6 @@ Item {
                 }
             }
 
-            // Top Scale Mark 60
             Column {
                 anchors.top: parent.top
                 anchors.topMargin: 6
@@ -101,7 +98,6 @@ Item {
                 }
             }
 
-            // Turn Signal Arrow - RIGHT
             Canvas {
                 id: rightArrow
                 anchors.right: parent.right
@@ -129,7 +125,6 @@ Item {
                 }
             }
 
-            // Static Arc & Scale Canvas
             Canvas {
                 id: speedGaugeStaticCanvas
                 anchors.fill: parent
@@ -142,7 +137,6 @@ Item {
                     var startAngle = Math.PI * 0.75
                     var endAngle = Math.PI * 2.25
 
-                    // Background Track Arc
                     ctx.beginPath()
                     ctx.arc(cx, cy, r, startAngle, endAngle)
                     ctx.strokeStyle = "rgba(255,255,255,0.08)"
@@ -150,7 +144,6 @@ Item {
                     ctx.lineCap = "round"
                     ctx.stroke()
 
-                    // Red Danger Zone Arc (100 - 120 km/h)
                     var redStart = startAngle + (100.0 / 120.0) * (endAngle - startAngle)
                     ctx.beginPath()
                     ctx.arc(cx, cy, r, redStart, endAngle)
@@ -159,7 +152,6 @@ Item {
                     ctx.lineCap = "round"
                     ctx.stroke()
 
-                    // Tick Marks & Scale Numbers (0, 20, 40, 60, 80, 100, 120)
                     var ticks = [
                         { val: 0, text: "0" },
                         { val: 20, text: "20" },
@@ -183,7 +175,6 @@ Item {
                         ctx.stroke()
                     }
 
-                    // Number Labels
                     ctx.font = "bold 11px 'Courier New'"
                     ctx.textAlign = "center"
                     ctx.textBaseline = "middle"
@@ -199,7 +190,6 @@ Item {
                 }
             }
 
-            // Dynamic Speed Arc Canvas
             Canvas {
                 id: speedGaugeCanvas
                 anchors.fill: parent
@@ -216,7 +206,6 @@ Item {
 
                     var endAngle = startAngle + pct * totalAngle
 
-                    // Glowing Active Cyan Arc
                     var grad = ctx.createLinearGradient(0, 0, width, height)
                     grad.addColorStop(0.0, root.primary)
                     grad.addColorStop(0.8, root.accent)
@@ -229,7 +218,6 @@ Item {
                     ctx.lineCap = "round"
                     ctx.stroke()
 
-                    // Circular Indicator Tip
                     var tipX = cx + Math.cos(endAngle) * r
                     var tipY = cy + Math.sin(endAngle) * r
                     ctx.beginPath()
@@ -242,7 +230,6 @@ Item {
                 }
             }
 
-            // Digital Speed Readout (Center)
             Column {
                 anchors.horizontalCenter: parent.horizontalCenter
                 y: 84
@@ -268,7 +255,6 @@ Item {
                 }
             }
 
-            // RPM Badge Pill (Purple)
             Rectangle {
                 anchors.horizontalCenter: parent.horizontalCenter
                 y: 160
@@ -289,7 +275,6 @@ Item {
                 }
             }
 
-            // Linear speed in m/s
             Text {
                 anchors.horizontalCenter: parent.horizontalCenter
                 y: 194
@@ -299,7 +284,6 @@ Item {
                 font.family: "Courier New"
             }
 
-            // Status Pill ("● ALL SYSTEMS NORMAL")
             Rectangle {
                 anchors.horizontalCenter: parent.horizontalCenter
                 y: 228
@@ -331,7 +315,6 @@ Item {
             }
         }
 
-        // ================= BOTTOM: LIGHTS CARD =================
         Rectangle {
             width: parent.width
             height: 94
@@ -345,7 +328,6 @@ Item {
                 anchors.margins: 8
                 spacing: 6
 
-                // Header
                 Row {
                     spacing: 6
                     Rectangle {
@@ -363,12 +345,10 @@ Item {
                     }
                 }
 
-                // 4 Light Buttons
                 Row {
                     anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 10
 
-                    // 1. LEFT SIGNAL
                     Rectangle {
                         width: 58; height: 50; radius: 10
                         color: (root.leftSignal && !root.hazardActive && root.signalTick === 0) ? Qt.rgba(root.primary.r, root.primary.g, root.primary.b, 0.25) : "#131b26"
@@ -399,7 +379,6 @@ Item {
                         }
                     }
 
-                    // 2. HAZARD
                     Rectangle {
                         width: 58; height: 50; radius: 10
                         color: (root.hazardActive && root.signalTick === 0) ? Qt.rgba(1, 0.1, 0.2, 0.25) : "#131b26"
@@ -429,7 +408,6 @@ Item {
                         }
                     }
 
-                    // 3. RIGHT SIGNAL
                     Rectangle {
                         width: 58; height: 50; radius: 10
                         color: (root.rightSignal && !root.hazardActive && root.signalTick === 0) ? Qt.rgba(root.primary.r, root.primary.g, root.primary.b, 0.25) : "#131b26"
@@ -460,7 +438,6 @@ Item {
                         }
                     }
 
-                    // 4. LAMP (HEADLIGHT)
                     Rectangle {
                         width: 58; height: 50; radius: 10
                         color: root.headLight ? Qt.rgba(root.primary.r, root.primary.g, root.primary.b, 0.25) : "#131b26"

@@ -18,7 +18,6 @@ Item {
     onPrimaryChanged: calIcon.requestPaint()
     onWeatherIconColorChanged: weatherIcon.requestPaint()
 
-    // Background bar
     Rectangle {
         anchors.fill: parent
         anchors.leftMargin: 8
@@ -26,7 +25,6 @@ Item {
         anchors.topMargin: 4
         color: "transparent"
 
-        // 1. Digital Clock (Left)
         Row {
             anchors.left: parent.left
             anchors.leftMargin: 18
@@ -64,12 +62,10 @@ Item {
             }
         }
 
-        // 2. Date with Calendar Icon (Center)
         Row {
             anchors.centerIn: parent
             spacing: 8
 
-            // Calendar Icon
             Canvas {
                 id: calIcon
                 width: 16
@@ -108,7 +104,6 @@ Item {
             }
         }
 
-        // 3. Weather Pill (Right) - (User specifically requested: "bỏ cái chữ ble đi", keeping only weather!)
         Rectangle {
             anchors.right: parent.right
             anchors.rightMargin: 18
@@ -124,7 +119,6 @@ Item {
                 anchors.centerIn: parent
                 spacing: 6
 
-                // Animated Weather Icon
                 Canvas {
                     id: weatherIcon
                     width: 24
@@ -139,7 +133,6 @@ Item {
                         ctx.lineWidth = 2
                         ctx.lineCap = "round"
 
-                        // Cloud
                         ctx.beginPath()
                         ctx.arc(8, 8, 5, Math.PI, Math.PI * 2)
                         ctx.arc(15, 8, 4, Math.PI, Math.PI * 2)
@@ -148,7 +141,6 @@ Item {
                         ctx.closePath()
                         ctx.fill()
 
-                        // Rain drops
                         for (var i = 0; i < 3; i++) {
                             var yOffset = (animTick + i * 2) % 4
                             ctx.beginPath()

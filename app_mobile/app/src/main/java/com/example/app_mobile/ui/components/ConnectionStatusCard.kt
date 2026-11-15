@@ -61,7 +61,7 @@ fun ConnectionStatusCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Tiêu đề & Trạng thái
+
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     val (statusColor, statusText) = when (connectionState) {
                         is BleConnectionState.Connected -> Pair(StatusGreen, "ĐÃ KẾT NỐI")
@@ -71,7 +71,6 @@ fun ConnectionStatusCard(
                         is BleConnectionState.Error -> Pair(HazardCrimson, "LỖI")
                     }
 
-                    // Đèn tín hiệu trạng thái
                     Box(
                         modifier = Modifier
                             .size(12.dp)
@@ -87,7 +86,6 @@ fun ConnectionStatusCard(
                     )
                 }
 
-                // Nút hành động
                 when (connectionState) {
                     is BleConnectionState.Connected -> {
                         OutlinedButton(
@@ -119,7 +117,6 @@ fun ConnectionStatusCard(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Chi tiết thiết bị
             val detailText = when (connectionState) {
                 is BleConnectionState.Connected -> "${connectionState.deviceName} (${connectionState.address})"
                 is BleConnectionState.Connecting -> "Đang thiết lập kênh GATT..."
@@ -134,7 +131,6 @@ fun ConnectionStatusCard(
                 fontSize = 13.sp
             )
 
-            // Dòng lệnh gửi gần nhất
             AnimatedVisibility(visible = lastCommand.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(

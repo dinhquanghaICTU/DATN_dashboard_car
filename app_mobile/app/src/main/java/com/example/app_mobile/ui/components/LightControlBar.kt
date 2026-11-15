@@ -65,7 +65,7 @@ fun LightControlBar(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Xi-nhan Trái (TL)
+
                 LightButton(
                     icon = "⇦",
                     label = "XI-NHAN T",
@@ -76,7 +76,6 @@ fun LightControlBar(
                     modifier = Modifier.weight(1f)
                 )
 
-                // Đèn Pha (LAMP)
                 LightButton(
                     icon = "💡",
                     label = "ĐÈN PHA",
@@ -87,7 +86,6 @@ fun LightControlBar(
                     modifier = Modifier.weight(1f)
                 )
 
-                // Đèn Khẩn cấp (HAZ)
                 LightButton(
                     icon = "⚠️",
                     label = "HAZARD",
@@ -98,7 +96,6 @@ fun LightControlBar(
                     modifier = Modifier.weight(1f)
                 )
 
-                // Xi-nhan Phải (TR)
                 LightButton(
                     icon = "⇨",
                     label = "XI-NHAN P",

@@ -50,7 +50,7 @@ fun DirectionControlPad(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // Nút TIẾN
+
         DirectionButton(
             icon = "▲",
             label = "TIẾN",
@@ -63,12 +63,11 @@ fun DirectionControlPad(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // Hàng giữa: TRÁI - DỪNG - PHẢI
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            // Nút RẼ TRÁI
+
             DirectionButton(
                 icon = "◀",
                 label = "TRÁI",
@@ -81,7 +80,6 @@ fun DirectionControlPad(
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            // Nút PHANH / DỪNG ở giữa
             StopButton(
                 enabled = enabled,
                 size = buttonSize,
@@ -90,7 +88,6 @@ fun DirectionControlPad(
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            // Nút RẼ PHẢI
             DirectionButton(
                 icon = "▶",
                 label = "PHẢI",
@@ -104,7 +101,6 @@ fun DirectionControlPad(
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // Nút LÙI
         DirectionButton(
             icon = "▼",
             label = "LÙI",

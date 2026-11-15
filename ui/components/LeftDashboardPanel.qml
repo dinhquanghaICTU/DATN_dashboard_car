@@ -26,7 +26,6 @@ Item {
         anchors.fill: parent
         spacing: 12
 
-        // ================= CARD 1: BATTERY =================
         Rectangle {
             width: parent.width
             height: 156
@@ -40,7 +39,6 @@ Item {
                 anchors.margins: 14
                 spacing: 10
 
-                // Header
                 Row {
                     spacing: 6
                     Rectangle {
@@ -58,12 +56,10 @@ Item {
                     }
                 }
 
-                // Battery Graphic Body
                 Item {
                     width: parent.width
                     height: 72
 
-                    // Battery Terminal Nub (Right side)
                     Rectangle {
                         anchors.right: parent.right
                         anchors.rightMargin: 12
@@ -74,7 +70,6 @@ Item {
                         color: root.batteryLevel > 20 ? "#00e676" : root.dangerColor
                     }
 
-                    // Main Battery Frame
                     Rectangle {
                         id: batteryFrame
                         anchors.left: parent.left
@@ -88,7 +83,6 @@ Item {
                         border.color: root.batteryLevel > 20 ? "#00e676" : root.dangerColor
                         border.width: 2.5
 
-                        // Inner Battery Level Fill
                         Rectangle {
                             anchors.left: parent.left
                             anchors.top: parent.top
@@ -104,7 +98,6 @@ Item {
                             Behavior on width { NumberAnimation { duration: 250 } }
                         }
 
-                        // Percentage Text inside battery
                         Text {
                             anchors.centerIn: parent
                             text: root.batteryLevel.toFixed(0) + "%"
@@ -116,7 +109,6 @@ Item {
                     }
                 }
 
-                // Subtitle Status
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
                     text: root.batteryLevel > 50 ? "GOOD" : root.batteryLevel > 20 ? "MODERATE" : "LOW BATTERY"
@@ -129,7 +121,6 @@ Item {
             }
         }
 
-        // ================= CARD 2: ENGINE TEMP =================
         Rectangle {
             width: parent.width
             height: 172
@@ -143,7 +134,6 @@ Item {
                 anchors.margins: 14
                 spacing: 10
 
-                // Header
                 Row {
                     spacing: 6
                     Text {
@@ -161,7 +151,6 @@ Item {
                     }
                 }
 
-                // Temperature Value Display
                 Row {
                     spacing: 4
                     anchors.left: parent.left
@@ -184,13 +173,11 @@ Item {
                     }
                 }
 
-                // Horizontal Gauge Bar
                 Item {
                     width: parent.width - 8
                     height: 24
                     anchors.horizontalCenter: parent.horizontalCenter
 
-                    // Track background
                     Rectangle {
                         anchors.top: parent.top
                         anchors.left: parent.left
@@ -199,7 +186,6 @@ Item {
                         radius: 4
                         color: "#182232"
 
-                        // Active Progress Fill
                         Rectangle {
                             anchors.left: parent.left
                             anchors.top: parent.top
@@ -215,7 +201,6 @@ Item {
                             Behavior on width { NumberAnimation { duration: 250 } }
                         }
 
-                        // 50 degree red warning tick line
                         Rectangle {
                             x: parent.width * 0.5 - 1
                             y: -2
@@ -225,7 +210,6 @@ Item {
                         }
                     }
 
-                    // Gauge scale labels
                     Item {
                         anchors.top: parent.top
                         anchors.topMargin: 12
@@ -258,7 +242,6 @@ Item {
                     }
                 }
 
-                // Subtitle Status
                 Text {
                     anchors.left: parent.left
                     anchors.leftMargin: 4
@@ -272,7 +255,6 @@ Item {
             }
         }
 
-        // ================= BOTTOM: THEME SELECTOR =================
         Rectangle {
             width: parent.width
             height: 52
@@ -302,7 +284,6 @@ Item {
                 spacing: 6
                 z: 10
 
-                // Dot 1: Cyan (AQUA)
                 Item {
                     width: 36; height: 44
                     anchors.verticalCenter: parent.verticalCenter
@@ -334,7 +315,6 @@ Item {
                     }
                 }
 
-                // Dot 2: Green (FOREST)
                 Item {
                     width: 36; height: 44
                     anchors.verticalCenter: parent.verticalCenter
@@ -366,7 +346,6 @@ Item {
                     }
                 }
 
-                // Dot 3: Amber (AMBER)
                 Item {
                     width: 36; height: 44
                     anchors.verticalCenter: parent.verticalCenter
@@ -398,7 +377,6 @@ Item {
                     }
                 }
 
-                // Theme Name Badge
                 Item {
                     width: 64; height: 44
                     anchors.verticalCenter: parent.verticalCenter

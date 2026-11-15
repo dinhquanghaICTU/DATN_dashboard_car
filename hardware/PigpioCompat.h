@@ -9,8 +9,6 @@
 #include <chrono>
 #include <cstdint>
 
-// Desktop-only pigpio substitutes. They preserve the controller interfaces so
-// the QML dashboard can run without a pigpio daemon or Raspberry Pi peripherals.
 inline constexpr unsigned PI_INPUT = 0;
 inline constexpr unsigned PI_OUTPUT = 1;
 inline constexpr unsigned PI_PUD_UP = 2;
@@ -33,8 +31,6 @@ inline std::uint32_t get_current_tick(int)
         duration_cast<microseconds>(steady_clock::now().time_since_epoch()).count());
 }
 
-// Report unavailable I2C hardware on Desktop. TempSensor already handles these
-// negative return values and simply leaves the displayed sensor value unchanged.
 inline int i2c_open(int, unsigned, unsigned, unsigned) { return -1; }
 inline int i2c_close(int, unsigned) { return 0; }
 inline int i2c_read_byte_data(int, unsigned, unsigned) { return -1; }

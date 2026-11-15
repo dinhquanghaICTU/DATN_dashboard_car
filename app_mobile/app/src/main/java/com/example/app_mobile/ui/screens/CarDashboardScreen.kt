@@ -70,7 +70,6 @@ fun CarDashboardScreen(
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Header Cockpit
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -104,7 +103,6 @@ fun CarDashboardScreen(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // Card trạng thái kết nối BLE
             ConnectionStatusCard(
                 connectionState = connectionState,
                 lastCommand = lastCommand,
@@ -119,7 +117,6 @@ fun CarDashboardScreen(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // Card chỉnh tốc độ
             SpeedControlCard(
                 currentSpeed = currentSpeed,
                 onSpeedChange = { viewModel.setSpeed(it) },
@@ -128,7 +125,6 @@ fun CarDashboardScreen(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // Thanh điều khiển đèn tín hiệu
             LightControlBar(
                 headlightActive = headlightActive,
                 leftSignalActive = leftSignalActive,
@@ -143,7 +139,6 @@ fun CarDashboardScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Cụm D-PAD điều khiển lái xe
             DirectionControlPad(
                 activeDirection = activeDirection,
                 enabled = isConnected,
@@ -155,7 +150,6 @@ fun CarDashboardScreen(
             Spacer(modifier = Modifier.height(24.dp))
         }
 
-        // Dialog dò thiết bị BLE
         if (showScanDialog) {
             DeviceScanDialog(
                 devices = scannedDevices,

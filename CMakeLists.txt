@@ -4,9 +4,6 @@ project(DATN_dashboard_car VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# The Raspberry Pi build uses the real pigpio daemon. Desktop builds use the
-# small compatibility layer in hardware/PigpioCompat.h so the UI can be built
-# and run without Raspberry Pi hardware.
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(arm|armv[0-9].*|aarch64)$")
     set(DATN_RPI_HARDWARE_DEFAULT ON)
 else()

@@ -8,9 +8,6 @@ import androidx.core.content.ContextCompat
 
 object BlePermissionManager {
 
-    /**
-     * Danh sách quyền cần thiết tùy theo phiên bản Android
-     */
     fun getRequiredPermissions(): Array<String> {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             arrayOf(
@@ -25,9 +22,6 @@ object BlePermissionManager {
         }
     }
 
-    /**
-     * Kiểm tra xem ứng dụng đã được cấp đủ quyền BLE hay chưa
-     */
     fun hasRequiredPermissions(context: Context): Boolean {
         return getRequiredPermissions().all { permission ->
             ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED

@@ -69,10 +69,6 @@ class CarViewModel(private val bleManager: BleManager) : ViewModel() {
         _currentSpeed.value = speed.coerceIn(30, 100)
     }
 
-    /**
-     * Giữ nút để xe di chuyển:
-     * Gửi lệnh F:<speed>, B:<speed>, L:<speed>, R:<speed> theo đúng cú pháp Qt
-     */
     fun onDirectionPress(direction: DriveDirection) {
         _activeDirection.value = direction
         val speed = _currentSpeed.value
@@ -85,23 +81,16 @@ class CarViewModel(private val bleManager: BleManager) : ViewModel() {
         bleManager.sendCommand(cmd.rawValue)
     }
 
-    /**
-     * Nhả tay khỏi nút: Lập tức gửi lệnh S (STOP) để xe dừng an toàn
-     */
     fun onDirectionRelease() {
         _activeDirection.value = null
         bleManager.sendCommand(CarCommand.Stop.rawValue)
     }
 
-    /**
-     * Phanh khẩn cấp / Dừng xe
-     */
     fun emergencyStop() {
         _activeDirection.value = null
         bleManager.sendCommand(CarCommand.Stop.rawValue)
     }
 
-    // --- Điều khiển đèn ---
     fun toggleHeadlight() {
         _headlightActive.value = !_headlightActive.value
         bleManager.sendCommand(CarCommand.ToggleHeadlight.rawValue)

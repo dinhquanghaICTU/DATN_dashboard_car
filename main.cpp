@@ -22,16 +22,12 @@
 int main(int argc, char *argv[])
 {
 #ifdef DATN_RPI_HARDWARE
-    // ALWAYS force X11 / xcb on Raspberry Pi when displaying on the physical DSI screen.
-    // If DISPLAY is unset or set to SSH forwarding (e.g. localhost:10.0), override to local :0
-    // so the window renders on the connected physical screen instead of tunneling or falling back.
+
     QString disp = qEnvironmentVariable("DISPLAY");
     if (disp.isEmpty() || disp.startsWith("localhost:") || disp.contains(":1")) {
         qputenv("DISPLAY", ":0");
     }
 
-    // Force xcb platform plugin to avoid eglfs/DRM mode conflicts on screen DSI1
-    // (which causes DRM page flip permission denied -13 and triggers DSI panel test pattern).
     qputenv("QT_QPA_PLATFORM", "xcb");
 
     if (qEnvironmentVariableIsEmpty("XAUTHORITY")) {
@@ -42,15 +38,12 @@ int main(int argc, char *argv[])
         }
     }
 
-    // Single-instance enforcement: kill any other running instances of this app (from autostart or prior build)
     pid_t myPid = getpid();
     QProcess::execute("sh", {"-c", QString("pgrep -f appDATN_dashboa | grep -v %1 | xargs -r kill -9 2>/dev/null || true").arg(myPid)});
 
-    // Restart and reset Bluetooth BLE adapter to start fresh with the new app instance
     QProcess::execute("sh", {"-c", "sudo hciconfig hci0 reset 2>/dev/null; sudo hciconfig hci0 up 2>/dev/null || true"});
 #else
-    // The locally built host Qt has an XCB platform plugin but no Wayland
-    // plugin. Select XCB before QGuiApplication tries to load a platform.
+
     if (qEnvironmentVariableIsEmpty("QT_QPA_PLATFORM"))
         qputenv("QT_QPA_PLATFORM", "xcb");
 #endif
@@ -59,7 +52,7 @@ int main(int argc, char *argv[])
     if (pi < 0)
     { qCritical() << "pigpio_start failed with code" << pi
                   << "- check that pigpiod is running and TCP port 8888 is reachable";
-        return -1; 
+        return -1;
     }
 #ifdef DATN_RPI_HARDWARE
     qDebug() << "giao tiep duoc gpio";
@@ -88,7 +81,7 @@ int main(int argc, char *argv[])
 
     QThread* bleThread = new QThread(&app);
     BleServer* ble = new BleServer();
-    
+
     ble->moveToThread(bleThread);
     QObject::connect(bleThread, &QThread::started,
                      ble, &BleServer::start,
@@ -98,14 +91,13 @@ int main(int argc, char *argv[])
 
     QThread* tempThread = new QThread(&app);
     TempSensor* temp = new TempSensor(pi);
-    
+
     temp->moveToThread(tempThread);
     QObject::connect(tempThread, &QThread::started,
                      temp, &TempSensor::start,
                      Qt::QueuedConnection);
 
     tempThread->start(QThread::LowPriority);
-
 
     VehicleModel vehicle;
 
@@ -132,7 +124,7 @@ int main(int argc, char *argv[])
 
              if (op == "F") {
                  motor->forward(speed);
-                //  qDebug() << "tien";
+
              }
              else if (op == "B") {
                  motor->backward(speed);
@@ -152,16 +144,16 @@ int main(int argc, char *argv[])
          lights, [lights](const QString& cmd) {
              if      (cmd == "TL") {
                 lights->toggleLeftSignal();
-             }  
+             }
              else if (cmd == "TR") {
                 lights->toggleRightSignal();
-             }  
+             }
              else if (cmd == "HAZ") {
                 lights->toggleHazard();
-             } 
+             }
              else if (cmd == "LAMP"){
                 lights->toggleHeadLight();
-             } 
+             }
          }, Qt::QueuedConnection);
 
      QObject::connect(ble, &BleServer::commandReceived,

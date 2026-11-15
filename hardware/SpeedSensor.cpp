@@ -35,7 +35,7 @@ void SpeedSensor::start() {
     lastPulseTick.store(0);
     lastEmitTick.store(0);
     timer->start(SPEED_CALC_INTERVAL_MS);
-    // qDebug() << "[SpeedSensor] Started on thread:" << QThread::currentThreadId();
+
 }
 
 void SpeedSensor::stop() {
@@ -44,36 +44,9 @@ void SpeedSensor::stop() {
 }
 
 void SpeedSensor::onPulse(uint32_t tick) {
-    //cứ xung cạnh lên là nó tăng pulse lên 1
+
     pulseCount.fetch_add(1, std::memory_order_relaxed);
 
-
-    /*
-        vd by quang ha
-
-                Ban đầu:
-        lastPulseTick = 0
-
-        Xung 1:
-        tick = 1.000.000 µs
-        previousTick = 0
-        lastPulseTick = 1.000.000
-        → Chưa đủ 2 xung nên return
-
-        Xung 2:
-        tick = 1.010.000 µs
-        previousTick = 1.000.000
-        lastPulseTick = 1.010.000
-
-        Δt = 1.010.000 - 1.000.000
-        = 10.000 µs
-
-        RPM = 60.000.000 / (10.000 × 20)
-            = 300 RPM
-
-        speed = (300 / 60) × 0.2042 × 55
-      ≈ 56,16 m/s
-    */
     const uint32_t previousTick = lastPulseTick.exchange(tick, std::memory_order_relaxed);
     if (previousTick == 0) return;
 
@@ -81,9 +54,7 @@ void SpeedSensor::onPulse(uint32_t tick) {
     if (pulseDeltaUs < SPEED_MIN_PULSE_US) return;
 
     const float rpm = 60000000.0f / (pulseDeltaUs * (float)LM393_HOLES_PER_REV);
-    
-    
-    
+
     const float speed = (rpm / 60.0f) * WHEEL_CIRCUMFERENCE * SPEED_REALISTIC_SCALE;
     m_rpm.store(rpm, std::memory_order_relaxed);
     m_speed.store(speed, std::memory_order_relaxed);
@@ -96,19 +67,14 @@ void SpeedSensor::onPulse(uint32_t tick) {
 }
 
 void SpeedSensor::calculate() {
-    //reset bộ đếm xung =0
+
     pulseCount.exchange(0, std::memory_order_relaxed);
 
     const uint32_t lastTick = lastPulseTick.load(std::memory_order_relaxed);
     if (lastTick == 0) return;
 
     const uint32_t now = get_current_tick(pi);
-    
-    // qDebug() << "[SpeedSensor] current rpm:"
-    //          << m_rpm.load(std::memory_order_relaxed)
-    //          << "speed m/s:"
-    //          << m_speed.load(std::memory_order_relaxed);
-    
+
     if (now - lastTick < SPEED_ZERO_TIMEOUT_MS * 1000U) return;
     if (m_rpm.load(std::memory_order_relaxed) == 0.0f &&
         m_speed.load(std::memory_order_relaxed) == 0.0f) return;

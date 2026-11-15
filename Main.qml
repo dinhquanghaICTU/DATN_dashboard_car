@@ -14,7 +14,6 @@ Window {
     color: bgColor
     title: "DATN Dashboard"
 
-    // Keyboard shortcuts for quick testing (1: Aqua, 2: Forest, 3: Amber, Space/T: Next Theme)
     Item {
         focus: true
         Keys.onDigit1Pressed: root.applyTheme(0)
@@ -29,8 +28,6 @@ Window {
         }
     }
 
-    // Desktop Qt and RPi Qt were built without QtMultimedia QML backend.
-    // Dashboard appears immediately.
     property bool introActive: false
     property int themeIndex: 0
     property string themeName: themeIndex === 0 ? "AQUA" : themeIndex === 1 ? "FOREST" : "AMBER"
