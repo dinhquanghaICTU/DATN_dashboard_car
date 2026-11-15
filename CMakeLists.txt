@@ -25,7 +25,6 @@ qt_add_executable(appDATN_dashboard_car
     hardware/LedController.cpp      hardware/LedController.h
     hardware/SpeedSensor.cpp        hardware/SpeedSensor.h
     hardware/TempSensor.cpp         hardware/TempSensor.h
-    hardware/ConsoleInputWorker.h
     connectivity/BleServer.cpp      connectivity/BleServer.h
     models/VehicleModel.h
     config/AppConfig.h

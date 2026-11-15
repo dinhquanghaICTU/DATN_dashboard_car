@@ -13,20 +13,20 @@ if ! ping -c 1 -W 2 "$PI_IP" >/dev/null 2>&1; then
     exit 1
 fi
 
-echo "Stopping running instance on Pi..."
+echo "Stopping running instance on Pi and resetting BLE..."
 sshpass -p "$PI_PASS" ssh -o StrictHostKeyChecking=no "$PI_USER@$PI_IP" \
-    "killall -9 appDATN_dashboard_car 2>/dev/null || pkill -9 appDATN_dashboa 2>/dev/null || true"
+    "pkill -9 -f '\[a\]ppDATN_dashboa' 2>/dev/null || true; sudo hciconfig hci0 reset 2>/dev/null; sudo hciconfig hci0 up 2>/dev/null || true"
 
 echo "Copying binary to Pi..."
-sshpass -p "$PI_PASS" scp -o StrictHostKeyChecking=no "$LOCAL_BIN" "$PI_USER@$PI_IP:/home/pi/appDATN_dashboard_car"
+sshpass -p "$PI_PASS" scp -o StrictHostKeyChecking=no "$LOCAL_BIN" "$PI_USER@$PI_IP:/home/pi/appDATN_dashboard_car.tmp"
 
 echo "Installing binary to $REMOTE_BIN..."
 sshpass -p "$PI_PASS" ssh -o StrictHostKeyChecking=no "$PI_USER@$PI_IP" \
-    "echo $PI_PASS | sudo -S cp -f /home/pi/appDATN_dashboard_car $REMOTE_BIN && echo $PI_PASS | sudo -S chmod +x $REMOTE_BIN"
+    "echo $PI_PASS | sudo -S mv -f /home/pi/appDATN_dashboard_car.tmp $REMOTE_BIN && echo $PI_PASS | sudo -S chmod +x $REMOTE_BIN"
 
 echo "Starting application on display :0..."
 sshpass -p "$PI_PASS" ssh -o StrictHostKeyChecking=no "$PI_USER@$PI_IP" \
-    "bash -c 'nohup $REMOTE_BIN > /tmp/app.log 2>&1 &'"
+    "bash -c 'DISPLAY=:0 XAUTHORITY=/home/pi/.Xauthority nohup $REMOTE_BIN > /tmp/app.log 2>&1 &'"
 
 sleep 2
 echo "Checking app log on Pi..."
